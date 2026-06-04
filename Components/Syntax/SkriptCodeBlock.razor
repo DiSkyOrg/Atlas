@@ -1,0 +1,33 @@
+@* Highlighted Skript code + copy-on-hover + optional caption. *@
+@inject IJSRuntime JS
+
+<div class="code-block">
+    <button type="button" class="code-copy" style="@(_copied ? "opacity:1" : null)" @onclick="CopyAsync">
+        <LucideIcon Name="@(_copied ? "check" : "copy")" />
+        <span class="lbl">@(_copied ? "Copied" : "Copy")</span>
+    </button>
+    <pre>@Highlighted</pre>
+    @if (!string.IsNullOrEmpty(Caption))
+    {
+        <div class="code-caption">@Caption</div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Code { get; set; } = "";
+    [Parameter] public string? Caption { get; set; }
+
+    private bool _copied;
+
+    private MarkupString Highlighted => SkriptHighlighter.Highlight(Code);
+
+    private async Task CopyAsync()
+    {
+        try { await JS.InvokeAsync<bool>("atlas.copyText", Code); } catch { /* ignore */ }
+        _copied = true;
+        StateHasChanged();
+        await Task.Delay(1400);
+        _copied = false;
+        StateHasChanged();
+    }
+}

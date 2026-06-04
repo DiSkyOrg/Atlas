@@ -1,0 +1,76 @@
+@* Collapsible entity-tree sidebar built from the manifest hierarchy. *@
+@inject ManifestService Manifest
+@inject NavigationManager Nav
+@implements IDisposable
+
+<nav class="sidebar @(Open ? "open" : "")">
+    <button type="button" class="side-search" @onclick="OpenPaletteAsync">
+        <LucideIcon Name="search" />
+        <span>Search…</span>
+        <span class="kbd">⌘K</span>
+    </button>
+
+    @if (Manifest.HasCore)
+    {
+        <div class="group">
+            <div class="group-label">Core / Global</div>
+            <TreeNode Entity="Manifest.CoreEntity" ActiveId="@_activeId" Expanded="_expanded"
+                      OnToggle="Toggle" OnNavigate="NavigatedAsync" />
+        </div>
+    }
+
+    <div class="group">
+        <div class="group-label">Entities</div>
+        @foreach (var root in Manifest.Roots)
+        {
+            <TreeNode Entity="root" ActiveId="@_activeId" Expanded="_expanded"
+                      OnToggle="Toggle" OnNavigate="NavigatedAsync" />
+        }
+    </div>
+</nav>
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback OnOpenPalette { get; set; }
+    [Parameter] public EventCallback OnNavigated { get; set; }
+
+    private readonly HashSet<string> _expanded = new(StringComparer.OrdinalIgnoreCase);
+    private string? _activeId;
+
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+        UpdateActive();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateActive();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateActive()
+    {
+        var path = new Uri(Nav.Uri).AbsolutePath.Trim('/');
+        _activeId = string.IsNullOrEmpty(path) ? null : Uri.UnescapeDataString(path);
+
+        var entity = Manifest.GetEntity(_activeId);
+        if (entity is null) return;
+
+        foreach (var ancestor in Manifest.Ancestors(entity))
+            _expanded.Add(ancestor.Id);
+        if (Manifest.HasChildren(entity.Id))
+            _expanded.Add(entity.Id);
+    }
+
+    private void Toggle(string id)
+    {
+        if (!_expanded.Add(id))
+            _expanded.Remove(id);
+    }
+
+    private Task OpenPaletteAsync() => OnOpenPalette.InvokeAsync();
+    private Task NavigatedAsync() => OnNavigated.InvokeAsync();
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

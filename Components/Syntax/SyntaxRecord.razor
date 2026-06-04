@@ -1,0 +1,100 @@
+@* One syntax record: name + badges/chips, pattern signature(s), description, change
+   modes, intents, deprecation note, and collapsible examples. *@
+@inject ManifestService Manifest
+
+<article class="record" id="@Syntax.Id">
+    <div class="record-head">
+        <span class="rname">@Syntax.Name</span>
+        <a class="anchor" href="#@Syntax.Id" title="Link to this syntax" @onclick="CopyLinkAsync">
+            <LucideIcon Name="link" />
+        </a>
+        <KindBadge Kind="Syntax.Kind" />
+        <ReturnTypeChip Type="Syntax.ReturnType" List="Syntax.ReturnList" Href="@ReturnHref" />
+        @if (Syntax.Async is not null)
+        {
+            <AsyncBadge Async="Syntax.Async" />
+        }
+        @if (Syntax.Shared)
+        {
+            <SharedChip />
+        }
+        @if (Syntax.Deprecated)
+        {
+            <span class="badge badge-deprecated"><span class="dot"></span>deprecated</span>
+        }
+        <span class="grow"></span>
+        <SinceChip Since="@Syntax.Since" />
+    </div>
+
+    <div class="patterns">
+        @foreach (var pattern in Syntax.Patterns)
+        {
+            <SignatureLine Pattern="@pattern" />
+        }
+    </div>
+
+    @foreach (var paragraph in Syntax.Description)
+    {
+        <p class="desc">@paragraph</p>
+    }
+
+    @if (Syntax.Deprecated && !string.IsNullOrEmpty(Syntax.DeprecatedReason))
+    {
+        <div class="deprecated-note">@Syntax.DeprecatedReason</div>
+    }
+
+    @if (Syntax.ChangeModes is { Count: > 0 })
+    {
+        <div class="record-foot">
+            <span class="cm-label">change modes</span>
+            <ChangeModeBadges Modes="Syntax.ChangeModes" />
+        </div>
+    }
+
+    @if (Syntax.RequiredIntents is { Count: > 0 })
+    {
+        <div class="record-foot">
+            <span class="cm-label">intents</span>
+            @foreach (var intent in Syntax.RequiredIntents)
+            {
+                <span class="chip intent-chip">@intent</span>
+            }
+        </div>
+    }
+
+    @if (Syntax.Examples is { Count: > 0 })
+    {
+        <button type="button" class="ex-toggle" @onclick="() => _showExamples = !_showExamples">
+            <span class="chev @(_showExamples ? "open" : "")"><LucideIcon Name="chevron-right" /></span>
+            @(_showExamples ? "Hide" : "Show") example@(Syntax.Examples.Count > 1 ? "s" : "")
+        </button>
+        @if (_showExamples)
+        {
+            <div class="examples">
+                @foreach (var example in Syntax.Examples)
+                {
+                    <SkriptCodeBlock Code="@example" />
+                }
+            </div>
+        }
+    }
+</article>
+
+@code {
+    [Parameter, EditorRequired] public SyntaxInfo Syntax { get; set; } = default!;
+
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+    private bool _showExamples;
+
+    private string? ReturnHref =>
+        Syntax.ReturnType is { } rt && Manifest.GetEntity(rt.Id) is not null ? $"/{rt.Id}" : null;
+
+    private async Task CopyLinkAsync()
+    {
+        // Fragment navigation still scrolls/updates the hash; we also copy the absolute link.
+        var baseUri = Nav.Uri.Split('#')[0];
+        try { await JS.InvokeAsync<bool>("atlas.copyText", $"{baseUri}#{Syntax.Id}"); } catch { /* ignore */ }
+    }
+}

@@ -1,0 +1,39 @@
+/* ============================================================================
+   DiSky Atlas — BlazorBlueprint ⇄ DiSky token bridge.
+
+   Blueprint's components read the shadcn variable contract (--background,
+   --card, --popover, --secondary, --muted, --accent, --input, …). The DiSky
+   design system (colors_and_type.css) already owns the colliding names
+   --primary, --border, --ring and --destructive, so Blueprint inherits those
+   for free. Here we define the shadcn vars DiSky does NOT, pointing each at a
+   DiSky token. Because the DiSky tokens are theme-aware ([data-theme]), a single
+   :root block is correct for both themes — no per-theme duplication needed.
+
+   Load order: blazorblueprint.css → colors_and_type.css → ds-components.css →
+   THIS FILE → site.css. We do not load Blueprint's themes.css (its rules are
+   scoped to data-base-color attributes we never set).
+   ========================================================================== */
+:root {
+  --background:            var(--bg);
+  --foreground:            var(--fg);
+  --card:                  var(--bg-raised);
+  --card-foreground:       var(--fg);
+  --popover:               var(--bg-raised);
+  --popover-foreground:    var(--fg);
+  --primary-foreground:    var(--primary-fg);
+  --secondary:             var(--bg-hover);
+  --secondary-foreground:  var(--fg);
+  --muted:                 var(--bg-hover);
+  --muted-foreground:      var(--fg-muted);
+  --accent:                var(--bg-hover);
+  --accent-foreground:     var(--fg);
+  --destructive-foreground: #ffffff;
+  --input:                 var(--border-strong);
+  --radius:                0.375rem;
+}
+
+/* Blueprint components should speak the DiSky type voice, not Tailwind's default. */
+.bb-portal-host,
+[class*="bb-"] {
+  font-family: var(--font-sans);
+}

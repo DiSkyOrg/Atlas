@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="dark">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <base href="/"/>
+
+    @* Apply the saved theme before first paint to avoid a flash of the wrong theme. *@
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('disky-theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', t);
+                document.documentElement.classList.toggle('dark', t === 'dark');
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
+    <ResourcePreloader/>
+
+    @* Blueprint first, then the DiSky design tokens, then the bridge + layout. *@
+    <link rel="stylesheet" href="_content/BlazorBlueprint.Components/blazorblueprint.css"/>
+    <link rel="stylesheet" href="css/colors_and_type.css"/>
+    <link rel="stylesheet" href="css/ds-components.css"/>
+    <link rel="stylesheet" href="css/theme-bridge.css"/>
+    <link rel="stylesheet" href="css/site.css"/>
+    <link rel="stylesheet" href="@Assets["app.css"]"/>
+    <link rel="stylesheet" href="@Assets["DiSkyAtlas.styles.css"]"/>
+
+    <link rel="icon" type="image/png" href="assets/favicon.png"/>
+
+    <ImportMap/>
+    <HeadOutlet @rendermode="InteractiveServer"/>
+</head>
+
+<body>
+<Routes @rendermode="InteractiveServer"/>
+<ReconnectModal/>
+<script src="@Assets["_framework/blazor.web.js"]"></script>
+<script src="js/atlas.js"></script>
+</body>
+
+</html>

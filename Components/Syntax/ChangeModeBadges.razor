@@ -1,0 +1,14 @@
+@* Change-mode pill cluster — delete renders destructive. *@
+@if (Modes is { Count: > 0 })
+{
+    <span class="changemodes">
+        @foreach (var mode in Modes)
+        {
+            <span class="cm@(mode == ChangeMode.Delete ? " cm-delete" : "")">@mode.ToString().ToLowerInvariant()</span>
+        }
+    </span>
+}
+
+@code {
+    [Parameter] public IReadOnlyList<ChangeMode>? Modes { get; set; }
+}

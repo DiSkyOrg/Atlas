@@ -1,0 +1,20 @@
+@* Return-type chip. Links to the type's entity page when one exists. *@
+@if (Type is not null)
+{
+    @if (Href is not null)
+    {
+        <a class="chip chip-return" href="@Href">@Display</a>
+    }
+    else
+    {
+        <span class="chip chip-return">@Display</span>
+    }
+}
+
+@code {
+    [Parameter] public TypeRef? Type { get; set; }
+    [Parameter] public bool List { get; set; }
+    [Parameter] public string? Href { get; set; }
+
+    private string Display => List ? $"List<{Type!.Name}>" : Type!.Name;
+}

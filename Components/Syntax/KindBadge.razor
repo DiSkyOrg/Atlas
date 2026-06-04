@@ -1,0 +1,8 @@
+@* Kind badge — neutral fill + a hue-tinted dot/label (design ds-components.css). *@
+<span class="badge kind-@Slug"><span class="dot"></span>@Slug</span>
+
+@code {
+    [Parameter, EditorRequired] public SyntaxKind Kind { get; set; }
+
+    private string Slug => ManifestService.KindSlug(Kind);
+}

@@ -1,0 +1,221 @@
+/* ============================================================================
+   DiSky Design System — Reusable Component Styles
+   Depends on colors_and_type.css (tokens). Pure CSS, framework-agnostic.
+   Covers: buttons, badges (kind / change-mode / meta), chips, code blocks,
+   syntax-highlight token classes, signature rows, sidebar items, skeletons.
+   ========================================================================== */
+
+/* ---- Buttons ---------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+  user-select: none;
+}
+.btn:active { transform: translateY(0.5px); }
+
+.btn-primary { background: var(--primary); color: var(--primary-fg); }
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-secondary { background: var(--bg-raised); color: var(--fg); border-color: var(--border-strong); }
+.btn-secondary:hover { background: var(--bg-hover); }
+
+.btn-ghost { background: transparent; color: var(--fg-muted); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--fg); }
+
+.btn-sm { padding: 0.3125rem 0.625rem; font-size: var(--fs-caption); }
+.btn-icon { padding: 0.4375rem; }
+
+/* ---- Badges: KIND ----------------------------------------------------- */
+/* Muted, distinct, not loud. Neutral fill + a hue-tinted left dot/border. */
+.badge {
+  display: inline-flex; align-items: center; gap: 0.4em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-inset);
+  color: var(--fg-muted);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+.badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+
+.kind-expression { color: var(--sky-300); }
+.kind-effect     { color: var(--blurple-300); }
+.kind-condition  { color: var(--emerald-300); }
+.kind-event      { color: var(--amber-300); }
+.kind-section    { color: #f0abfc; }       /* fuchsia-300 */
+.kind-structure  { color: #fda4af; }       /* rose-300 */
+.kind-type       { color: var(--fg-faint); }
+/* light-theme overrides keep them legible on white */
+[data-theme="light"] .kind-expression { color: var(--sky-600); }
+[data-theme="light"] .kind-effect     { color: var(--blurple-600); }
+[data-theme="light"] .kind-condition  { color: var(--emerald-600); }
+[data-theme="light"] .kind-event      { color: var(--amber-600); }
+[data-theme="light"] .kind-section    { color: #c026d3; }
+[data-theme="light"] .kind-structure  { color: var(--rose-600); }
+[data-theme="light"] .kind-type       { color: var(--fg-faint); }
+
+/* ---- Badges: CHANGE MODES (settable properties) ----------------------- */
+.changemodes { display: inline-flex; gap: 0.3125rem; flex-wrap: wrap; }
+.cm {
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  padding: 0.125rem 0.4375rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-inset);
+  color: var(--fg-muted);
+  line-height: 1.5;
+}
+.cm-delete {
+  color: var(--destructive);
+  background: var(--destructive-bg);
+  border-color: var(--destructive-bd);
+}
+
+/* ---- Chips: return type / since / shared ------------------------------ */
+.chip {
+  display: inline-flex; align-items: center; gap: 0.35em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-caption);
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--fg);
+  line-height: 1.5;
+}
+.chip-return { color: var(--sky-300); }
+[data-theme="light"] .chip-return { color: var(--sky-600); }
+.chip-since { color: var(--fg-faint); background: transparent; border-color: var(--border); }
+.chip-shared {
+  color: var(--blurple-300); border-color: var(--blurple-600);
+  background: rgba(88,101,242,0.10);
+  font-family: var(--font-sans); font-weight: 600; font-size: var(--fs-micro);
+  letter-spacing: var(--tracking-wide); text-transform: uppercase;
+}
+[data-theme="light"] .chip-shared { color: var(--blurple-600); }
+
+/* ---- Code block ------------------------------------------------------- */
+.code-block {
+  position: relative;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.code-block pre {
+  margin: 0;
+  padding: 1rem 1.125rem;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-code);
+  line-height: 1.7;
+  color: var(--code-fg);
+  tab-size: 4;
+}
+.code-block .code-caption {
+  font-size: var(--fs-caption);
+  color: var(--fg-faint);
+  padding: 0.5rem 1.125rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-inset);
+}
+.code-copy {
+  position: absolute; top: 0.625rem; right: 0.625rem;
+  opacity: 0; transition: opacity var(--dur) var(--ease), background var(--dur) var(--ease);
+  display: inline-flex; align-items: center; gap: 0.35em;
+  font-family: var(--font-sans); font-size: var(--fs-micro); font-weight: 500;
+  color: var(--fg-muted);
+  padding: 0.3125rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-raised);
+  cursor: pointer;
+}
+.code-block:hover .code-copy { opacity: 1; }
+.code-copy:hover { background: var(--bg-hover); color: var(--fg); }
+
+/* ---- Syntax-highlight token classes ----------------------------------- */
+.tok-comment { color: var(--syn-comment); font-style: italic; }
+.tok-kw      { color: var(--syn-keyword); }
+.tok-eff     { color: var(--syn-effect); }
+.tok-str     { color: var(--syn-string); }
+.tok-num     { color: var(--syn-number); }
+.tok-type    { color: var(--syn-type); }
+.tok-punc    { color: var(--syn-punc); }
+.tok-var     { color: var(--syn-var); }
+
+/* ---- Syntax SIGNATURE row (the pattern) ------------------------------- */
+.signature {
+  font-family: var(--font-mono);
+  font-size: var(--fs-name);
+  line-height: 1.6;
+  color: var(--fg);
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+}
+.ph { /* %type% placeholder, javadoc-style */
+  color: var(--syn-type);
+  background: var(--syn-placeholder-bg);
+  border-radius: var(--radius-sm);
+  padding: 0 0.25em;
+  font-style: italic;
+}
+.opt { color: var(--fg-faint); } /* [optional] segments */
+
+/* ---- Anchor-on-hover (# deep link) ------------------------------------ */
+.anchor-target { position: relative; }
+.anchor-link {
+  position: absolute; left: -1.4em; top: 50%; transform: translateY(-50%);
+  opacity: 0; transition: opacity var(--dur) var(--ease);
+  color: var(--fg-faint); font-family: var(--font-mono); text-decoration: none;
+}
+.anchor-target:hover .anchor-link { opacity: 1; }
+.anchor-link:hover { color: var(--primary); }
+
+/* ---- Sidebar tree item ------------------------------------------------ */
+.tree-item {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: var(--fs-body);
+  color: var(--fg-muted);
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.tree-item:hover { background: var(--bg-hover); color: var(--fg); }
+.tree-item.active {
+  background: rgba(88,101,242,0.12);
+  color: var(--link);
+  border-left-color: var(--primary);
+  font-weight: 500;
+}
+
+/* ---- Skeleton loading ------------------------------------------------- */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-hover) 25%, var(--bg-raised) 50%, var(--bg-hover) 75%);
+  background-size: 200% 100%;
+  animation: ds-shimmer 1.4s var(--ease) infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes ds-shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }

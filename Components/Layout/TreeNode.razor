@@ -1,0 +1,48 @@
+@* One row in the entity tree. Recurses for children. Whole row links to the entity;
+   the chevron toggles expansion without navigating. *@
+@inject ManifestService Manifest
+
+<a class="tree-row @(IsActive ? "active" : "")" href="/@Entity.Id" @onclick="HandleNavigate">
+    @if (HasChildren)
+    {
+        <span class="chev @(IsExpanded ? "open" : "")"
+              @onclick="ToggleExpand" @onclick:preventDefault @onclick:stopPropagation>
+            <LucideIcon Name="chevron-right" />
+        </span>
+    }
+    else
+    {
+        <span class="leaf-icon"><LucideIcon Name="@ManifestService.EntityIcon(Entity)" /></span>
+    }
+    <span class="label">@Manifest.DisplayName(Entity)</span>
+    @if (Entity.Syntaxes.Count > 0)
+    {
+        <span class="count">@Entity.Syntaxes.Count</span>
+    }
+</a>
+
+@if (HasChildren && IsExpanded)
+{
+    <div class="nest">
+        @foreach (var child in Manifest.Children(Entity.Id))
+        {
+            <TreeNode Entity="child" ActiveId="@ActiveId" Expanded="Expanded"
+                      OnToggle="OnToggle" OnNavigate="OnNavigate" />
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public EntityInfo Entity { get; set; } = default!;
+    [Parameter] public string? ActiveId { get; set; }
+    [Parameter] public HashSet<string> Expanded { get; set; } = new();
+    [Parameter] public EventCallback<string> OnToggle { get; set; }
+    [Parameter] public EventCallback OnNavigate { get; set; }
+
+    private bool HasChildren => Manifest.HasChildren(Entity.Id);
+    private bool IsExpanded => Expanded.Contains(Entity.Id);
+    private bool IsActive => string.Equals(ActiveId, Entity.Id, StringComparison.OrdinalIgnoreCase);
+
+    private Task ToggleExpand() => OnToggle.InvokeAsync(Entity.Id);
+    private Task HandleNavigate() => OnNavigate.InvokeAsync();
+}

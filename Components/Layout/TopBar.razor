@@ -1,0 +1,39 @@
+@* Fixed top bar: sidebar toggle (mobile) · brand · search trigger · GitHub · theme. *@
+@inject ManifestService Manifest
+
+<header class="topbar">
+    <button type="button" class="icon-btn sidebar-toggle" title="Toggle sidebar"
+            aria-label="Toggle sidebar" @onclick="ToggleSidebarAsync">
+        <LucideIcon Name="panel-left" />
+    </button>
+
+    <a class="brand" href="/">
+        <img src="assets/disky-logo.png" alt="DiSky" />
+        <span class="name">DiSky</span>
+        <span class="vtag">@Version</span>
+    </a>
+
+    <div class="spacer"></div>
+
+    <button type="button" class="search-trigger" @onclick="OpenPaletteAsync">
+        <LucideIcon Name="search" />
+        <span class="label-text">Search entities &amp; syntaxes…</span>
+        <span class="kbd"><kbd>⌘</kbd><kbd>K</kbd></span>
+    </button>
+
+    <a class="icon-btn" href="https://github.com/DiSkyOrg/DiSky" target="_blank" rel="noreferrer" title="DiSky on GitHub">
+        <LucideIcon Name="github" />
+    </a>
+
+    <ThemeToggle />
+</header>
+
+@code {
+    [Parameter] public EventCallback OnOpenPalette { get; set; }
+    [Parameter] public EventCallback OnToggleSidebar { get; set; }
+
+    private string Version => "v" + (Manifest.Manifest.DiskyVersion?.Split('.').FirstOrDefault() ?? "5");
+
+    private Task OpenPaletteAsync() => OnOpenPalette.InvokeAsync();
+    private Task ToggleSidebarAsync() => OnToggleSidebar.InvokeAsync();
+}

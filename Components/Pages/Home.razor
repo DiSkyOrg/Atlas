@@ -1,0 +1,48 @@
+@page "/"
+@inject ManifestService Manifest
+
+<PageTitle>DiSky Atlas — Skript-for-Discord syntax reference</PageTitle>
+
+<div class="home">
+    <div class="home-hero">
+        <img src="assets/disky-logo.png" alt="DiSky" />
+        <h1>DiSky Atlas</h1>
+        <span class="vtag">@Version</span>
+    </div>
+
+    <p class="home-lead">
+        A javadoc-style reference for <strong>DiSky</strong> — browse every Discord entity and the
+        exhaustive list of Skript syntaxes it exposes: real patterns, return types, change modes and
+        copyable examples, generated straight from the plugin. Press
+        <kbd>⌘</kbd><kbd>K</kbd> to search anything.
+    </p>
+
+    <div class="home-stats">
+        <div class="stat"><div class="num">@EntityCount</div><div class="lbl">Entities</div></div>
+        <div class="stat"><div class="num">@SyntaxCount</div><div class="lbl">Syntaxes</div></div>
+        <div class="stat"><div class="num">@TypeCount</div><div class="lbl">Types</div></div>
+    </div>
+
+    <div class="label-eyebrow home-section-label">Entities</div>
+    <div class="home-grid">
+        @foreach (var entity in Manifest.Roots)
+        {
+            var total = Manifest.TotalSyntaxCount(entity);
+            <a class="ecard" href="/@entity.Id">
+                <div class="ec-head">
+                    <span class="ec-icon"><LucideIcon Name="@ManifestService.EntityIcon(entity)" /></span>
+                    <span class="ec-name">@Manifest.DisplayName(entity)</span>
+                </div>
+                <div class="ec-desc">@EntityBlurbs.For(entity, Manifest.DisplayName(entity))</div>
+                <div class="ec-count">@total synta@(total == 1 ? "x" : "xes")</div>
+            </a>
+        }
+    </div>
+</div>
+
+@code {
+    private string Version => "v" + (Manifest.Manifest.DiskyVersion?.Split('.').FirstOrDefault() ?? "5");
+    private int EntityCount => Manifest.Manifest.Entities.Count;
+    private int SyntaxCount => Manifest.Manifest.Entities.Sum(e => e.Syntaxes.Count) + Manifest.Manifest.Core.Count;
+    private int TypeCount => Manifest.Manifest.Types.Count;
+}

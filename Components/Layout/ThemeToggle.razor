@@ -1,0 +1,33 @@
+@* Dark ⇄ light toggle. The actual theme switch + persistence lives in atlas.js,
+   which drives both [data-theme] (DiSky tokens) and the .dark class (Blueprint). *@
+@inject IJSRuntime JS
+
+<button type="button" class="icon-btn" title="Toggle theme" aria-label="Toggle theme" @onclick="Toggle">
+    <LucideIcon Name="@(_dark ? "sun" : "moon")" />
+</button>
+
+@code {
+    private bool _dark = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        try
+        {
+            var theme = await JS.InvokeAsync<string>("atlas.getTheme");
+            var dark = theme != "light";
+            if (dark != _dark)
+            {
+                _dark = dark;
+                StateHasChanged();
+            }
+        }
+        catch { /* JS not ready during prerender */ }
+    }
+
+    private async Task Toggle()
+    {
+        var theme = await JS.InvokeAsync<string>("atlas.toggleTheme");
+        _dark = theme == "dark";
+    }
+}

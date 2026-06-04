@@ -1,0 +1,9 @@
+@* "since x.y.z" chip. *@
+@if (!string.IsNullOrEmpty(Since))
+{
+    <span class="chip chip-since">since @Since</span>
+}
+
+@code {
+    [Parameter] public string? Since { get; set; }
+}

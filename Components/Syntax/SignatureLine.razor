@@ -1,0 +1,22 @@
+@* Skript pattern signature — %type% placeholders + [optional] segments, javadoc-style. *@
+<div class="signature">@foreach (var token in Tokens)
+    {
+        switch (token.Kind)
+        {
+            case PatternTokenizer.TokenKind.Placeholder:
+                <span class="ph">@token.Value</span>
+                break;
+            case PatternTokenizer.TokenKind.Optional:
+                <span class="opt">@token.Value</span>
+                break;
+            default:
+                @token.Value
+                break;
+        }
+    }</div>
+
+@code {
+    [Parameter, EditorRequired] public string Pattern { get; set; } = "";
+
+    private IReadOnlyList<PatternTokenizer.Token> Tokens => PatternTokenizer.Tokenize(Pattern);
+}

@@ -1,0 +1,25 @@
+@* Async marker — the syntax talks to Discord over REST and can be awaited. *@
+<BbTooltip Placement="PopoverPlacement.Top">
+    <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
+        <span class="chip chip-async"><LucideIcon Name="zap" />@Label</span>
+    </BbTooltipTrigger>
+    <BbTooltipContent>@Description</BbTooltipContent>
+</BbTooltip>
+
+@code {
+    [Parameter, EditorRequired] public AsyncInfo Async { get; set; } = default!;
+
+    private string Label => Async.Awaitable ? "await" : "async";
+
+    private string Description
+    {
+        get
+        {
+            if (Async.RetrieveOnly)
+                return "Fetched from Discord on demand — prefix with \"await\" to retrieve it without blocking the script.";
+            if (Async.RestBacked)
+                return "Backed by a Discord REST call — prefix with \"await\" so the request runs without blocking the script.";
+            return "Can be prefixed with \"await\" to run without blocking the script.";
+        }
+    }
+}

@@ -1,0 +1,32 @@
+@inherits LayoutComponentBase
+
+<div class="app">
+    <TopBar OnOpenPalette="OpenPalette" OnToggleSidebar="ToggleSidebar" />
+    <div class="body">
+        <Sidebar Open="_sidebarOpen" OnOpenPalette="OpenPalette" OnNavigated="CloseSidebar" />
+        <div class="scrim @(_sidebarOpen ? "show" : "")" @onclick="CloseSidebar"></div>
+        <main class="content">
+            @Body
+        </main>
+    </div>
+</div>
+
+<CommandPalette @ref="_palette" />
+
+@* Required for BlazorBlueprint overlay components (tooltips, etc.). *@
+<BbPortalHost />
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    private CommandPalette _palette = default!;
+    private bool _sidebarOpen;
+
+    private Task OpenPalette() => _palette.Open();
+    private void ToggleSidebar() => _sidebarOpen = !_sidebarOpen;
+    private void CloseSidebar() => _sidebarOpen = false;
+}

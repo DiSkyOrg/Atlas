@@ -1,0 +1,27 @@
+@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>Error — DiSky Atlas</PageTitle>
+
+<div class="page">
+    <div class="empty">
+        <span class="empty-icon"><LucideIcon Name="triangle-alert" /></span>
+        <h2>Something went wrong</h2>
+        <p>An error occurred while processing your request. Try reloading, or head back to the overview.</p>
+        @if (ShowRequestId)
+        {
+            <p class="caption">Request ID: <code>@RequestId</code></p>
+        }
+        <a class="btn btn-secondary" href="/">Back to overview</a>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}

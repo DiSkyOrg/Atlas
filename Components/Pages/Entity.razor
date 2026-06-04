@@ -1,0 +1,147 @@
+@page "/{EntityId}"
+@inject ManifestService Manifest
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
+
+@if (_entity is null)
+{
+    <PageTitle>Not found — DiSky Atlas</PageTitle>
+    <div class="page">
+        <div class="empty">
+            <span class="empty-icon"><LucideIcon Name="search-x" /></span>
+            <h2>Unknown entity</h2>
+            <p>There's no entity called “@EntityId”. Open search with <kbd>⌘</kbd><kbd>K</kbd> or pick one from the sidebar.</p>
+        </div>
+    </div>
+}
+else
+{
+    <PageTitle>@Manifest.DisplayName(_entity) — DiSky Atlas</PageTitle>
+    <div class="page">
+        <nav class="crumb">
+            <a href="/">Entities</a>
+            @foreach (var ancestor in Manifest.Ancestors(_entity))
+            {
+                <span class="sep">/</span>
+                <a href="/@ancestor.Id">@Manifest.DisplayName(ancestor)</a>
+            }
+            <span class="sep">/</span>
+            <span class="cur">@Manifest.DisplayName(_entity)</span>
+        </nav>
+
+        <div class="page-head">
+            <span class="head-icon"><LucideIcon Name="@ManifestService.EntityIcon(_entity)" /></span>
+            <h1>@Manifest.DisplayName(_entity)</h1>
+            <span class="badge kind-type"><span class="dot"></span>type</span>
+        </div>
+
+        <p class="page-lead">@EntityBlurbs.For(_entity, Manifest.DisplayName(_entity))</p>
+
+        <div class="page-meta">
+            <span class="chip chip-since">@_entity.Syntaxes.Count synta@(_entity.Syntaxes.Count == 1 ? "x" : "xes")</span>
+            @if (Manifest.HasChildren(_entity.Id))
+            {
+                var n = Manifest.Children(_entity.Id).Count;
+                <span class="chip chip-list">@n subtype@(n == 1 ? "" : "s")</span>
+            }
+            @if (_entity.ParentId is { } pid && Manifest.GetEntity(pid) is { } parent)
+            {
+                <a class="chip chip-return" href="/@parent.Id">extends @Manifest.DisplayName(parent)</a>
+            }
+            @if (!string.IsNullOrEmpty(_entity.JdaType))
+            {
+                <span class="page-jda">@_entity.JdaType</span>
+            }
+        </div>
+
+        @if (_groups.Count == 0)
+        {
+            <div class="empty">
+                <span class="empty-icon"><LucideIcon Name="box" /></span>
+                <h2>No syntaxes here yet</h2>
+                <p>
+                    This type doesn't document any syntaxes directly@(Manifest.HasChildren(_entity.Id)
+                        ? " — its subtypes in the sidebar do." : ".")
+                </p>
+            </div>
+        }
+        else
+        {
+            @foreach (var group in _groups)
+            {
+                <section>
+                    <div class="section-head">
+                        <h2>@group.Label</h2>
+                        <span class="n">@group.Items.Count</span>
+                    </div>
+                    @foreach (var syntax in group.Items)
+                    {
+                        <SyntaxRecord Syntax="syntax" />
+                    }
+                </section>
+            }
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string EntityId { get; set; } = "";
+
+    private EntityInfo? _entity;
+    private IReadOnlyList<KindGroup> _groups = [];
+    private string? _lastEntityId;
+    private string? _pendingHash;
+    private bool _resetScroll;
+
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    protected override void OnParametersSet()
+    {
+        _entity = Manifest.GetEntity(EntityId);
+        _groups = _entity is null ? [] : Manifest.GroupByKind(_entity.Syntaxes);
+
+        _pendingHash = GetHash();
+        if (!string.Equals(_lastEntityId, EntityId, StringComparison.OrdinalIgnoreCase))
+        {
+            _resetScroll = _pendingHash is null;
+            _lastEntityId = EntityId;
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        // Fragment-only navigation (same entity, different #anchor) doesn't re-run
+        // OnParametersSet, so handle the scroll target here.
+        var hash = GetHash();
+        if (hash is not null)
+        {
+            _pendingHash = hash;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_pendingHash is { Length: > 0 } hash)
+        {
+            _pendingHash = null;
+            _resetScroll = false;
+            try { await JS.InvokeVoidAsync("atlas.scrollToId", hash, true); } catch { /* ignore */ }
+        }
+        else if (_resetScroll)
+        {
+            _resetScroll = false;
+            try { await JS.InvokeVoidAsync("atlas.scrollTop", ".content"); } catch { /* ignore */ }
+        }
+    }
+
+    private string? GetHash()
+    {
+        var uri = Nav.Uri;
+        var i = uri.IndexOf('#');
+        return i >= 0 && i < uri.Length - 1 ? uri[(i + 1)..] : null;
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

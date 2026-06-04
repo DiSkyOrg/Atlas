@@ -1,0 +1,212 @@
+@* ⌘K command palette — fuzzy search across entities + syntaxes, grouped results,
+   keyboard navigation. The ⌘K/Ctrl+K hotkey is wired through atlas.js. *@
+@inject ManifestService Manifest
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+@if (_open)
+{
+    <div class="overlay" @onclick="Close">
+        <div class="palette" role="dialog" aria-label="Command palette" @onclick:stopPropagation>
+            <div class="pal-input">
+                <LucideIcon Name="search" />
+                <input @ref="_input" type="text" value="@_query" @oninput="OnInput" @onkeydown="OnKeyDown"
+                       placeholder="Search entities & syntaxes…" autocomplete="off" spellcheck="false" />
+                <span class="esc">ESC</span>
+            </div>
+
+            <div class="pal-results">
+                @if (_flat.Count == 0)
+                {
+                    <div class="pal-empty">No results for “@_query”. Try a broader term.</div>
+                }
+                else
+                {
+                    var index = 0;
+                    if (_entities.Count > 0)
+                    {
+                        <div class="pal-group">Entities</div>
+                        foreach (var item in _entities)
+                        {
+                            var i = index++;
+                            @PalRow(item, i)
+                        }
+                    }
+                    if (_syntaxes.Count > 0)
+                    {
+                        <div class="pal-group">Syntaxes</div>
+                        foreach (var item in _syntaxes)
+                        {
+                            var i = index++;
+                            @PalRow(item, i)
+                        }
+                    }
+                }
+            </div>
+
+            <div class="pal-foot">
+                <span><span class="k">↑↓</span>navigate</span>
+                <span><span class="k">↵</span>open</span>
+                <span><span class="k">esc</span>close</span>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _open;
+    private string _query = "";
+    private int _sel;
+    private bool _focusPending;
+    private ElementReference _input;
+
+    private List<SearchItem> _entities = [];
+    private List<SearchItem> _syntaxes = [];
+    private List<SearchItem> _flat = [];
+
+    private DotNetObjectReference<CommandPalette>? _ref;
+    private bool _hotkeyRegistered;
+
+    private RenderFragment PalRow(SearchItem item, int i) => __builder =>
+    {
+        <div class="pal-row @(i == _sel ? "sel" : "")" @onmouseenter="() => _sel = i" @onclick="() => Choose(item)">
+            <span class="pn">@item.Name</span>
+            <span class="badge kind-@item.Kind"><span class="dot"></span>@item.Kind</span>
+            <span class="par">@item.Parent</span>
+        </div>
+    };
+
+    public Task Open()
+    {
+        _open = true;
+        _query = "";
+        _sel = 0;
+        _focusPending = true;
+        Recompute();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task OpenPalette() => Open();
+
+    private void Close() => _open = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_hotkeyRegistered)
+        {
+            _ref = DotNetObjectReference.Create(this);
+            try
+            {
+                await JS.InvokeVoidAsync("atlas.registerHotkey", _ref);
+                _hotkeyRegistered = true;
+            }
+            catch { /* JS not ready during prerender */ }
+        }
+
+        if (_focusPending && _open)
+        {
+            _focusPending = false;
+            try { await _input.FocusAsync(); } catch { /* ignore */ }
+        }
+    }
+
+    private void OnInput(ChangeEventArgs e)
+    {
+        _query = e.Value?.ToString() ?? "";
+        _sel = 0;
+        Recompute();
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                _sel = Math.Min(_sel + 1, _flat.Count - 1);
+                break;
+            case "ArrowUp":
+                _sel = Math.Max(_sel - 1, 0);
+                break;
+            case "Enter":
+                if (_sel >= 0 && _sel < _flat.Count) Choose(_flat[_sel]);
+                break;
+            case "Escape":
+                Close();
+                break;
+        }
+    }
+
+    private void Choose(SearchItem item)
+    {
+        _open = false;
+        var url = item is { Type: "syntax", SyntaxId: { } sid }
+            ? $"/{item.EntityId}#{sid}"
+            : $"/{item.EntityId}";
+        Nav.NavigateTo(url);
+    }
+
+    private void Recompute()
+    {
+        var query = _query.Trim();
+
+        if (query.Length == 0)
+        {
+            _entities = Manifest.SearchIndex.Where(r => r.Type == "entity").Take(60).ToList();
+            _syntaxes = [];
+        }
+        else
+        {
+            var scored = Manifest.SearchIndex
+                .Select(r => (r, s: Score(query, r)))
+                .Where(x => x.s >= 0)
+                .OrderByDescending(x => x.s)
+                .Take(40)
+                .Select(x => x.r)
+                .ToList();
+
+            _entities = scored.Where(r => r.Type == "entity").ToList();
+            _syntaxes = scored.Where(r => r.Type == "syntax").ToList();
+        }
+
+        _flat = [.. _entities, .. _syntaxes];
+        if (_sel >= _flat.Count) _sel = Math.Max(0, _flat.Count - 1);
+    }
+
+    // Fuzzy score: substring match wins; otherwise subsequence match. Mirrors the design kit.
+    private static int Score(string query, SearchItem item)
+    {
+        var s = Fuzzy(query, item.Name);
+        if (s >= 0) return s;
+        var h = Fuzzy(query, item.Haystack);
+        return h < 0 ? -1 : h / 2;
+    }
+
+    private static int Fuzzy(string query, string text)
+    {
+        query = query.ToLowerInvariant();
+        text = text.ToLowerInvariant();
+        if (query.Length == 0) return 0;
+
+        var idx = text.IndexOf(query, StringComparison.Ordinal);
+        if (idx >= 0) return 100 - Math.Min(idx, 99);
+
+        int qi = 0, score = 0;
+        for (var i = 0; i < text.Length && qi < query.Length; i++)
+        {
+            if (text[i] == query[qi]) { score++; qi++; }
+        }
+        return qi == query.Length ? score : -1;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hotkeyRegistered)
+        {
+            try { await JS.InvokeVoidAsync("atlas.unregisterHotkey"); } catch { /* ignore */ }
+        }
+        _ref?.Dispose();
+    }
+}
