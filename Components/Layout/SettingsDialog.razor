@@ -1,0 +1,112 @@
+@* Per-user display options. Values persist to localStorage via atlas.js and are
+   applied as data-* attributes on <html>; the CSS does the rest (no re-render). *@
+@inject IJSRuntime JS
+
+<BbDialog @bind-Open="_open">
+    <BbDialogContent Class="settings-dialog">
+        <BbDialogHeader>
+            <BbDialogTitle>Display options</BbDialogTitle>
+            <BbDialogDescription>Saved in this browser only.</BbDialogDescription>
+        </BbDialogHeader>
+
+        <div class="settings-section">
+            <div class="settings-label">Syntax cards</div>
+            <BbToggleGroup TValue="string" Value="@_display" ValueChanged="OnDisplayChanged"
+                           Type="ToggleGroupType.Single" Variant="ToggleVariant.Outline">
+                <BbToggleGroupItem Value="@("compact")">Compact</BbToggleGroupItem>
+                <BbToggleGroupItem Value="@("expanded")">Expanded</BbToggleGroupItem>
+                <BbToggleGroupItem Value="@("always")">Always open</BbToggleGroupItem>
+            </BbToggleGroup>
+            <div class="settings-hint">@DisplayHint</div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-label">Badges</div>
+            <div class="settings-switches">
+                @foreach (var badge in BadgeList)
+                {
+                    <label class="settings-switch">
+                        <span>@badge.Label</span>
+                        <BbSwitch Checked="@_badges[badge.Key]"
+                                  CheckedChanged="@(v => OnBadgeChanged(badge.Key, v))"
+                                  Size="SwitchSize.Small" AriaLabel="@badge.Label" />
+                    </label>
+                }
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-label">Developer</div>
+            <label class="settings-switch">
+                <span>Advanced mode <span class="settings-sub">— show JDA classes</span></span>
+                <BbSwitch Checked="@_advanced" CheckedChanged="OnAdvancedChanged"
+                          Size="SwitchSize.Small" AriaLabel="Advanced developer mode" />
+            </label>
+        </div>
+    </BbDialogContent>
+</BbDialog>
+
+@code {
+    private bool _open;
+    private string _display = "compact";
+    private bool _advanced;
+    private readonly Dictionary<string, bool> _badges = new();
+
+    private static readonly (string Key, string Label)[] BadgeList =
+    [
+        ("kind", "Kind"), ("return", "Return type"), ("change", "Change modes"),
+        ("async", "Async"), ("shared", "Shared"), ("since", "Since"), ("intents", "Intents")
+    ];
+
+    private string DisplayHint => _display switch
+    {
+        "compact" => "Show only the name; click a syntax to reveal its details.",
+        "expanded" => "Show details by default; click a syntax to collapse it.",
+        _ => "Always show every syntax in full; no collapsing."
+    };
+
+    public async Task Open()
+    {
+        try
+        {
+            var s = await JS.InvokeAsync<SettingsDto>("atlas.getSettings");
+            _display = s.Display ?? "compact";
+            _advanced = s.Advanced;
+            foreach (var (key, _) in BadgeList)
+                _badges[key] = s.Badges is null || !s.Badges.TryGetValue(key, out var v) || v;
+        }
+        catch
+        {
+            _display = "compact";
+            _advanced = false;
+            foreach (var (key, _) in BadgeList) _badges[key] = true;
+        }
+        _open = true;
+        StateHasChanged();
+    }
+
+    private async Task OnDisplayChanged(string? value)
+    {
+        _display = value ?? "compact";
+        try { await JS.InvokeVoidAsync("atlas.setDisplay", _display); } catch { /* ignore */ }
+    }
+
+    private async Task OnBadgeChanged(string key, bool on)
+    {
+        _badges[key] = on;
+        try { await JS.InvokeVoidAsync("atlas.setBadge", key, on); } catch { /* ignore */ }
+    }
+
+    private async Task OnAdvancedChanged(bool on)
+    {
+        _advanced = on;
+        try { await JS.InvokeVoidAsync("atlas.setAdvanced", on); } catch { /* ignore */ }
+    }
+
+    private sealed class SettingsDto
+    {
+        public string? Display { get; set; }
+        public bool Advanced { get; set; }
+        public Dictionary<string, bool>? Badges { get; set; }
+    }
+}

@@ -4,11 +4,14 @@
     <span class="changemodes">
         @foreach (var mode in Modes)
         {
-            <span class="cm@(mode == ChangeMode.Delete ? " cm-delete" : "")">@mode.ToString().ToLowerInvariant()</span>
+            <span class="cm@(mode == ChangeMode.Delete ? " cm-delete" : "")">@Label(mode)</span>
         }
     </span>
 }
 
 @code {
     [Parameter] public IReadOnlyList<ChangeMode>? Modes { get; set; }
+
+    private static string Label(ChangeMode mode) =>
+        mode == ChangeMode.RemoveAll ? "remove all" : mode.ToString().ToLowerInvariant();
 }

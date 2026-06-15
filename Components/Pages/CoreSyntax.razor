@@ -1,0 +1,142 @@
+@page "/core/{Kind}"
+@inject ManifestService Manifest
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
+
+@if (_kind is null)
+{
+    <PageTitle>Not found — DiSky Atlas</PageTitle>
+    <div class="page">
+        <div class="empty">
+            <span class="empty-icon"><LucideIcon Name="search-x" /></span>
+            <h2>Unknown section</h2>
+            <p>There's no core section called “@Kind”. Pick one from the sidebar.</p>
+        </div>
+    </div>
+}
+else
+{
+    var kind = _kind.Value;
+    var label = ManifestService.KindLabel(kind);
+    var slug = ManifestService.KindSlug(kind);
+    var all = Manifest.CoreSyntaxes(kind);
+    var visible = all.Where(_parsedFilter.Matches).ToList();
+
+    <PageTitle>@label — Core — DiSky Atlas</PageTitle>
+    <div class="page">
+        <nav class="crumb">
+            <a href="/">Overview</a>
+            <span class="sep">/</span>
+            <span class="cur">Core · @label</span>
+        </nav>
+
+        <div class="page-head">
+            <span class="head-icon"><LucideIcon Name="@ManifestService.KindIcon(kind)" /></span>
+            <h1>@label</h1>
+            <span class="badge kind-@slug"><span class="dot"></span>@slug</span>
+        </div>
+
+        <p class="page-lead">Global, non-entity @label.ToLowerInvariant() — usable anywhere in your scripts.</p>
+
+        <div class="page-meta">
+            <span class="chip chip-since">@all.Count @(all.Count == 1 ? "syntax" : "syntaxes")</span>
+        </div>
+
+        <div class="filter-bar">
+            <span class="filter-icon"><LucideIcon Name="filter" /></span>
+            <input class="filter-input" value="@_filter" @oninput="OnFilterInput"
+                   placeholder="Filter… e.g. since:&gt;=5.0.0 bot"
+                   spellcheck="false" autocomplete="off" aria-label="Filter @label" />
+            @if (!string.IsNullOrEmpty(_filter))
+            {
+                <button type="button" class="filter-clear" @onclick="ClearFilter" title="Clear filter">
+                    <LucideIcon Name="x" />
+                </button>
+            }
+            <span class="filter-count">@visible.Count / @all.Count</span>
+        </div>
+
+        @if (visible.Count == 0)
+        {
+            <div class="empty">
+                <span class="empty-icon"><LucideIcon Name="search-x" /></span>
+                <h2>No matching syntaxes</h2>
+                <p>Nothing matches “@_filter”. Try a broader query or clear the filter.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var syntax in visible)
+            {
+                <SyntaxRecord Syntax="syntax" EntityId="core" LinkPath="@LinkPath" />
+            }
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string Kind { get; set; } = "";
+
+    private SyntaxKind? _kind;
+    private string _filter = "";
+    private SyntaxFilter _parsedFilter = SyntaxFilter.Empty;
+    private string? _pendingHash;
+    private string? _lastKind;
+
+    private string LinkPath => $"/core/{Kind}";
+
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    protected override void OnParametersSet()
+    {
+        _kind = Manifest.ParseCoreKindSlug(Kind);
+        _pendingHash = GetHash();
+        if (!string.Equals(_lastKind, Kind, StringComparison.OrdinalIgnoreCase))
+        {
+            _lastKind = Kind;
+            _filter = "";
+            _parsedFilter = SyntaxFilter.Empty;
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        var hash = GetHash();
+        if (hash is not null)
+        {
+            _pendingHash = hash;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_pendingHash is { Length: > 0 } hash)
+        {
+            _pendingHash = null;
+            try { await JS.InvokeVoidAsync("atlas.scrollToId", hash, true); } catch { /* ignore */ }
+        }
+    }
+
+    private void OnFilterInput(ChangeEventArgs e)
+    {
+        _filter = e.Value?.ToString() ?? "";
+        _parsedFilter = SyntaxFilter.Parse(_filter);
+    }
+
+    private void ClearFilter()
+    {
+        _filter = "";
+        _parsedFilter = SyntaxFilter.Empty;
+    }
+
+    private string? GetHash()
+    {
+        var uri = Nav.Uri;
+        var i = uri.IndexOf('#');
+        return i >= 0 && i < uri.Length - 1 ? uri[(i + 1)..] : null;
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

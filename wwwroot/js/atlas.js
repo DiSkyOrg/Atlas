@@ -53,8 +53,16 @@ window.atlas = (function () {
 
   function scrollToId(id, smooth) {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    if (el) {
+      if (el.classList.contains("record")) el.classList.add("force-open");
+      el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    }
     return !!el;
+  }
+
+  function clearForceOpen(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove("force-open");
   }
 
   function focusSelector(selector) {
@@ -66,6 +74,40 @@ window.atlas = (function () {
     const el = document.querySelector(selector);
     if (el) el.scrollTop = 0;
   }
+
+  // ---- Settings (display mode + badge visibility), persisted to localStorage ----
+  const SETTINGS_KEY = "disky-settings";
+  const BADGE_KEYS = ["kind", "return", "change", "async", "shared", "since", "intents"];
+  const SETTINGS_DEFAULTS = { display: "compact", badges: {} };
+  BADGE_KEYS.forEach(k => SETTINGS_DEFAULTS.badges[k] = true);
+
+  function readSettings() {
+    let raw = {};
+    try { raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"); } catch (e) { /* ignore */ }
+    const badges = {};
+    BADGE_KEYS.forEach(k => { badges[k] = (raw.badges && k in raw.badges) ? !!raw.badges[k] : true; });
+    return { display: raw.display || SETTINGS_DEFAULTS.display, advanced: !!raw.advanced, badges: badges };
+  }
+
+  function applySettings(s) {
+    const root = document.documentElement;
+    root.setAttribute("data-syntax-display", s.display);
+    root.setAttribute("data-advanced", s.advanced ? "on" : "off");
+    BADGE_KEYS.forEach(k => root.setAttribute("data-badge-" + k, s.badges[k] ? "on" : "off"));
+  }
+
+  function persistSettings(s) {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); } catch (e) { /* ignore */ }
+    applySettings(s);
+  }
+
+  function getSettings() { const s = readSettings(); applySettings(s); return s; }
+
+  function setDisplay(mode) { const s = readSettings(); s.display = mode; persistSettings(s); return s; }
+
+  function setBadge(key, on) { const s = readSettings(); s.badges[key] = !!on; persistSettings(s); return s; }
+
+  function setAdvanced(on) { const s = readSettings(); s.advanced = !!on; persistSettings(s); return s; }
 
   // ---- ⌘K / Ctrl+K global hotkey, dispatched to a .NET object ----
   let hotkeyHandler = null;
@@ -91,7 +133,8 @@ window.atlas = (function () {
 
   return {
     initTheme, getTheme, setTheme, toggleTheme,
-    copyText, scrollToId, focusSelector, scrollTop,
+    copyText, scrollToId, clearForceOpen, focusSelector, scrollTop,
+    getSettings, setDisplay, setBadge, setAdvanced,
     registerHotkey, unregisterHotkey
   };
 })();

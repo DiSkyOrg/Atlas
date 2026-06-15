@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" class="dark">
+<html lang="en" data-theme="dark" class="dark" data-syntax-display="compact">
 
 <head>
     <meta charset="utf-8"/>
@@ -16,6 +16,26 @@
             } catch (e) {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
+    @* Apply saved display/badge settings before first paint (mirrors atlas.js). *@
+    <script>
+        (function () {
+            try {
+                var d = JSON.parse(localStorage.getItem('disky-settings') || '{}');
+                var r = document.documentElement;
+                r.setAttribute('data-syntax-display', d.display || 'compact');
+                r.setAttribute('data-advanced', d.advanced ? 'on' : 'off');
+                var keys = ['kind', 'return', 'change', 'async', 'shared', 'since', 'intents'];
+                var b = d.badges || {};
+                keys.forEach(function (k) {
+                    var v = (k in b) ? b[k] : true;
+                    r.setAttribute('data-badge-' + k, v ? 'on' : 'off');
+                });
+            } catch (e) {
+                document.documentElement.setAttribute('data-syntax-display', 'compact');
             }
         })();
     </script>

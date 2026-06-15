@@ -1,0 +1,129 @@
+@page "/events"
+@inject ManifestService Manifest
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Events — DiSky Atlas</PageTitle>
+
+<div class="page">
+    <nav class="crumb">
+        <a href="/">Overview</a>
+        <span class="sep">/</span>
+        <span class="cur">Events</span>
+    </nav>
+
+    <div class="page-head">
+        <span class="head-icon"><LucideIcon Name="zap" /></span>
+        <h1>Events</h1>
+        <span class="badge kind-event"><span class="dot"></span>event</span>
+    </div>
+
+    <p class="page-lead">
+        Every Discord event DiSky can listen to. Each event exposes <code>event-value</code>s
+        (accessed by type) and event-scoped expressions you can use inside its handler.
+    </p>
+
+    <div class="page-meta">
+        <span class="chip chip-since">@Manifest.Events.Count events</span>
+    </div>
+
+    @{
+        var filtered = Manifest.Events.Where(_parsedFilter.Matches).ToList();
+        var groups = filtered
+            .GroupBy(ManifestService.EventCategory)
+            .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
+    <div class="filter-bar">
+        <span class="filter-icon"><LucideIcon Name="filter" /></span>
+        <input class="filter-input" value="@_filter" @oninput="OnFilterInput"
+               placeholder="Filter events… e.g. since:&gt;=5.0.0 cancellable:true intent:members message"
+               spellcheck="false" autocomplete="off" aria-label="Filter events" />
+        @if (!string.IsNullOrEmpty(_filter))
+        {
+            <button type="button" class="filter-clear" @onclick="ClearFilter" title="Clear filter">
+                <LucideIcon Name="x" />
+            </button>
+        }
+        <span class="filter-count">@filtered.Count / @Manifest.Events.Count</span>
+    </div>
+
+    @if (filtered.Count == 0)
+    {
+        <div class="empty">
+            <span class="empty-icon"><LucideIcon Name="search-x" /></span>
+            <h2>No matching events</h2>
+            <p>Nothing matches “@_filter”. Try a broader query or clear the filter.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var group in groups)
+        {
+            <section>
+                <div class="section-head">
+                    <h2>@group.Key</h2>
+                    <span class="n">@group.Count()</span>
+                </div>
+                @foreach (var ev in group)
+                {
+                    <SyntaxRecord Syntax="ev" EntityId="event" LinkPath="/events" />
+                }
+            </section>
+        }
+    }
+</div>
+
+@code {
+    private string _filter = "";
+    private SyntaxFilter _parsedFilter = SyntaxFilter.Empty;
+    private string? _pendingHash;
+
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+        _pendingHash = GetHash();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        var hash = GetHash();
+        if (hash is not null)
+        {
+            _pendingHash = hash;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_pendingHash is { Length: > 0 } hash)
+        {
+            _pendingHash = null;
+            try { await JS.InvokeVoidAsync("atlas.scrollToId", hash, true); } catch { /* ignore */ }
+        }
+    }
+
+    private void OnFilterInput(ChangeEventArgs e)
+    {
+        _filter = e.Value?.ToString() ?? "";
+        _parsedFilter = SyntaxFilter.Parse(_filter);
+    }
+
+    private void ClearFilter()
+    {
+        _filter = "";
+        _parsedFilter = SyntaxFilter.Empty;
+    }
+
+    private string? GetHash()
+    {
+        var uri = Nav.Uri;
+        var i = uri.IndexOf('#');
+        return i >= 0 && i < uri.Length - 1 ? uri[(i + 1)..] : null;
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

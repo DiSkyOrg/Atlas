@@ -1,7 +1,27 @@
-@* "shared" marker — the same syntax is registered on several entities. *@
-<BbTooltip Placement="PopoverPlacement.Top">
-    <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
+@* "shared" marker — click to see (and open) every entity that exposes this property. *@
+@inject ManifestService Manifest
+
+<BbPopover>
+    <BbPopoverTrigger AsChild="false" class="chip-trigger">
         <span class="chip chip-shared">shared</span>
-    </BbTooltipTrigger>
-    <BbTooltipContent>Appears on several entities.</BbTooltipContent>
-</BbTooltip>
+    </BbPopoverTrigger>
+    <BbPopoverContent Class="hovercard" Align="PopoverAlign.Start">
+        <div class="hc-title">Shared property</div>
+        <div class="hc-sub">Appears on @Entities.Count entit@(Entities.Count == 1 ? "y" : "ies"):</div>
+        <div class="hc-list">
+            @foreach (var entity in Entities)
+            {
+                <a class="hc-item" href="/@entity.Id#@Name">
+                    <LucideIcon Name="@ManifestService.EntityIcon(entity)" />
+                    <span>@Manifest.DisplayName(entity)</span>
+                </a>
+            }
+        </div>
+    </BbPopoverContent>
+</BbPopover>
+
+@code {
+    [Parameter, EditorRequired] public string Name { get; set; } = "";
+
+    private IReadOnlyList<EntityInfo> Entities => Manifest.SharedWith(Name);
+}

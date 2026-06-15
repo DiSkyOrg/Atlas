@@ -18,6 +18,9 @@ public sealed class SyntaxManifest
     /// <summary>Hand-written, non-entity syntaxes (define bot, await, try, …). Pinned under "Core / Global".</summary>
     public List<SyntaxInfo> Core { get; init; } = [];
 
+    /// <summary>Discord events (each a <see cref="SyntaxInfo"/> of kind EVENT carrying <see cref="SyntaxInfo.Event"/>).</summary>
+    public List<SyntaxInfo> Events { get; init; } = [];
+
     /// <summary>Registry of every type referenced as a return type / placeholder.</summary>
     public List<TypeRef> Types { get; init; } = [];
 }
@@ -79,9 +82,80 @@ public sealed class SyntaxInfo
     /// <summary>Skript code examples.</summary>
     public List<string> Examples { get; init; } = [];
 
+    [JsonIgnore]
+    public List<string> ProcessedExamples
+    {
+        get
+        {
+            var processed = new List<string>();
+            var currentBlock = new List<string>();
+
+            foreach (var example in Examples)
+            {
+                if (example.StartsWith('\t') || example.StartsWith("    "))
+                {
+                    currentBlock.Add(example);
+                }
+                else
+                {
+                    if (currentBlock.Count > 0)
+                    {
+                        processed.Add(string.Join("\n", currentBlock));
+                        currentBlock.Clear();
+                    }
+                    processed.Add(example);
+                }
+            }
+
+            if (currentBlock.Count > 0)
+            {
+                processed.Add(string.Join("\n", currentBlock));
+            }
+
+            return processed;
+        }
+    }
+
     public List<string> RequiredIntents { get; init; } = [];
     public bool Deprecated { get; init; }
     public string? DeprecatedReason { get; init; }
+
+    /// <summary>Event-only metadata. Non-null only when <see cref="Kind"/> is <see cref="SyntaxKind.Event"/>.</summary>
+    public EventDetails? Event { get; init; }
+}
+
+/// <summary>Event-only metadata attached to a <see cref="SyntaxInfo"/> of kind EVENT.</summary>
+public sealed class EventDetails
+{
+    public bool Cancellable { get; init; }
+
+    /// <summary>Gateway intent names the event needs.</summary>
+    public List<string> Intents { get; init; } = [];
+
+    /// <summary>Event-values, accessed as <c>event-&lt;name&gt;</c> (by type).</summary>
+    public List<EventValueDetail> Values { get; init; } = [];
+
+    /// <summary>Event-scoped expressions, accessed by their own pattern (e.g. "used command").</summary>
+    public List<EventExpressionDetail> Expressions { get; init; } = [];
+}
+
+/// <summary>An <c>event-&lt;name&gt;</c> value available inside an event.</summary>
+public sealed class EventValueDetail
+{
+    public required string Name { get; init; }
+    public TypeRef? Type { get; init; }
+    public bool List { get; init; }
+
+    /// <summary>"present" | "past" | "future" — update events expose a past/present pair.</summary>
+    public string? Time { get; init; }
+}
+
+/// <summary>An event-scoped expression, accessed by its pattern.</summary>
+public sealed class EventExpressionDetail
+{
+    public required string Pattern { get; init; }
+    public TypeRef? Type { get; init; }
+    public bool List { get; init; }
 }
 
 /// <summary>Resolution behaviour for a syntax that talks to Discord over REST.</summary>
@@ -107,6 +181,9 @@ public sealed class TypeRef
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SyntaxKind
 {
+    /// <summary>A <c>&lt;name&gt; of %type%</c> property — both per-type and cross-type (shared); listed together.</summary>
+    Property,
+    /// <summary>A non-property expression (e.g. <c>a new discord bot</c>).</summary>
     Expression,
     Effect,
     Condition,
@@ -122,6 +199,7 @@ public enum ChangeMode
     Set,
     Add,
     Remove,
+    [JsonStringEnumMemberName("REMOVE_ALL")] RemoveAll,
     Delete,
     Reset
 }

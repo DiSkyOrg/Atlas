@@ -1,0 +1,62 @@
+@* Interactive subtype hierarchy — the entity's descendants as a clickable tree. *@
+@inject ManifestService Manifest
+@inject NavigationManager Nav
+
+<BbDialog @bind-Open="_open">
+    <BbDialogContent Class="hierarchy-dialog">
+        <BbDialogHeader>
+            <BbDialogTitle>@Title</BbDialogTitle>
+            <BbDialogDescription>Every subtype below this type. Click any to open it.</BbDialogDescription>
+        </BbDialogHeader>
+        @if (_root is not null)
+        {
+            <div class="hierarchy">
+                @RenderNode(_root, true)
+            </div>
+        }
+    </BbDialogContent>
+</BbDialog>
+
+@code {
+    private bool _open;
+    private EntityInfo? _root;
+
+    private string Title => _root is null ? "Hierarchy" : $"{Manifest.DisplayName(_root)} — subtype hierarchy";
+
+    public void Open(EntityInfo root)
+    {
+        _root = root;
+        _open = true;
+        StateHasChanged();
+    }
+
+    private void Go(EntityInfo entity)
+    {
+        _open = false;
+        Nav.NavigateTo($"/{entity.Id}");
+    }
+
+    private RenderFragment RenderNode(EntityInfo entity, bool isRoot) => __builder =>
+    {
+        var children = Manifest.Children(entity.Id);
+        <div class="hx-node @(isRoot ? "hx-root" : "")">
+            <button type="button" class="hx-row @(isRoot ? "hx-current" : "")" @onclick="() => Go(entity)">
+                <span class="hx-icon"><LucideIcon Name="@ManifestService.EntityIcon(entity)" /></span>
+                <span class="hx-name">@Manifest.DisplayName(entity)</span>
+                @if (entity.Syntaxes.Count > 0)
+                {
+                    <span class="hx-count">@entity.Syntaxes.Count</span>
+                }
+            </button>
+            @if (children.Count > 0)
+            {
+                <div class="hx-children">
+                    @foreach (var child in children)
+                    {
+                        @RenderNode(child, false)
+                    }
+                </div>
+            }
+        </div>
+    };
+}

@@ -16,5 +16,5 @@
     [Parameter] public bool List { get; set; }
     [Parameter] public string? Href { get; set; }
 
-    private string Display => List ? $"List<{Type!.Name}>" : Type!.Name;
+    private string Display => List ? $"list of {Type!.Name}" : Type!.Name;
 }

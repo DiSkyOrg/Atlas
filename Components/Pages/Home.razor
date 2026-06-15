@@ -20,8 +20,21 @@
     <div class="home-stats">
         <div class="stat"><div class="num">@EntityCount</div><div class="lbl">Entities</div></div>
         <div class="stat"><div class="num">@SyntaxCount</div><div class="lbl">Syntaxes</div></div>
+        <div class="stat"><div class="num">@EventCount</div><div class="lbl">Events</div></div>
         <div class="stat"><div class="num">@TypeCount</div><div class="lbl">Types</div></div>
     </div>
+
+    <a class="ecard ecard-wide" href="/events">
+        <div class="ec-head">
+            <span class="ec-icon"><LucideIcon Name="zap" /></span>
+            <span class="ec-name">Events</span>
+        </div>
+        <div class="ec-desc">
+            Every Discord event you can listen to — message, guild, member, voice, interaction… each
+            with its <code>event-value</code>s and event-scoped expressions.
+        </div>
+        <div class="ec-count">@EventCount events</div>
+    </a>
 
     <div class="label-eyebrow home-section-label">Entities</div>
     <div class="home-grid">
@@ -44,5 +57,6 @@
     private string Version => "v" + (Manifest.Manifest.DiskyVersion?.Split('.').FirstOrDefault() ?? "5");
     private int EntityCount => Manifest.Manifest.Entities.Count;
     private int SyntaxCount => Manifest.Manifest.Entities.Sum(e => e.Syntaxes.Count) + Manifest.Manifest.Core.Count;
+    private int EventCount => Manifest.Events.Count;
     private int TypeCount => Manifest.Manifest.Types.Count;
 }

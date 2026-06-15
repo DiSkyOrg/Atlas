@@ -1,100 +1,184 @@
-@* One syntax record: name + badges/chips, pattern signature(s), description, change
-   modes, intents, deprecation note, and collapsible examples. *@
+@* One syntax record. The header (name + badges) is always shown; the details
+   (patterns, description, change modes, examples) collapse/expand per the user's
+   display setting (driven by CSS) and a per-record toggle. *@
 @inject ManifestService Manifest
+@inject NavigationManager Nav
+@inject IJSRuntime JS
 
-<article class="record" id="@Syntax.Id">
+<article class="record @(_open ? "toggled" : "")" id="@Anchor">
     <div class="record-head">
-        <span class="rname">@Syntax.Name</span>
-        <a class="anchor" href="#@Syntax.Id" title="Link to this syntax" @onclick="CopyLinkAsync">
+        <button type="button" class="rec-toggle" @onclick="Toggle">
+            <span class="rec-chev"><LucideIcon Name="chevron-right" /></span>
+            <span class="rname">@Syntax.Name</span>
+        </button>
+        <a class="anchor" href="@($"{LinkBase}#{Anchor}")" title="Copy link to this syntax"
+           @onclick="CopyLinkAsync" @onclick:stopPropagation>
             <LucideIcon Name="link" />
         </a>
-        <KindBadge Kind="Syntax.Kind" />
-        <ReturnTypeChip Type="Syntax.ReturnType" List="Syntax.ReturnList" Href="@ReturnHref" />
-        @if (Syntax.Async is not null)
-        {
-            <AsyncBadge Async="Syntax.Async" />
-        }
-        @if (Syntax.Shared)
-        {
-            <SharedChip />
-        }
-        @if (Syntax.Deprecated)
-        {
-            <span class="badge badge-deprecated"><span class="dot"></span>deprecated</span>
-        }
-        <span class="grow"></span>
-        <SinceChip Since="@Syntax.Since" />
-    </div>
-
-    <div class="patterns">
-        @foreach (var pattern in Syntax.Patterns)
-        {
-            <SignatureLine Pattern="@pattern" />
-        }
-    </div>
-
-    @foreach (var paragraph in Syntax.Description)
-    {
-        <p class="desc">@paragraph</p>
-    }
-
-    @if (Syntax.Deprecated && !string.IsNullOrEmpty(Syntax.DeprecatedReason))
-    {
-        <div class="deprecated-note">@Syntax.DeprecatedReason</div>
-    }
-
-    @if (Syntax.ChangeModes is { Count: > 0 })
-    {
-        <div class="record-foot">
-            <span class="cm-label">change modes</span>
-            <ChangeModeBadges Modes="Syntax.ChangeModes" />
-        </div>
-    }
-
-    @if (Syntax.RequiredIntents is { Count: > 0 })
-    {
-        <div class="record-foot">
-            <span class="cm-label">intents</span>
-            @foreach (var intent in Syntax.RequiredIntents)
+        <span class="rec-meta">
+            <span class="b-kind"><KindBadge Kind="Syntax.Kind" /></span>
+            @if (Syntax.ReturnType is not null)
             {
-                <span class="chip intent-chip">@intent</span>
+                <span class="b-return"><ReturnTypeChip Type="Syntax.ReturnType" List="Syntax.ReturnList" Href="@ReturnHref" /></span>
+            }
+            @if (Syntax.Async is not null)
+            {
+                <span class="b-async"><AsyncBadge Async="Syntax.Async" /></span>
+            }
+            @if (Syntax.Shared)
+            {
+                <span class="b-shared"><SharedChip Name="@Syntax.Name" /></span>
+            }
+            @if (Syntax.Deprecated)
+            {
+                <span class="badge badge-deprecated"><span class="dot"></span>deprecated</span>
+            }
+            @if (Syntax.Event is { } evMeta)
+            {
+                @if (evMeta.Cancellable)
+                {
+                    <span class="chip chip-cancellable">cancellable</span>
+                }
+                @foreach (var intent in evMeta.Intents)
+                {
+                    <span class="chip intent-chip">@intent</span>
+                }
+            }
+            @if (!string.IsNullOrEmpty(Syntax.Since))
+            {
+                <span class="b-since"><SinceChip Since="@Syntax.Since" /></span>
+            }
+        </span>
+    </div>
+
+    <div class="record-details">
+        <div class="patterns">
+            @foreach (var pattern in Syntax.Patterns)
+            {
+                <SignatureLine Pattern="@pattern" />
             }
         </div>
-    }
 
-    @if (Syntax.Examples is { Count: > 0 })
-    {
-        <button type="button" class="ex-toggle" @onclick="() => _showExamples = !_showExamples">
-            <span class="chev @(_showExamples ? "open" : "")"><LucideIcon Name="chevron-right" /></span>
-            @(_showExamples ? "Hide" : "Show") example@(Syntax.Examples.Count > 1 ? "s" : "")
-        </button>
-        @if (_showExamples)
+        @foreach (var paragraph in Syntax.Description)
         {
-            <div class="examples">
-                @foreach (var example in Syntax.Examples)
+            <p class="desc">@paragraph</p>
+        }
+
+        @if (Syntax.Deprecated && !string.IsNullOrEmpty(Syntax.DeprecatedReason))
+        {
+            <div class="deprecated-note">@Syntax.DeprecatedReason</div>
+        }
+
+        @if (Syntax.ChangeModes is { Count: > 0 })
+        {
+            <div class="record-foot b-change">
+                <span class="cm-label">change modes</span>
+                <ChangeModeBadges Modes="Syntax.ChangeModes" />
+            </div>
+        }
+
+        @if (Syntax.RequiredIntents is { Count: > 0 })
+        {
+            <div class="record-foot b-intents">
+                <span class="cm-label">intents</span>
+                @foreach (var intent in Syntax.RequiredIntents)
                 {
-                    <SkriptCodeBlock Code="@example" />
+                    <span class="chip intent-chip">@intent</span>
                 }
             </div>
         }
-    }
+
+        @if (Syntax.Examples is { Count: > 0 })
+        {
+            <button type="button" class="ex-toggle" @onclick="() => _showExamples = !_showExamples">
+                <span class="chev @(_showExamples ? "open" : "")"><LucideIcon Name="chevron-right" /></span>
+                @(_showExamples ? "Hide" : "Show") example@(Syntax.ProcessedExamples.Count > 1 ? "s" : "")
+            </button>
+            @if (_showExamples)
+            {
+                <div class="examples">
+                    @foreach (var example in Syntax.ProcessedExamples)
+                    {
+                        <SkriptCodeBlock Code="@example" />
+                    }
+                </div>
+            }
+        }
+
+        @if (Syntax.Event is { } ev)
+        {
+            @if (ev.Values.Count > 0)
+            {
+                <div class="event-section">
+                    <div class="event-section-head"><span class="cm-label">event values</span></div>
+                    <div class="ev-list">
+                        @foreach (var value in ev.Values)
+                        {
+                            <div class="ev-row">
+                                <code class="ev-name">event-@value.Name</code>
+                                @if (value.Type is not null)
+                                {
+                                    <ReturnTypeChip Type="value.Type" List="value.List" Href="@TypeHref(value.Type)" />
+                                }
+                                @if (!string.IsNullOrEmpty(value.Time) && value.Time != "present")
+                                {
+                                    <span class="ev-time">@value.Time</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (ev.Expressions.Count > 0)
+            {
+                <div class="event-section">
+                    <div class="event-section-head"><span class="cm-label">event expressions</span></div>
+                    <div class="ev-list">
+                        @foreach (var expression in ev.Expressions)
+                        {
+                            <div class="ev-row">
+                                <code class="ev-pattern">@expression.Pattern</code>
+                                @if (expression.Type is not null)
+                                {
+                                    <ReturnTypeChip Type="expression.Type" List="expression.List" Href="@TypeHref(expression.Type)" />
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
 </article>
 
 @code {
     [Parameter, EditorRequired] public SyntaxInfo Syntax { get; set; } = default!;
+    [Parameter] public string EntityId { get; set; } = "";
 
-    [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private IJSRuntime JS { get; set; } = default!;
+    /// <summary>Route path for the deep link / copy. Defaults to /{EntityId} (events pass "/events").</summary>
+    [Parameter] public string? LinkPath { get; set; }
 
+    private bool _open;
     private bool _showExamples;
 
-    private string? ReturnHref =>
-        Syntax.ReturnType is { } rt && Manifest.GetEntity(rt.Id) is not null ? $"/{rt.Id}" : null;
+    private string Anchor => ManifestService.SyntaxAnchor(EntityId, Syntax.Id);
+    private string LinkBase => LinkPath ?? $"/{EntityId}";
+
+    private string? ReturnHref => TypeHref(Syntax.ReturnType);
+
+    private string? TypeHref(TypeRef? type) =>
+        type is not null && Manifest.GetEntity(type.Id) is not null ? $"/{type.Id}" : null;
+
+    private async Task Toggle()
+    {
+        _open = !_open;
+        // Drop any force-open applied by a deep-link so the record can collapse again.
+        try { await JS.InvokeVoidAsync("atlas.clearForceOpen", Anchor); } catch { /* ignore */ }
+    }
 
     private async Task CopyLinkAsync()
     {
-        // Fragment navigation still scrolls/updates the hash; we also copy the absolute link.
-        var baseUri = Nav.Uri.Split('#')[0];
-        try { await JS.InvokeAsync<bool>("atlas.copyText", $"{baseUri}#{Syntax.Id}"); } catch { /* ignore */ }
+        var link = Nav.ToAbsoluteUri($"{LinkBase.TrimStart('/')}#{Anchor}").ToString();
+        try { await JS.InvokeAsync<bool>("atlas.copyText", link); } catch { /* ignore */ }
     }
 }

@@ -43,7 +43,9 @@ else
             @if (Manifest.HasChildren(_entity.Id))
             {
                 var n = Manifest.Children(_entity.Id).Count;
-                <span class="chip chip-list">@n subtype@(n == 1 ? "" : "s")</span>
+                <button type="button" class="chip chip-list chip-button" @onclick="OpenHierarchy" title="View subtype hierarchy">
+                    <LucideIcon Name="git-fork" /> @n subtype@(n == 1 ? "" : "s")
+                </button>
             }
             @if (_entity.ParentId is { } pid && Manifest.GetEntity(pid) is { } parent)
             {
@@ -51,11 +53,43 @@ else
             }
             @if (!string.IsNullOrEmpty(_entity.JdaType))
             {
-                <span class="page-jda">@_entity.JdaType</span>
+                var javadoc = ManifestService.JavadocUrl(_entity.JdaType);
+                @if (javadoc is not null)
+                {
+                    <a class="page-jda jda-link" href="@javadoc" target="_blank" rel="noreferrer" title="Open the JDA Javadoc">
+                        @_entity.JdaType<LucideIcon Name="external-link" />
+                    </a>
+                }
+                else
+                {
+                    <span class="page-jda">@_entity.JdaType</span>
+                }
             }
         </div>
 
-        @if (_groups.Count == 0)
+        @{
+            var visible = VisibleGroups.ToList();
+            var matchCount = visible.Sum(g => g.Items.Count);
+        }
+
+        @if (_allGroups.Count > 0)
+        {
+            <div class="filter-bar">
+                <span class="filter-icon"><LucideIcon Name="filter" /></span>
+                <input class="filter-input" value="@_filter" @oninput="OnFilterInput"
+                       placeholder="Filter… e.g. type:property since:&gt;=5.0.0 change:set reactions"
+                       spellcheck="false" autocomplete="off" aria-label="Filter syntaxes" />
+                @if (!string.IsNullOrEmpty(_filter))
+                {
+                    <button type="button" class="filter-clear" @onclick="ClearFilter" title="Clear filter">
+                        <LucideIcon Name="x" />
+                    </button>
+                }
+                <span class="filter-count">@matchCount / @_entity.Syntaxes.Count</span>
+            </div>
+        }
+
+        @if (_allGroups.Count == 0)
         {
             <div class="empty">
                 <span class="empty-icon"><LucideIcon Name="box" /></span>
@@ -66,9 +100,17 @@ else
                 </p>
             </div>
         }
+        else if (visible.Count == 0)
+        {
+            <div class="empty">
+                <span class="empty-icon"><LucideIcon Name="search-x" /></span>
+                <h2>No matching syntaxes</h2>
+                <p>Nothing matches “@_filter”. Try a broader query or clear the filter.</p>
+            </div>
+        }
         else
         {
-            @foreach (var group in _groups)
+            @foreach (var group in visible)
             {
                 <section>
                     <div class="section-head">
@@ -77,36 +119,84 @@ else
                     </div>
                     @foreach (var syntax in group.Items)
                     {
-                        <SyntaxRecord Syntax="syntax" />
+                        <SyntaxRecord Syntax="syntax" EntityId="@_entity.Id" />
                     }
                 </section>
             }
         }
+
+        @{
+            var returnedBy = Manifest.ReturnedBy(_entity.Id);
+        }
+        @if (returnedBy.Count > 0)
+        {
+            <section class="returns">
+                <div class="section-head">
+                    <h2>Returned by</h2>
+                    <span class="n">@returnedBy.Count</span>
+                </div>
+                <p class="returns-lead">Syntaxes elsewhere in DiSky that return @Manifest.DisplayName(_entity).</p>
+                <div class="returns-list">
+                    @foreach (var entry in returnedBy)
+                    {
+                        <a class="ret-row" href="@entry.Href">
+                            <code class="ret-pattern">@(entry.Syntax.Patterns.FirstOrDefault() ?? entry.Syntax.Name)</code>
+                            <span class="ret-src">@entry.SourceName</span>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
     </div>
 }
+
+<SubtypeDialog @ref="_hierarchy" />
 
 @code {
     [Parameter] public string EntityId { get; set; } = "";
 
     private EntityInfo? _entity;
-    private IReadOnlyList<KindGroup> _groups = [];
+    private IReadOnlyList<KindGroup> _allGroups = [];
+    private string _filter = "";
+    private SyntaxFilter _parsedFilter = SyntaxFilter.Empty;
     private string? _lastEntityId;
     private string? _pendingHash;
     private bool _resetScroll;
+
+    private IEnumerable<KindGroup> VisibleGroups =>
+        _parsedFilter.IsEmpty
+            ? _allGroups
+            : _allGroups
+                .Select(g => g with { Items = g.Items.Where(_parsedFilter.Matches).ToList() })
+                .Where(g => g.Items.Count > 0);
 
     protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
 
     protected override void OnParametersSet()
     {
         _entity = Manifest.GetEntity(EntityId);
-        _groups = _entity is null ? [] : Manifest.GroupByKind(_entity.Syntaxes);
+        _allGroups = _entity is null ? [] : Manifest.GroupByKind(_entity.Syntaxes);
 
         _pendingHash = GetHash();
         if (!string.Equals(_lastEntityId, EntityId, StringComparison.OrdinalIgnoreCase))
         {
             _resetScroll = _pendingHash is null;
             _lastEntityId = EntityId;
+            _filter = "";
+            _parsedFilter = SyntaxFilter.Empty;
         }
+    }
+
+    private void OnFilterInput(ChangeEventArgs e)
+    {
+        _filter = e.Value?.ToString() ?? "";
+        _parsedFilter = SyntaxFilter.Parse(_filter);
+    }
+
+    private void ClearFilter()
+    {
+        _filter = "";
+        _parsedFilter = SyntaxFilter.Empty;
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -142,6 +232,9 @@ else
         var i = uri.IndexOf('#');
         return i >= 0 && i < uri.Length - 1 ? uri[(i + 1)..] : null;
     }
+
+    private SubtypeDialog _hierarchy = default!;
+    private void OpenHierarchy() => _hierarchy.Open(_entity!);
 
     public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
 }

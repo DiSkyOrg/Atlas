@@ -10,12 +10,30 @@
         <span class="kbd">⌘K</span>
     </button>
 
+    <div class="group">
+        <div class="group-label">Reference</div>
+        <a class="tree-row @(string.Equals(_activeId, "events", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+           href="/events" @onclick="NavigatedAsync">
+            <span class="leaf-icon"><LucideIcon Name="zap" /></span>
+            <span class="label">Events</span>
+            <span class="count">@Manifest.Events.Count</span>
+        </a>
+    </div>
+
     @if (Manifest.HasCore)
     {
         <div class="group">
             <div class="group-label">Core / Global</div>
-            <TreeNode Entity="Manifest.CoreEntity" ActiveId="@_activeId" Expanded="_expanded"
-                      OnToggle="Toggle" OnNavigate="NavigatedAsync" />
+            @foreach (var kind in Manifest.CoreKinds)
+            {
+                var slug = ManifestService.KindPlural(kind);
+                <a class="tree-row @(string.Equals(_activeId, $"core/{slug}", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                   href="/core/@slug" @onclick="NavigatedAsync">
+                    <span class="leaf-icon"><LucideIcon Name="@ManifestService.KindIcon(kind)" /></span>
+                    <span class="label">@ManifestService.KindLabel(kind)</span>
+                    <span class="count">@Manifest.CoreSyntaxes(kind).Count</span>
+                </a>
+            }
         </div>
     }
 

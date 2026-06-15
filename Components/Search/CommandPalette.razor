@@ -33,6 +33,15 @@
                             @PalRow(item, i)
                         }
                     }
+                    if (_events.Count > 0)
+                    {
+                        <div class="pal-group">Events</div>
+                        foreach (var item in _events)
+                        {
+                            var i = index++;
+                            @PalRow(item, i)
+                        }
+                    }
                     if (_syntaxes.Count > 0)
                     {
                         <div class="pal-group">Syntaxes</div>
@@ -62,6 +71,7 @@
     private ElementReference _input;
 
     private List<SearchItem> _entities = [];
+    private List<SearchItem> _events = [];
     private List<SearchItem> _syntaxes = [];
     private List<SearchItem> _flat = [];
 
@@ -142,11 +152,17 @@
     private void Choose(SearchItem item)
     {
         _open = false;
-        var url = item is { Type: "syntax", SyntaxId: { } sid }
-            ? $"/{item.EntityId}#{sid}"
-            : $"/{item.EntityId}";
+        var url = item switch
+        {
+            { Type: "event" } => $"/events#{item.Anchor}",
+            { Type: "syntax", EntityId: "core" } => $"/core/{CorePlural(item.Kind)}#{item.Anchor}",
+            { Type: "syntax" } => $"/{item.EntityId}#{item.Anchor}",
+            _ => $"/{item.EntityId}"
+        };
         Nav.NavigateTo(url);
     }
+
+    private static string CorePlural(string kindSlug) => kindSlug == "property" ? "properties" : kindSlug + "s";
 
     private void Recompute()
     {
@@ -155,6 +171,7 @@
         if (query.Length == 0)
         {
             _entities = Manifest.SearchIndex.Where(r => r.Type == "entity").Take(60).ToList();
+            _events = [];
             _syntaxes = [];
         }
         else
@@ -163,15 +180,16 @@
                 .Select(r => (r, s: Score(query, r)))
                 .Where(x => x.s >= 0)
                 .OrderByDescending(x => x.s)
-                .Take(40)
+                .Take(50)
                 .Select(x => x.r)
                 .ToList();
 
             _entities = scored.Where(r => r.Type == "entity").ToList();
+            _events = scored.Where(r => r.Type == "event").ToList();
             _syntaxes = scored.Where(r => r.Type == "syntax").ToList();
         }
 
-        _flat = [.. _entities, .. _syntaxes];
+        _flat = [.. _entities, .. _events, .. _syntaxes];
         if (_sel >= _flat.Count) _sel = Math.Max(0, _flat.Count - 1);
     }
 

@@ -10,7 +10,7 @@
     <a class="brand" href="/">
         <img src="assets/disky-logo.png" alt="DiSky" />
         <span class="name">DiSky</span>
-        <span class="vtag">@Version</span>
+        <span class="vtag" title="Latest documented syntax version">@Version</span>
     </a>
 
     <div class="spacer"></div>
@@ -25,15 +25,25 @@
         <LucideIcon Name="github" />
     </a>
 
+    <button type="button" class="icon-btn" title="Display options" aria-label="Display options" @onclick="OpenSettings">
+        <LucideIcon Name="settings" />
+    </button>
+
     <ThemeToggle />
 </header>
+
+<SettingsDialog @ref="_settings" />
 
 @code {
     [Parameter] public EventCallback OnOpenPalette { get; set; }
     [Parameter] public EventCallback OnToggleSidebar { get; set; }
 
-    private string Version => "v" + (Manifest.Manifest.DiskyVersion?.Split('.').FirstOrDefault() ?? "5");
+    private SettingsDialog _settings = default!;
+
+    private string Version =>
+        "v" + (Manifest.LatestVersion ?? Manifest.Manifest.DiskyVersion ?? "5");
 
     private Task OpenPaletteAsync() => OnOpenPalette.InvokeAsync();
     private Task ToggleSidebarAsync() => OnToggleSidebar.InvokeAsync();
+    private Task OpenSettings() => _settings.Open();
 }

@@ -84,12 +84,16 @@ a { color: inherit; }
   display: flex; align-items: center; gap: 7px; width: 100%; text-align: left;
   font-size: 13.5px; color: var(--fg-muted);
   padding: 6px 10px; border-radius: var(--radius); cursor: pointer;
-  border-left: 2px solid transparent; background: none; font-family: var(--font-sans);
+  position: relative; background: none; font-family: var(--font-sans);
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
   text-decoration: none;
 }
 .tree-row:hover { background: var(--bg-hover); color: var(--fg); }
-.tree-row.active { background: rgba(88,101,242,0.12); color: var(--link); border-left-color: var(--primary); font-weight: 500; }
+.tree-row.active { background: rgba(88,101,242,0.12); color: var(--link); font-weight: 500; }
+.tree-row.active::before {
+  content: ""; position: absolute; left: 3px; top: 7px; bottom: 7px;
+  width: 3px; border-radius: 999px; background: var(--primary);
+}
 .tree-row .chev { color: var(--fg-faint); transition: transform var(--dur) var(--ease); flex: none; display: inline-flex; }
 .tree-row .chev.open { transform: rotate(90deg); }
 .tree-row .leaf-icon { color: var(--fg-faint); flex: none; display: inline-flex; }
@@ -290,5 +294,211 @@ a { color: inherit; }
 .empty .empty-icon svg { width: 40px; height: 40px; }
 .chip svg, .badge svg, .cm svg { width: 12px; height: 12px; }
 
-/* Keep BlazorBlueprint tooltip-trigger wrappers inline so they don't break rows. */
+/* Keep BlazorBlueprint tooltip/hover-card trigger wrappers inline. */
 .tipwrap { display: inline-flex; align-items: center; }
+
+/* ============================================================================
+   Signature accent — replace the hard blurple left border with a clean rounded
+   inset bar that doesn't clash with the rounded corners.
+   ========================================================================== */
+.signature { border-left: 1px solid var(--border); position: relative; padding-left: 1.05rem; }
+.signature::before {
+  content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px;
+  width: 3px; border-radius: 999px; background: var(--primary); opacity: 0.85;
+}
+
+/* Slightly smaller code in example blocks. */
+.code-block pre { font-size: 12.5px; line-height: 1.65; }
+
+/* ============================================================================
+   Collapsible syntax records (two-pass display, driven by data-syntax-display)
+   ========================================================================== */
+.record-head { margin-bottom: 0; }
+.rec-toggle {
+  display: inline-flex; align-items: center; gap: 8px; flex: none;
+  background: none; border: 0; padding: 0; cursor: pointer; text-align: left;
+}
+.rec-toggle .rname { font-family: var(--font-mono); font-size: 15.5px; font-weight: 600; color: var(--fg); }
+.rec-toggle:hover .rname { color: var(--link); }
+.rec-chev { color: var(--fg-faint); display: inline-flex; transition: transform var(--dur) var(--ease); flex: none; }
+.rec-chev svg { width: 14px; height: 14px; }
+.rec-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.rec-meta .b-since { margin-left: auto; }
+.record-details { margin-top: 12px; }
+
+/* compact: collapsed unless toggled open */
+html[data-syntax-display="compact"] .record:not(.toggled) .record-details,
+html[data-syntax-display="compact"] .record:not(.toggled) .rec-meta { display: none; }
+html[data-syntax-display="compact"] .record:not(.toggled) { padding-top: 11px; padding-bottom: 11px; }
+html[data-syntax-display="compact"] .record.toggled .rec-chev { transform: rotate(90deg); }
+
+/* expanded: open unless toggled closed */
+html[data-syntax-display="expanded"] .rec-chev { transform: rotate(90deg); }
+html[data-syntax-display="expanded"] .record.toggled .record-details,
+html[data-syntax-display="expanded"] .record.toggled .rec-meta { display: none; }
+html[data-syntax-display="expanded"] .record.toggled .rec-chev { transform: none; }
+html[data-syntax-display="expanded"] .record.toggled { padding-top: 11px; padding-bottom: 11px; }
+
+/* always: no collapsing, no chevron */
+html[data-syntax-display="always"] .rec-chev { display: none; }
+html[data-syntax-display="always"] .rec-toggle { cursor: default; }
+
+/* a deep-linked record is always shown in full, whatever the mode */
+.record:target .record-details,
+.record.force-open .record-details { display: block !important; }
+.record:target .rec-meta,
+.record.force-open .rec-meta { display: flex !important; }
+.record:target .rec-chev,
+.record.force-open .rec-chev { transform: rotate(90deg) !important; }
+
+/* ---- Per-badge visibility (data-badge-* attributes) ---- */
+html[data-badge-kind="off"] .b-kind,
+html[data-badge-return="off"] .b-return,
+html[data-badge-async="off"] .b-async,
+html[data-badge-shared="off"] .b-shared,
+html[data-badge-since="off"] .b-since,
+html[data-badge-change="off"] .b-change,
+html[data-badge-intents="off"] .b-intents { display: none !important; }
+
+/* ---- Clickable chip (subtypes) ---- */
+.chip-button { cursor: pointer; font-family: var(--font-mono); gap: 0.35em; }
+.chip-button:hover { background: var(--bg-hover); border-color: var(--border-strong); color: var(--fg); }
+
+/* Popover/hover-card trigger that should look like its child chip, not a button. */
+.chip-trigger { all: unset; display: inline-flex; align-items: center; cursor: pointer; }
+.chip-trigger:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: var(--radius-sm); }
+
+/* ---- JDA class link (advanced mode only) ---- */
+.jda-link { display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: var(--fg-faint); }
+.jda-link:hover { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+.jda-link svg { width: 11px; height: 11px; }
+html:not([data-advanced="on"]) .page-jda { display: none; }
+
+/* ---- Entity-page filter bar ---- */
+.filter-bar {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 18px;
+  padding: 8px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+.filter-bar .filter-icon { color: var(--fg-faint); display: inline-flex; flex: none; }
+.filter-bar .filter-icon svg { width: 15px; height: 15px; }
+.filter-input { all: unset; flex: 1; min-width: 0; font-size: 13.5px; color: var(--fg); font-family: var(--font-mono); }
+.filter-input::placeholder { color: var(--fg-faint); font-family: var(--font-sans); }
+.filter-clear {
+  display: inline-flex; background: none; border: 0; color: var(--fg-faint);
+  cursor: pointer; padding: 2px; border-radius: var(--radius-sm); flex: none;
+}
+.filter-clear:hover { color: var(--fg); background: var(--bg-hover); }
+.filter-clear svg { width: 14px; height: 14px; }
+.filter-count { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-faint); flex: none; }
+
+.settings-sub { color: var(--fg-faint); font-size: 12px; }
+
+/* ============================================================================
+   Event records — cancellable badge + "Event values" / "Event expressions"
+   ========================================================================== */
+.chip-cancellable { color: var(--warning); border-color: var(--warning-bd); background: var(--warning-bg); }
+
+.event-section { margin-top: 14px; }
+.event-section-head { margin-bottom: 8px; }
+.ev-list { display: flex; flex-direction: column; gap: 6px; }
+.ev-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-inset);
+}
+.ev-row > code.ev-name,
+.ev-row > code.ev-pattern {
+  font-family: var(--font-mono); font-size: var(--fs-code);
+  background: none; border: 0; padding: 0;
+}
+.ev-name { color: var(--syn-var); }   /* event-x reads like a variable */
+.ev-pattern { color: var(--fg); }
+.ev-time {
+  margin-left: auto; font-family: var(--font-mono); font-size: var(--fs-micro);
+  text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-faint);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0 7px;
+}
+
+/* Home: wide events call-to-action card */
+.ecard-wide { margin-bottom: 8px; }
+
+/* Kind colours: PROPERTY (new, dominant) reuses the calm sky; EXPRESSION (rare,
+   non-property) gets a distinct teal so the two read apart. */
+.kind-property { color: var(--sky-300); }
+[data-theme="light"] .kind-property { color: var(--sky-600); }
+.kind-expression { color: #2dd4bf; }
+[data-theme="light"] .kind-expression { color: #0d9488; }
+
+/* ---- "Returned by" section on entity pages ---- */
+.returns-lead { color: var(--fg-muted); font-size: 13px; margin: 0 0 12px; }
+.returns-list { display: flex; flex-direction: column; gap: 6px; }
+.ret-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; text-decoration: none;
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-raised);
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.ret-row:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+.ret-row > code.ret-pattern {
+  font-family: var(--font-mono); font-size: var(--fs-code); color: var(--fg);
+  background: none; border: 0; padding: 0; min-width: 0;
+}
+.ret-src { margin-left: auto; font-size: 11.5px; color: var(--fg-faint); white-space: nowrap; }
+
+/* ============================================================================
+   Hover cards (shared property / subtypes)
+   ========================================================================== */
+.hovercard { padding: 10px; min-width: 220px; max-width: 300px; }
+.hc-title { font-size: 12px; font-weight: 600; color: var(--fg); margin-bottom: 2px; }
+.hc-sub { font-size: 11.5px; color: var(--fg-faint); margin-bottom: 8px; }
+.hc-list { display: flex; flex-direction: column; gap: 2px; max-height: 240px; overflow-y: auto; }
+.hc-item {
+  display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--radius);
+  font-size: 13px; color: var(--fg-muted); text-decoration: none;
+}
+.hc-item:hover { background: var(--bg-hover); color: var(--fg); }
+.hc-item svg { width: 14px; height: 14px; color: var(--fg-faint); flex: none; }
+.hc-action {
+  display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 8px; padding: 7px 8px 2px;
+  border: 0; border-top: 1px solid var(--border); background: none;
+  color: var(--link); font-size: 12.5px; cursor: pointer; font-family: var(--font-sans);
+}
+.hc-action:hover { color: var(--primary); }
+.hc-action svg { width: 14px; height: 14px; }
+
+/* ============================================================================
+   Settings dialog
+   ========================================================================== */
+.settings-dialog { width: min(440px, 92vw); }
+.settings-section { margin-top: 20px; }
+.settings-section:first-of-type { margin-top: 10px; }
+.settings-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--fg-faint); margin-bottom: 10px;
+}
+.settings-hint { font-size: 12.5px; color: var(--fg-muted); margin-top: 8px; }
+.settings-switches { display: flex; flex-direction: column; }
+.settings-switch {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 2px; font-size: 14px; color: var(--fg); border-bottom: 1px solid var(--border);
+}
+.settings-switch:last-child { border-bottom: 0; }
+
+/* ============================================================================
+   Subtype hierarchy dialog
+   ========================================================================== */
+.hierarchy-dialog { width: min(560px, 94vw); }
+.hierarchy { margin-top: 14px; max-height: 60vh; overflow-y: auto; padding-right: 6px; }
+.hx-children { margin-left: 13px; padding-left: 12px; border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+.hx-row {
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  background: none; border: 1px solid transparent; border-radius: var(--radius);
+  padding: 6px 8px; margin: 1px 0; cursor: pointer; color: var(--fg-muted);
+  font-family: var(--font-sans); font-size: 13.5px;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.hx-row:hover { background: var(--bg-hover); color: var(--fg); }
+.hx-current { color: var(--link); font-weight: 600; border-color: var(--border); background: rgba(88,101,242,0.08); }
+.hx-icon { display: inline-flex; color: var(--fg-faint); flex: none; }
+.hx-icon svg { width: 15px; height: 15px; }
+.hx-name { font-family: var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hx-count { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-faint); flex: none; }
