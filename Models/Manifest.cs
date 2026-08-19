@@ -21,8 +21,18 @@ public sealed class SyntaxManifest
     /// <summary>Discord events (each a <see cref="SyntaxInfo"/> of kind EVENT carrying <see cref="SyntaxInfo.Event"/>).</summary>
     public List<SyntaxInfo> Events { get; init; } = [];
 
-    /// <summary>Registry of every type referenced as a return type / placeholder.</summary>
-    public List<TypeRef> Types { get; init; } = [];
+    /// <summary>Catalog of every referenced type; enum types carry their accepted literals in <see cref="TypeEntry.Values"/>.</summary>
+    public List<TypeEntry> Types { get; init; } = [];
+}
+
+/// <summary>A top-level type-catalog entry. Distinct from <see cref="TypeRef"/> (inline refs stay {id,name}).</summary>
+public sealed class TypeEntry
+{
+    public required string Id { get; init; }
+    public required string Name { get; init; }
+
+    /// <summary>For an enum type, the canonical accepted literals (one per constant); empty otherwise.</summary>
+    public List<string> Values { get; init; } = [];
 }
 
 /// <summary>A documented Discord entity = a Skript type with a place in the type hierarchy.</summary>
@@ -185,6 +195,8 @@ public enum SyntaxKind
     Property,
     /// <summary>A non-property expression (e.g. <c>a new discord bot</c>).</summary>
     Expression,
+    /// <summary>A cache lookup returning an entity by id (e.g. <c>news channel with id %string%</c>); attached to its return-type entity.</summary>
+    Getter,
     Effect,
     Condition,
     Event,

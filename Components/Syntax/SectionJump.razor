@@ -1,0 +1,27 @@
+@* Clickable section-nav badges: jump to an on-page section. Each entry's AnchorId must
+   match the `id` of a section on the page. Hidden when there's a single target or none. *@
+@inject IJSRuntime JS
+
+@if (Sections.Count > 1)
+{
+    <div class="kind-jump">
+        @foreach (var entry in Sections)
+        {
+            <button type="button" class="badge @KindClass(entry) kind-jump-btn"
+                    @onclick="@(() => ScrollToAsync(entry.AnchorId))" title="Jump to @entry.Label">
+                <span class="dot"></span>@entry.Label<span class="kj-n">@entry.Count</span>
+            </button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<SectionRef> Sections { get; set; } = [];
+
+    private static string KindClass(SectionRef entry) => entry.KindSlug is null ? "" : $"kind-{entry.KindSlug}";
+
+    private async Task ScrollToAsync(string id)
+    {
+        try { await JS.InvokeVoidAsync("atlas.scrollToId", id, true); } catch { /* ignore */ }
+    }
+}

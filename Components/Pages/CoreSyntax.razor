@@ -46,7 +46,7 @@ else
         <div class="filter-bar">
             <span class="filter-icon"><LucideIcon Name="filter" /></span>
             <input class="filter-input" value="@_filter" @oninput="OnFilterInput"
-                   placeholder="Filter… e.g. since:&gt;=5.0.0 bot"
+                   placeholder="Filter… e.g. since:>=5.0.0 bot"
                    spellcheck="false" autocomplete="off" aria-label="Filter @label" />
             @if (!string.IsNullOrEmpty(_filter))
             {

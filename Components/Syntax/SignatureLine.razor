@@ -1,22 +1,36 @@
-@* Skript pattern signature — %type% placeholders + [optional] segments, javadoc-style. *@
-<div class="signature">@foreach (var token in Tokens)
-    {
-        switch (token.Kind)
+@* Skript pattern signature — %type% placeholders + [optional] segments, javadoc-style.
+   Inline=true drops the boxed wrapper and renders just the coloured tokens (compact lists). *@
+@{
+    RenderFragment tokens = @<text>@foreach (var token in Tokens)
         {
-            case PatternTokenizer.TokenKind.Placeholder:
-                <span class="ph">@token.Value</span>
-                break;
-            case PatternTokenizer.TokenKind.Optional:
-                <span class="opt">@token.Value</span>
-                break;
-            default:
-                @token.Value
-                break;
-        }
-    }</div>
+            switch (token.Kind)
+            {
+                case PatternTokenizer.TokenKind.Placeholder:
+                    <span class="ph">@token.Value</span>
+                    break;
+                case PatternTokenizer.TokenKind.Optional:
+                    <span class="opt">@token.Value</span>
+                    break;
+                default:
+                    @token.Value
+                    break;
+            }
+        }</text>;
+}
+@if (Inline)
+{
+    <code class="signature-inline">@tokens</code>
+}
+else
+{
+    <div class="signature">@tokens</div>
+}
 
 @code {
     [Parameter, EditorRequired] public string Pattern { get; set; } = "";
+
+    /// <summary>Render just the coloured tokens (no boxed signature), for compact one-line lists.</summary>
+    [Parameter] public bool Inline { get; set; }
 
     private IReadOnlyList<PatternTokenizer.Token> Tokens => PatternTokenizer.Tokenize(Pattern);
 }

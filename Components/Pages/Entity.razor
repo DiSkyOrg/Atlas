@@ -70,14 +70,20 @@ else
         @{
             var visible = VisibleGroups.ToList();
             var matchCount = visible.Sum(g => g.Items.Count);
+            var returnedBy = Manifest.ReturnedBy(_entity.Id);
+            var sections = ManifestService.KindSections(visible).ToList();
+            if (returnedBy.Count > 0)
+                sections.Add(new SectionRef("returned-by", "Returned by", returnedBy.Count));
         }
+
+        <SectionJump Sections="sections" />
 
         @if (_allGroups.Count > 0)
         {
             <div class="filter-bar">
                 <span class="filter-icon"><LucideIcon Name="filter" /></span>
                 <input class="filter-input" value="@_filter" @oninput="OnFilterInput"
-                       placeholder="Filter… e.g. type:property since:&gt;=5.0.0 change:set reactions"
+                       placeholder="Filter… e.g. type:property since:>=5.0.0 change:set reactions"
                        spellcheck="false" autocomplete="off" aria-label="Filter syntaxes" />
                 @if (!string.IsNullOrEmpty(_filter))
                 {
@@ -112,11 +118,8 @@ else
         {
             @foreach (var group in visible)
             {
-                <section>
-                    <div class="section-head">
-                        <h2>@group.Label</h2>
-                        <span class="n">@group.Items.Count</span>
-                    </div>
+                <section class="jump-section" id="@ManifestService.KindAnchor(group.Kind)">
+                    <SectionHead Title="@group.Label" Count="group.Items.Count" />
                     @foreach (var syntax in group.Items)
                     {
                         <SyntaxRecord Syntax="syntax" EntityId="@_entity.Id" />
@@ -125,22 +128,23 @@ else
             }
         }
 
-        @{
-            var returnedBy = Manifest.ReturnedBy(_entity.Id);
-        }
         @if (returnedBy.Count > 0)
         {
-            <section class="returns">
-                <div class="section-head">
-                    <h2>Returned by</h2>
-                    <span class="n">@returnedBy.Count</span>
-                </div>
+            <section class="returns jump-section" id="returned-by">
+                <SectionHead Title="Returned by" Count="returnedBy.Count" />
                 <p class="returns-lead">Syntaxes elsewhere in DiSky that return @Manifest.DisplayName(_entity).</p>
                 <div class="returns-list">
                     @foreach (var entry in returnedBy)
                     {
                         <a class="ret-row" href="@entry.Href">
-                            <code class="ret-pattern">@(entry.Syntax.Patterns.FirstOrDefault() ?? entry.Syntax.Name)</code>
+                            @if (entry.Syntax.Patterns.FirstOrDefault() is { } retPattern)
+                            {
+                                <SignatureLine Pattern="@retPattern" Inline="true" />
+                            }
+                            else
+                            {
+                                <code class="signature-inline">@entry.Syntax.Name</code>
+                            }
                             <span class="ret-src">@entry.SourceName</span>
                         </a>
                     }

@@ -16,7 +16,7 @@ public sealed class ManifestService
 
     // Kind display order on an entity / core page. (Events are rendered on their own page.)
     private static readonly SyntaxKind[] KindOrder =
-        [SyntaxKind.Property, SyntaxKind.Effect, SyntaxKind.Condition, SyntaxKind.Expression,
+        [SyntaxKind.Property, SyntaxKind.Getter, SyntaxKind.Effect, SyntaxKind.Condition, SyntaxKind.Expression,
          SyntaxKind.Section, SyntaxKind.Structure, SyntaxKind.Event, SyntaxKind.Type];
 
     // Curated ordering for the root entities; everything else falls back to alphabetical.
@@ -239,9 +239,14 @@ public sealed class ManifestService
             .ToList();
     }
 
+    /// <summary>Jump-nav entries for a kind-grouped page (entity / core), one per group, kind-tinted.</summary>
+    public static IReadOnlyList<SectionRef> KindSections(IEnumerable<KindGroup> groups) =>
+        groups.Select(g => new SectionRef(KindAnchor(g.Kind), g.Label, g.Items.Count, KindSlug(g.Kind))).ToList();
+
     public static string KindLabel(SyntaxKind kind) => kind switch
     {
         SyntaxKind.Property => "Properties",
+        SyntaxKind.Getter => "Getters",
         SyntaxKind.Expression => "Expressions",
         SyntaxKind.Effect => "Effects",
         SyntaxKind.Condition => "Conditions",
@@ -254,6 +259,15 @@ public sealed class ManifestService
 
     /// <summary>Lowercase slug for CSS kind classes (kind-expression, kind-effect, …).</summary>
     public static string KindSlug(SyntaxKind kind) => kind.ToString().ToLowerInvariant();
+
+    /// <summary>DOM anchor id for a kind section on a kind-grouped page (e.g. "kind-properties").</summary>
+    public static string KindAnchor(SyntaxKind kind) => "kind-" + KindSlug(kind);
+
+    /// <summary>DOM anchor id for an arbitrary category section (e.g. an event category → "cat-guild").</summary>
+    public static string CategoryAnchor(string category) => "cat-" + Slugify(category);
+
+    private static string Slugify(string value) =>
+        new(value.Trim().ToLowerInvariant().Select(c => char.IsLetterOrDigit(c) ? c : '-').ToArray());
 
     /// <summary>A Lucide icon name for an entity, used in the tree, page header and home cards.</summary>
     public static string EntityIcon(EntityInfo entity)
@@ -305,6 +319,7 @@ public sealed class ManifestService
     public static string KindIcon(SyntaxKind kind) => kind switch
     {
         SyntaxKind.Property => "tag",
+        SyntaxKind.Getter => "scan-search",
         SyntaxKind.Expression => "square-function",
         SyntaxKind.Effect => "wand-sparkles",
         SyntaxKind.Condition => "circle-check",
@@ -446,6 +461,12 @@ public sealed class ManifestService
 
 /// <summary>A kind section on an entity page (e.g. "Properties" with its syntaxes).</summary>
 public sealed record KindGroup(SyntaxKind Kind, string Label, IReadOnlyList<SyntaxInfo> Items);
+
+/// <summary>
+/// A jump target for the on-page section nav (<see cref="DiSkyAtlas.Components.Syntax.SectionJump"/>):
+/// a stable DOM anchor + label + count, optionally tinted by a kind slug (null = neutral).
+/// </summary>
+public sealed record SectionRef(string AnchorId, string Label, int Count, string? KindSlug = null);
 
 /// <summary>A syntax (with a deep link to its source) that returns a given type.</summary>
 public sealed record ReturnedByEntry(SyntaxInfo Syntax, string SourceName, string Href);

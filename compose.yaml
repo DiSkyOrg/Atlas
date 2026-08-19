@@ -1,0 +1,7 @@
+﻿services:
+  diskyatlas:
+    image: diskyatlas
+    build:
+      context: .
+      dockerfile: Dockerfile
+

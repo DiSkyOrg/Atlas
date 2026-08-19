@@ -54,10 +54,25 @@ window.atlas = (function () {
   function scrollToId(id, smooth) {
     const el = document.getElementById(id);
     if (el) {
-      if (el.classList.contains("record")) el.classList.add("force-open");
+      if (el.classList.contains("record")) {
+        el.classList.add("force-open");
+        flashElement(el);
+      }
       el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
     }
     return !!el;
+  }
+
+  function flashElement(el) {
+    el.classList.remove("atlas-flash");
+    void el.offsetWidth; // force reflow so the animation restarts on a repeat click
+    el.classList.add("atlas-flash");
+    el.addEventListener("animationend", function handler(e) {
+      if (e.animationName === "atlas-flash") {
+        el.classList.remove("atlas-flash");
+        el.removeEventListener("animationend", handler);
+      }
+    });
   }
 
   function clearForceOpen(id) {
@@ -70,9 +85,9 @@ window.atlas = (function () {
     if (el) el.focus();
   }
 
-  function scrollTop(selector) {
+  function scrollTop(selector, smooth) {
     const el = document.querySelector(selector);
-    if (el) el.scrollTop = 0;
+    if (el) el.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
   }
 
   // ---- Settings (display mode + badge visibility), persisted to localStorage ----

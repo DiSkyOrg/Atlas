@@ -1,0 +1,23 @@
+@* Section heading: title + optional count + a right-aligned back-to-top button. *@
+@inject IJSRuntime JS
+
+<div class="section-head">
+    <h2>@Title</h2>
+    @if (Count is not null)
+    {
+        <span class="n">@Count</span>
+    }
+    <button type="button" class="to-top" @onclick="ScrollTopAsync" title="Back to top" aria-label="Back to top">
+        <LucideIcon Name="arrow-up" />
+    </button>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public int? Count { get; set; }
+
+    private async Task ScrollTopAsync()
+    {
+        try { await JS.InvokeVoidAsync("atlas.scrollTop", ".content", true); } catch { /* ignore */ }
+    }
+}

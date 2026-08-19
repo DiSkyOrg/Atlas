@@ -34,7 +34,12 @@
             .GroupBy(ManifestService.EventCategory)
             .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
             .ToList();
+        var sections = groups
+            .Select(g => new SectionRef(ManifestService.CategoryAnchor(g.Key), g.Key, g.Count()))
+            .ToList();
     }
+
+    <SectionJump Sections="sections" />
 
     <div class="filter-bar">
         <span class="filter-icon"><LucideIcon Name="filter" /></span>
@@ -62,11 +67,8 @@
     {
         @foreach (var group in groups)
         {
-            <section>
-                <div class="section-head">
-                    <h2>@group.Key</h2>
-                    <span class="n">@group.Count()</span>
-                </div>
+            <section class="jump-section" id="@ManifestService.CategoryAnchor(group.Key)">
+                <SectionHead Title="@group.Key" Count="group.Count()" />
                 @foreach (var ev in group)
                 {
                     <SyntaxRecord Syntax="ev" EntityId="event" LinkPath="/events" />
