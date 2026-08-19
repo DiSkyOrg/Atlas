@@ -1,5 +1,6 @@
 @* Collapsible entity-tree sidebar built from the manifest hierarchy. *@
 @inject ManifestService Manifest
+@inject DiSkyAtlas.Services.Docs.DocsService Docs
 @inject NavigationManager Nav
 @implements IDisposable
 
@@ -19,6 +20,14 @@
             <span class="count">@Manifest.Events.Count</span>
         </a>
     </div>
+
+    @if (Docs.HasDocs)
+    {
+        <div class="group">
+            <div class="group-label">Documentation</div>
+            <DiSkyAtlas.Components.Docs.DocsNav OnNavigate="NavigatedAsync" />
+        </div>
+    }
 
     @if (Manifest.HasCore)
     {

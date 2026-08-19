@@ -1,6 +1,7 @@
-@* ⌘K command palette — fuzzy search across entities + syntaxes, grouped results,
+@* ⌘K command palette — fuzzy search across entities + syntaxes + docs, grouped results,
    keyboard navigation. The ⌘K/Ctrl+K hotkey is wired through atlas.js. *@
 @inject ManifestService Manifest
+@inject DiSkyAtlas.Services.Docs.DocsService Docs
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @implements IAsyncDisposable
@@ -12,7 +13,7 @@
             <div class="pal-input">
                 <LucideIcon Name="search" />
                 <input @ref="_input" type="text" value="@_query" @oninput="OnInput" @onkeydown="OnKeyDown"
-                       placeholder="Search entities & syntaxes…" autocomplete="off" spellcheck="false" />
+                       placeholder="Search entities, syntaxes & docs…" autocomplete="off" spellcheck="false" />
                 <span class="esc">ESC</span>
             </div>
 
@@ -28,6 +29,15 @@
                     {
                         <div class="pal-group">Entities</div>
                         foreach (var item in _entities)
+                        {
+                            var i = index++;
+                            @PalRow(item, i)
+                        }
+                    }
+                    if (_docs.Count > 0)
+                    {
+                        <div class="pal-group">Documentation</div>
+                        foreach (var item in _docs)
                         {
                             var i = index++;
                             @PalRow(item, i)
@@ -71,6 +81,7 @@
     private ElementReference _input;
 
     private List<SearchItem> _entities = [];
+    private List<SearchItem> _docs = [];
     private List<SearchItem> _events = [];
     private List<SearchItem> _syntaxes = [];
     private List<SearchItem> _flat = [];
@@ -154,6 +165,7 @@
         _open = false;
         var url = item switch
         {
+            { Type: "doc" } => $"/docs/{item.EntityId}",
             { Type: "event" } => $"/events#{item.Anchor}",
             { Type: "syntax", EntityId: "core" } => $"/core/{CorePlural(item.Kind)}#{item.Anchor}",
             { Type: "syntax" } => $"/{item.EntityId}#{item.Anchor}",
@@ -171,12 +183,13 @@
         if (query.Length == 0)
         {
             _entities = Manifest.SearchIndex.Where(r => r.Type == "entity").Take(60).ToList();
+            _docs = [];
             _events = [];
             _syntaxes = [];
         }
         else
         {
-            var scored = Manifest.SearchIndex
+            var scored = Manifest.SearchIndex.Concat(Docs.SearchIndex)
                 .Select(r => (r, s: Score(query, r)))
                 .Where(x => x.s >= 0)
                 .OrderByDescending(x => x.s)
@@ -185,11 +198,12 @@
                 .ToList();
 
             _entities = scored.Where(r => r.Type == "entity").ToList();
+            _docs = scored.Where(r => r.Type == "doc").ToList();
             _events = scored.Where(r => r.Type == "event").ToList();
             _syntaxes = scored.Where(r => r.Type == "syntax").ToList();
         }
 
-        _flat = [.. _entities, .. _events, .. _syntaxes];
+        _flat = [.. _entities, .. _docs, .. _events, .. _syntaxes];
         if (_sel >= _flat.Count) _sel = Math.Max(0, _flat.Count - 1);
     }
 

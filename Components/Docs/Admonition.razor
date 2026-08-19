@@ -1,0 +1,49 @@
+@* mkdocs-style admonition. `!!!` = static callout, `???` = collapsed <details>,
+   `???+` = collapsible but initially open. Body is regular nested markdown. *@
+@using DiSkyAtlas.Services.Docs
+
+@if (Block.Collapsible)
+{
+    <details class="admonition adm-@Block.Kind" open="@Block.InitiallyOpen">
+        <summary class="adm-title">
+            <span class="adm-icon"><LucideIcon Name="@Icon" /></span>
+            <span class="adm-label">@Title</span>
+            <span class="adm-chev"><LucideIcon Name="chevron-down" /></span>
+        </summary>
+        <div class="adm-body"><DocBlocks Blocks="Block" /></div>
+    </details>
+}
+else
+{
+    <div class="admonition adm-@Block.Kind">
+        <div class="adm-title">
+            <span class="adm-icon"><LucideIcon Name="@Icon" /></span>
+            <span class="adm-label">@Title</span>
+        </div>
+        <div class="adm-body"><DocBlocks Blocks="Block" /></div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public AdmonitionBlock Block { get; set; } = default!;
+
+    private string Title => Block.Title ?? DefaultTitle(Block.Kind);
+
+    private static string DefaultTitle(string kind) =>
+        kind.Length == 0 ? "Note" : char.ToUpperInvariant(kind[0]) + kind[1..];
+
+    private string Icon => Block.Kind switch
+    {
+        "note" => "pencil",
+        "tip" or "hint" => "flame",
+        "info" or "abstract" or "summary" => "info",
+        "success" or "check" or "done" => "circle-check",
+        "warning" or "caution" or "attention" => "triangle-alert",
+        "danger" or "error" or "failure" => "circle-alert",
+        "bug" => "bug",
+        "example" => "flask-conical",
+        "question" or "faq" or "help" => "circle-help",
+        "quote" or "cite" => "quote",
+        _ => "info"
+    };
+}

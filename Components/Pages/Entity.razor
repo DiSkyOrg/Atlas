@@ -1,5 +1,6 @@
 @page "/{EntityId}"
 @inject ManifestService Manifest
+@inject DocsService Docs
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @implements IDisposable
@@ -71,9 +72,12 @@ else
             var visible = VisibleGroups.ToList();
             var matchCount = visible.Sum(g => g.Items.Count);
             var returnedBy = Manifest.ReturnedBy(_entity.Id);
+            var documentedIn = Docs.DocsForEntity(_entity.Id);
             var sections = ManifestService.KindSections(visible).ToList();
             if (returnedBy.Count > 0)
                 sections.Add(new SectionRef("returned-by", "Returned by", returnedBy.Count));
+            if (documentedIn.Count > 0)
+                sections.Add(new SectionRef("documented-in", "Documentation", documentedIn.Count));
         }
 
         <SectionJump Sections="sections" />
@@ -146,6 +150,28 @@ else
                                 <code class="signature-inline">@entry.Syntax.Name</code>
                             }
                             <span class="ret-src">@entry.SourceName</span>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+
+        @if (documentedIn.Count > 0)
+        {
+            <section class="returns jump-section" id="documented-in">
+                <SectionHead Title="Documentation" Count="documentedIn.Count" />
+                <p class="returns-lead">Hand-written guides that cover @Manifest.DisplayName(_entity).</p>
+                <div class="returns-list">
+                    @foreach (var entry in documentedIn)
+                    {
+                        <a class="ret-row ret-doc" href="@($"/docs/{entry.Page.Slug}")">
+                            <span class="ret-doc-icon"><LucideIcon Name="@(entry.Page.Icon ?? "book-open")" /></span>
+                            <span class="ret-doc-title">@entry.Page.Title</span>
+                            @if (entry.Page.Description is { Length: > 0 } entryDescription)
+                            {
+                                <span class="ret-doc-desc">@entryDescription</span>
+                            }
+                            <span class="ret-src">Docs</span>
                         </a>
                     }
                 </div>

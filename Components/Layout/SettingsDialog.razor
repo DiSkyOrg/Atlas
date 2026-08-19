@@ -1,48 +1,80 @@
 @* Per-user display options. Values persist to localStorage via atlas.js and are
-   applied as data-* attributes on <html>; the CSS does the rest (no re-render). *@
+   applied as data-* attributes on <html>; the CSS does the rest (no re-render).
+   Two tabs keep the generated-atlas options and the documentation options apart. *@
 @inject IJSRuntime JS
 
 <BbDialog @bind-Open="_open">
-    <BbDialogContent Class="settings-dialog"> 
+    <BbDialogContent Class="settings-dialog">
         <BbDialogHeader>
             <BbDialogTitle>Display options</BbDialogTitle>
             <BbDialogDescription>Saved in this browser only.</BbDialogDescription>
         </BbDialogHeader>
 
-        <div class="settings-section">
-            <div class="settings-label">Syntax cards</div>
-            <BbToggleGroup TValue="string" Value="@_display" ValueChanged="OnDisplayChanged"
-                           Type="ToggleGroupType.Single" Variant="ToggleVariant.Outline">
-                <BbToggleGroupItem Value="@("compact")">Compact</BbToggleGroupItem>
-                <BbToggleGroupItem Value="@("expanded")">Expanded</BbToggleGroupItem>
-                <BbToggleGroupItem Value="@("always")">Always open</BbToggleGroupItem>
-            </BbToggleGroup>
-            <div class="settings-hint">@DisplayHint</div>
-        </div>
+        <BbTabs DefaultValue="atlas" Class="settings-tabs">
+            <BbTabsList>
+                <BbTabsTrigger Value="atlas">Atlas</BbTabsTrigger>
+                <BbTabsTrigger Value="docs">Documentation</BbTabsTrigger>
+            </BbTabsList>
 
-        <div class="settings-section">
-            <div class="settings-label">Badges</div>
-            <div class="settings-switches">
-                @foreach (var badge in BadgeList)
-                {
+            <BbTabsContent Value="atlas">
+                <div class="settings-section">
+                    <div class="settings-label">Syntax cards</div>
+                    <BbToggleGroup TValue="string" Value="@_display" ValueChanged="OnDisplayChanged"
+                                   Type="ToggleGroupType.Single" Variant="ToggleVariant.Outline">
+                        <BbToggleGroupItem Value="@("compact")">Compact</BbToggleGroupItem>
+                        <BbToggleGroupItem Value="@("expanded")">Expanded</BbToggleGroupItem>
+                        <BbToggleGroupItem Value="@("always")">Always open</BbToggleGroupItem>
+                    </BbToggleGroup>
+                    <div class="settings-hint">@DisplayHint</div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-label">Badges</div>
+                    <div class="settings-switches">
+                        @foreach (var badge in BadgeList)
+                        {
+                            <label class="settings-switch">
+                                <span>@badge.Label</span>
+                                <BbSwitch Checked="@_badges[badge.Key]"
+                                          CheckedChanged="@(v => OnBadgeChanged(badge.Key, v))"
+                                          Size="SwitchSize.Small" AriaLabel="@badge.Label" />
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-label">Developer</div>
                     <label class="settings-switch">
-                        <span>@badge.Label</span>
-                        <BbSwitch Checked="@_badges[badge.Key]"
-                                  CheckedChanged="@(v => OnBadgeChanged(badge.Key, v))"
-                                  Size="SwitchSize.Small" AriaLabel="@badge.Label" />
+                        <span>Advanced mode <span class="settings-sub">— show JDA classes</span></span>
+                        <BbSwitch Checked="@_advanced" CheckedChanged="OnAdvancedChanged"
+                                  Size="SwitchSize.Small" AriaLabel="Advanced developer mode" />
                     </label>
-                }
-            </div>
-        </div>
+                </div>
+            </BbTabsContent>
 
-        <div class="settings-section">
-            <div class="settings-label">Developer</div>
-            <label class="settings-switch">
-                <span>Advanced mode <span class="settings-sub">— show JDA classes</span></span>
-                <BbSwitch Checked="@_advanced" CheckedChanged="OnAdvancedChanged"
-                          Size="SwitchSize.Small" AriaLabel="Advanced developer mode" />
-            </label>
-        </div>
+            <BbTabsContent Value="docs">
+                <div class="settings-section">
+                    <div class="settings-label">Syntax reference cards</div>
+                    <BbToggleGroup TValue="string" Value="@_docCard" ValueChanged="OnDocCardChanged"
+                                   Type="ToggleGroupType.Single" Variant="ToggleVariant.Outline">
+                        <BbToggleGroupItem Value="@("compact")">Compact</BbToggleGroupItem>
+                        <BbToggleGroupItem Value="@("standard")">Standard</BbToggleGroupItem>
+                        <BbToggleGroupItem Value="@("full")">Full</BbToggleGroupItem>
+                    </BbToggleGroup>
+                    <div class="settings-hint">@DocCardHint</div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-label">Pages</div>
+                    <label class="settings-switch">
+                        <span>Page contents <span class="settings-sub">— jump links to each section</span></span>
+                        <BbSwitch Checked="@_docToc" CheckedChanged="OnDocTocChanged"
+                                  Size="SwitchSize.Small" AriaLabel="Show page contents" />
+                    </label>
+                </div>
+            </BbTabsContent>
+        </BbTabs>
     </BbDialogContent>
 </BbDialog>
 
@@ -50,6 +82,8 @@
     private bool _open;
     private string _display = "compact";
     private bool _advanced;
+    private string _docCard = "standard";
+    private bool _docToc = true;
     private readonly Dictionary<string, bool> _badges = new();
 
     private static readonly (string Key, string Label)[] BadgeList =
@@ -65,6 +99,13 @@
         _ => "Always show every syntax in full; no collapsing."
     };
 
+    private string DocCardHint => _docCard switch
+    {
+        "compact" => "Referenced syntaxes show only their name and kind.",
+        "full" => "Referenced syntaxes show pattern, description, return type and version.",
+        _ => "Referenced syntaxes show their pattern and a short description."
+    };
+
     public async Task Open()
     {
         try
@@ -74,12 +115,16 @@
             _advanced = s.Advanced;
             foreach (var (key, _) in BadgeList)
                 _badges[key] = s.Badges is null || !s.Badges.TryGetValue(key, out var v) || v;
+            _docCard = s.Docs?.Card ?? "standard";
+            _docToc = s.Docs?.Toc ?? true;
         }
         catch
         {
             _display = "compact";
             _advanced = false;
             foreach (var (key, _) in BadgeList) _badges[key] = true;
+            _docCard = "standard";
+            _docToc = true;
         }
         _open = true;
         StateHasChanged();
@@ -103,10 +148,29 @@
         try { await JS.InvokeVoidAsync("atlas.setAdvanced", on); } catch { /* ignore */ }
     }
 
+    private async Task OnDocCardChanged(string? value)
+    {
+        _docCard = value ?? "standard";
+        try { await JS.InvokeVoidAsync("atlas.setDocCard", _docCard); } catch { /* ignore */ }
+    }
+
+    private async Task OnDocTocChanged(bool on)
+    {
+        _docToc = on;
+        try { await JS.InvokeVoidAsync("atlas.setDocToc", on); } catch { /* ignore */ }
+    }
+
     private sealed class SettingsDto
     {
         public string? Display { get; set; }
         public bool Advanced { get; set; }
         public Dictionary<string, bool>? Badges { get; set; }
+        public DocsDto? Docs { get; set; }
+    }
+
+    private sealed class DocsDto
+    {
+        public string? Card { get; set; }
+        public bool? Toc { get; set; }
     }
 }

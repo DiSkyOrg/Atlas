@@ -1,0 +1,52 @@
+@* Doc heading with a stable anchor id and a hover copy-link button (same pattern as the
+   syntax record anchor). ToC/deep-link anchors come from the auto-identifiers extension. *@
+@using Markdig.Renderers.Html
+@using Markdig.Syntax
+@using DiSkyAtlas.Services.Docs
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+@switch (Heading.Level)
+{
+    case 1:
+        <h1 id="@AnchorId" class="doc-h">@Content</h1>
+        break;
+    case 2:
+        <h2 id="@AnchorId" class="doc-h">@Content</h2>
+        break;
+    case 3:
+        <h3 id="@AnchorId" class="doc-h">@Content</h3>
+        break;
+    case 4:
+        <h4 id="@AnchorId" class="doc-h">@Content</h4>
+        break;
+    case 5:
+        <h5 id="@AnchorId" class="doc-h">@Content</h5>
+        break;
+    default:
+        <h6 id="@AnchorId" class="doc-h">@Content</h6>
+        break;
+}
+
+@code {
+    [Parameter, EditorRequired] public HeadingBlock Heading { get; set; } = default!;
+    [CascadingParameter] public DocRenderContext Ctx { get; set; } = default!;
+
+    private string AnchorId =>
+        Heading.TryGetAttributes()?.Id ?? DocIndexer.Slug(DocIndexer.ExtractText(Heading.Inline));
+
+    private RenderFragment Content => __builder =>
+    {
+        <DocInlines Inline="Heading.Inline" />
+        <a class="anchor" href="@($"/docs/{Ctx.Page.Slug}#{AnchorId}")" title="Copy link to this section"
+           @onclick="CopyLinkAsync" @onclick:stopPropagation>
+            <LucideIcon Name="link" />
+        </a>
+    };
+
+    private async Task CopyLinkAsync()
+    {
+        var link = Nav.ToAbsoluteUri($"docs/{Ctx.Page.Slug}#{AnchorId}").ToString();
+        try { await JS.InvokeAsync<bool>("atlas.copyText", link); } catch { /* ignore */ }
+    }
+}

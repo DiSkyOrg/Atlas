@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" class="dark" data-syntax-display="compact">
+<html lang="en" data-theme="dark" class="dark" data-syntax-display="compact" data-doc-card="standard" data-doc-toc="on">
 
 <head>
     <meta charset="utf-8"/>
@@ -34,8 +34,14 @@
                     var v = (k in b) ? b[k] : true;
                     r.setAttribute('data-badge-' + k, v ? 'on' : 'off');
                 });
+                var docs = d.docs || {};
+                var card = ['compact', 'standard', 'full'].indexOf(docs.card) >= 0 ? docs.card : 'standard';
+                r.setAttribute('data-doc-card', card);
+                r.setAttribute('data-doc-toc', docs.toc === false ? 'off' : 'on');
             } catch (e) {
                 document.documentElement.setAttribute('data-syntax-display', 'compact');
+                document.documentElement.setAttribute('data-doc-card', 'standard');
+                document.documentElement.setAttribute('data-doc-toc', 'on');
             }
         })();
     </script>

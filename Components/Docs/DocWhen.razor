@@ -1,0 +1,33 @@
+@* `::: when <expr>` — conditional markdown driven by page toggles. The expression mixes
+   toggle ids with !, &&, || and parentheses (or the words not/and/or). *@
+@using DiSkyAtlas.Services.Docs
+@implements IDisposable
+
+@if (_error is not null)
+{
+    <div class="doc-unknown">
+        <LucideIcon Name="triangle-alert" />
+        <span>Invalid <code>::: when</code> condition “@Context.Argument”: @_error</span>
+    </div>
+}
+else if (_evaluate(Ctx.State) && Context.Body is not null)
+{
+    <div class="doc-when"><DocBlocks Blocks="Context.Body" /></div>
+}
+
+@code {
+    [Parameter, EditorRequired] public DocDirectiveContext Context { get; set; } = default!;
+    [CascadingParameter] public DocRenderContext Ctx { get; set; } = default!;
+
+    private Func<DocPageState, bool> _evaluate = _ => false;
+    private string? _error;
+
+    protected override void OnInitialized() => Ctx.State.Changed += OnStateChanged;
+
+    protected override void OnParametersSet() =>
+        DocCondition.TryParse(Context.Argument, out _evaluate, out _error);
+
+    private void OnStateChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Ctx.State.Changed -= OnStateChanged;
+}

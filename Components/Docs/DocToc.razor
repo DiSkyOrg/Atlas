@@ -1,0 +1,28 @@
+@* On-page table of contents built from the page's h2 headings. Hidden entirely when the
+   user turns "Show page contents" off (html[data-doc-toc="off"] — pure CSS). *@
+@using DiSkyAtlas.Models
+@inject IJSRuntime JS
+
+@if (Entries.Count > 1)
+{
+    <div class="kind-jump doc-toc">
+        @foreach (var heading in Entries)
+        {
+            <button type="button" class="badge kind-jump-btn"
+                    @onclick="@(() => ScrollToAsync(heading.AnchorId))" title="Jump to @heading.Text">
+                <span class="dot"></span>@heading.Text
+            </button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public DocPage Page { get; set; } = default!;
+
+    private IReadOnlyList<DocHeading> Entries => Page.Headings.Where(h => h.Level == 2).ToList();
+
+    private async Task ScrollToAsync(string id)
+    {
+        try { await JS.InvokeVoidAsync("atlas.scrollToId", id, true); } catch { /* ignore */ }
+    }
+}

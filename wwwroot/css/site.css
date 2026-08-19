@@ -528,3 +528,242 @@ html:not([data-advanced="on"]) .page-jda { display: none; }
 .hx-icon svg { width: 15px; height: 15px; }
 .hx-name { font-family: var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hx-count { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-faint); flex: none; }
+
+/* ============================================================================
+   Documentation — hand-written markdown pages (/docs). Rendered as components
+   by Components/Docs/*; these styles only use the existing design tokens.
+   ========================================================================== */
+
+/* ---- Doc identity (badge hue, tags, title) ---- */
+.kind-doc { color: var(--blurple-300); }
+[data-theme="light"] .kind-doc { color: var(--blurple-600); }
+.page-head .doc-title { font-family: var(--font-sans); }
+.chip-tag { color: var(--fg-muted); font-family: var(--font-sans); }
+
+/* ---- Prose ---- */
+.prose { font-size: var(--fs-body); line-height: var(--lh-body); }
+.prose > :first-child { margin-top: 0; }
+.prose p { margin: 0 0 14px; color: var(--fg-muted); }
+.prose h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--border); scroll-margin-top: 16px; }
+.prose h3 { margin: 26px 0 10px; scroll-margin-top: 16px; }
+.prose h4 { font-size: 15px; margin: 20px 0 8px; }
+.prose ul, .prose ol { margin: 0 0 14px; padding-left: 24px; color: var(--fg-muted); }
+.prose li { margin: 4px 0; }
+.prose li > p { margin-bottom: 6px; }
+.prose input.task-box { margin-right: 7px; accent-color: var(--primary); }
+.prose li:has(> .task-box) { list-style: none; margin-left: -18px; }
+.prose blockquote { margin: 0 0 14px; padding: 2px 0 2px 16px; border-left: 3px solid var(--border-strong); color: var(--fg-muted); }
+.prose blockquote p:last-child { margin-bottom: 0; }
+.prose hr { border: 0; border-top: 1px solid var(--border); margin: 28px 0; }
+.prose img { max-width: 100%; border-radius: var(--radius-lg); border: 1px solid var(--border); }
+.prose dt { font-weight: 600; color: var(--fg); margin-top: 10px; }
+.prose dd { margin: 4px 0 10px 18px; color: var(--fg-muted); }
+.prose .code-block { margin: 0 0 14px; }
+.prose mark { background: rgba(252, 211, 77, 0.28); color: inherit; border-radius: 2px; padding: 0 2px; }
+
+/* Heading hover copy-link (same affordance as syntax records) */
+.doc-h .anchor {
+  opacity: 0; margin-left: 8px; color: var(--fg-faint); display: inline-flex;
+  vertical-align: middle; transition: opacity var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.doc-h:hover .anchor { opacity: 1; }
+.doc-h .anchor:hover { color: var(--primary); }
+.doc-h .anchor svg { width: 14px; height: 14px; }
+
+/* ---- Tables ---- */
+.doc-table-wrap { overflow-x: auto; margin: 0 0 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.doc-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.doc-table th { text-align: left; font-weight: 600; color: var(--fg); background: var(--bg-inset); }
+.doc-table th, .doc-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.doc-table tr:last-child td { border-bottom: 0; }
+.doc-table td { color: var(--fg-muted); }
+.doc-table p { margin: 0; }
+
+/* ---- Admonitions (!!! kind "Title" / ??? collapsed / ???+ open) ---- */
+.admonition {
+  --adm-fg: var(--fg-muted); --adm-bg: var(--bg-inset); --adm-bd: var(--border-strong);
+  border: 1px solid var(--adm-bd); border-left: 3px solid var(--adm-fg);
+  border-radius: var(--radius-lg); background: var(--bg-raised);
+  margin: 0 0 16px; overflow: hidden;
+}
+.adm-title {
+  display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+  font-weight: 600; font-size: 13.5px; color: var(--adm-fg); background: var(--adm-bg);
+}
+.adm-icon { display: inline-flex; flex: none; }
+.adm-icon svg { width: 15px; height: 15px; }
+.adm-body { padding: 12px 14px; }
+.adm-body > :last-child { margin-bottom: 0; }
+details.admonition > summary { cursor: pointer; list-style: none; user-select: none; }
+details.admonition > summary::-webkit-details-marker { display: none; }
+.adm-chev { margin-left: auto; display: inline-flex; color: var(--fg-faint); transition: transform var(--dur) var(--ease); }
+details[open] > summary .adm-chev { transform: rotate(180deg); }
+.adm-chev svg { width: 15px; height: 15px; }
+
+.adm-note { --adm-fg: var(--blurple-300); --adm-bg: rgba(88, 101, 242, 0.08); --adm-bd: rgba(88, 101, 242, 0.28); }
+.adm-tip, .adm-hint { --adm-fg: var(--emerald-300); --adm-bg: var(--success-bg); --adm-bd: var(--success-bd); }
+.adm-success, .adm-check, .adm-done { --adm-fg: var(--emerald-300); --adm-bg: var(--success-bg); --adm-bd: var(--success-bd); }
+.adm-info, .adm-abstract, .adm-summary { --adm-fg: var(--sky-300); --adm-bg: var(--info-bg); --adm-bd: var(--info-bd); }
+.adm-question, .adm-faq, .adm-help { --adm-fg: var(--sky-300); --adm-bg: var(--info-bg); --adm-bd: var(--info-bd); }
+.adm-warning, .adm-caution, .adm-attention { --adm-fg: var(--amber-300); --adm-bg: var(--warning-bg); --adm-bd: var(--warning-bd); }
+.adm-danger, .adm-error, .adm-failure, .adm-bug { --adm-fg: var(--rose-300); --adm-bg: var(--destructive-bg); --adm-bd: var(--destructive-bd); }
+.adm-example { --adm-fg: #c4b5fd; --adm-bg: rgba(124, 58, 237, 0.10); --adm-bd: rgba(124, 58, 237, 0.30); }
+[data-theme="light"] .adm-note { --adm-fg: var(--blurple-600); }
+[data-theme="light"] .adm-tip, [data-theme="light"] .adm-hint,
+[data-theme="light"] .adm-success, [data-theme="light"] .adm-check, [data-theme="light"] .adm-done { --adm-fg: var(--emerald-600); }
+[data-theme="light"] .adm-info, [data-theme="light"] .adm-abstract, [data-theme="light"] .adm-summary,
+[data-theme="light"] .adm-question, [data-theme="light"] .adm-faq, [data-theme="light"] .adm-help { --adm-fg: var(--sky-600); }
+[data-theme="light"] .adm-warning, [data-theme="light"] .adm-caution, [data-theme="light"] .adm-attention { --adm-fg: var(--amber-600); }
+[data-theme="light"] .adm-danger, [data-theme="light"] .adm-error,
+[data-theme="light"] .adm-failure, [data-theme="light"] .adm-bug { --adm-fg: var(--rose-600); }
+[data-theme="light"] .adm-example { --adm-fg: #7c3aed; }
+
+/* ---- Content tabs (=== "Title") ---- */
+.doc-tabs { margin: 0 0 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-raised); overflow: hidden; }
+.doc-tabs-list { display: flex; gap: 2px; border-bottom: 1px solid var(--border); background: var(--bg-inset); padding: 6px 8px 0; overflow-x: auto; }
+.doc-tab {
+  border: 0; background: none; color: var(--fg-muted); cursor: pointer;
+  font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+  padding: 7px 12px; border-bottom: 2px solid transparent; white-space: nowrap;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.doc-tab:hover { color: var(--fg); }
+.doc-tab.active { color: var(--link); border-bottom-color: var(--primary); font-weight: 600; }
+.doc-tabs-panel { padding: 14px; }
+.doc-tabs-panel > :last-child { margin-bottom: 0; }
+
+/* ---- Numbered steps (::: steps) ---- */
+.doc-steps { display: flex; flex-direction: column; margin: 0 0 16px; }
+.doc-step { display: flex; gap: 14px; position: relative; padding-bottom: 18px; }
+.doc-step:last-child { padding-bottom: 0; }
+.doc-step::before { content: ""; position: absolute; left: 13px; top: 32px; bottom: 4px; width: 2px; background: var(--border); }
+.doc-step:last-child::before { display: none; }
+.doc-step-num {
+  flex: none; width: 27px; height: 27px; display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: rgba(88, 101, 242, 0.15); border: 1px solid rgba(88, 101, 242, 0.4);
+  color: var(--link); font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; z-index: 1;
+}
+.doc-step-body { flex: 1; min-width: 0; padding-top: 3px; }
+.doc-step-body > :last-child { margin-bottom: 0; }
+
+/* ---- Page toggles + conditional blocks (toggle: / ::: when) ---- */
+.doc-toggle {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0 8px 14px 0;
+  padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--bg-raised); font-size: 13px; color: var(--fg);
+}
+.doc-toggle-label { user-select: none; }
+
+/* ---- Degraded boxes (unknown component / broken ref) ---- */
+.doc-unknown {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 14px; padding: 10px 14px;
+  border: 1px dashed var(--warning-bd); background: var(--warning-bg); color: var(--warning);
+  border-radius: var(--radius); font-size: 13px;
+}
+.doc-unknown svg { width: 15px; height: 15px; flex: none; }
+.doc-unknown code { color: inherit; }
+.doc-broken-link { color: var(--warning); border-bottom: 1px dashed var(--warning); cursor: help; }
+
+/* ---- Syntax / entity / doc reference cards (syntax: guild#ban) ---- */
+.sref {
+  display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; padding: 12px 16px;
+  border: 1px solid var(--border); border-left: 3px solid var(--primary);
+  border-radius: var(--radius-lg); background: var(--bg-raised); text-decoration: none;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+a.sref:hover { background: var(--bg-hover); border-color: var(--border-strong); border-left-color: var(--primary); text-decoration: none; }
+.sref-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sref-name { font-family: var(--font-mono); font-weight: 600; font-size: 14.5px; color: var(--fg); }
+.sref-src { margin-left: auto; font-size: 11.5px; color: var(--fg-faint); white-space: nowrap; }
+.sref-pattern { min-width: 0; overflow-x: auto; }
+.sref-desc {
+  color: var(--fg-muted); font-size: 13px; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sref-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.sref-icon { display: inline-flex; color: var(--primary); flex: none; }
+.sref-icon svg { width: 17px; height: 17px; }
+.sref-missing {
+  flex-direction: row; align-items: center; gap: 10px; font-size: 13px;
+  color: var(--warning); background: var(--warning-bg);
+  border-color: var(--warning-bd); border-left-color: var(--warning);
+}
+.sref-missing-icon { display: inline-flex; flex: none; }
+.sref-missing-icon svg { width: 16px; height: 16px; }
+.sref-missing code { color: inherit; }
+
+/* Card detail level: the Documentation settings tab sets data-doc-card on <html>;
+   a per-card `syntax: … compact|standard|full` flag (data-detail) wins over it. */
+html[data-doc-card="compact"] .sref:not([data-detail]) .sref-pattern,
+html[data-doc-card="compact"] .sref:not([data-detail]) .sref-desc,
+html[data-doc-card="compact"] .sref:not([data-detail]) .sref-meta,
+html[data-doc-card="standard"] .sref:not([data-detail]) .sref-meta { display: none; }
+.sref[data-detail="compact"] .sref-pattern,
+.sref[data-detail="compact"] .sref-desc,
+.sref[data-detail="compact"] .sref-meta,
+.sref[data-detail="standard"] .sref-meta { display: none; }
+
+/* ---- On-page ToC ---- */
+.doc-toc { margin-bottom: 18px; }
+html[data-doc-toc="off"] .doc-toc { display: none; }
+
+/* ---- Related syntaxes ---- */
+.doc-related { margin-top: 10px; }
+
+/* ---- Prev / next footer nav ---- */
+.doc-pn { display: flex; gap: 12px; margin-top: 36px; }
+.doc-pn-link {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-raised);
+  text-decoration: none; transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.doc-pn-link:hover { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+.doc-pn-next { justify-content: flex-end; text-align: right; margin-left: auto; }
+.doc-pn-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.doc-pn-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-faint); }
+.doc-pn-title { font-size: 13.5px; font-weight: 600; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-pn-link svg { width: 16px; height: 16px; color: var(--fg-faint); flex: none; }
+@media (max-width: 860px) { .doc-pn { flex-direction: column; } }
+
+/* ---- Dev-only lint banner (/docs) ---- */
+.doc-lint {
+  margin: 0 0 20px; padding: 12px 16px; font-size: 13px; color: var(--fg-muted);
+  border: 1px solid var(--warning-bd); background: var(--warning-bg); border-radius: var(--radius-lg);
+}
+.doc-lint-head { display: flex; align-items: center; gap: 8px; color: var(--warning); font-weight: 600; margin-bottom: 6px; }
+.doc-lint-head svg { width: 15px; height: 15px; }
+.doc-lint ul { margin: 0; padding-left: 20px; }
+.doc-lint li { margin: 2px 0; }
+
+/* ---- Atlas-side backlinks: guide strip + "mentioned in" chips on records ---- */
+.doc-guide {
+  display: flex; align-items: center; gap: 10px; margin: 12px 0 0; padding: 9px 12px;
+  border: 1px solid rgba(88, 101, 242, 0.3); background: rgba(88, 101, 242, 0.08);
+  border-radius: var(--radius); font-size: 13px; color: var(--fg-muted); text-decoration: none;
+  transition: background var(--dur) var(--ease);
+}
+a.doc-guide:hover { background: rgba(88, 101, 242, 0.14); text-decoration: none; }
+.doc-guide svg { width: 15px; height: 15px; color: var(--link); flex: none; }
+.doc-guide .dg-title { color: var(--link); font-weight: 600; }
+.chip-doc { color: var(--blurple-300); font-family: var(--font-sans); text-decoration: none; }
+.chip-doc:hover { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
+[data-theme="light"] .chip-doc { color: var(--blurple-600); }
+
+/* "Documentation" rows on entity pages (Documented in) */
+.ret-doc-icon { display: inline-flex; color: var(--link); flex: none; }
+.ret-doc-icon svg { width: 15px; height: 15px; }
+.ret-doc-title { font-size: 13.5px; font-weight: 600; color: var(--fg); white-space: nowrap; }
+.ret-doc-desc { font-size: 12.5px; color: var(--fg-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+
+/* Settings dialog tabs */
+.settings-tabs { margin-top: 12px; }
+.settings-tabs .settings-section:first-of-type { margin-top: 16px; }
+
+/* Blueprint's CSS reset strips list markers; restore them inside prose. */
+.prose ul { list-style: disc; }
+.prose ul ul { list-style: circle; }
+.prose ol { list-style: decimal; }
+
+/* Markdown links (site.css resets `a` to inherit; classless prose links get the link color). */
+.prose a:not([class]) { color: var(--link); }
+.prose a:not([class]):hover { text-decoration: underline; text-underline-offset: 2px; }

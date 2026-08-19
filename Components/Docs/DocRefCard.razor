@@ -1,0 +1,40 @@
+@* Card for a `doc: section/page` reference — links one doc page from another. *@
+@using DiSkyAtlas.Models
+@using DiSkyAtlas.Services.Docs
+@inject DocsService Docs
+
+@if (Reference is not { } reference || !reference.Resolved || Docs.GetPage(reference.DocSlug) is not { } target)
+{
+    <div class="sref sref-missing">
+        <span class="sref-missing-icon"><LucideIcon Name="triangle-alert" /></span>
+        <span>Unknown doc page <code>@(Reference?.Raw ?? Context?.Argument)</code>.</span>
+    </div>
+}
+else
+{
+    <a class="sref sref-doc" href="@reference.Href">
+        <span class="sref-head">
+            <span class="sref-icon"><LucideIcon Name="@(target.Icon ?? "book-open")" /></span>
+            <span class="sref-name">@target.Title</span>
+            <span class="badge kind-doc"><span class="dot"></span>guide</span>
+            <span class="sref-src">@SectionTitle(target)</span>
+        </span>
+        @if (target.Description is { Length: > 0 } description)
+        {
+            <span class="sref-desc">@description</span>
+        }
+    </a>
+}
+
+@code {
+    [Parameter] public DocDirectiveContext? Context { get; set; }
+    [Parameter] public AtlasRef? Ref { get; set; }
+
+    private AtlasRef? Reference =>
+        Ref
+        ?? Context?.ResolvedRef
+        ?? (Context is { } context ? Docs.Resolve($"doc:{context.Argument}") : null);
+
+    private string SectionTitle(Models.DocPage page) =>
+        Docs.GetSection(page.SectionId)?.Title ?? page.SectionId;
+}

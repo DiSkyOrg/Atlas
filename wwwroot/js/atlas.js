@@ -90,18 +90,21 @@ window.atlas = (function () {
     if (el) el.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
   }
 
-  // ---- Settings (display mode + badge visibility), persisted to localStorage ----
+  // ---- Settings (atlas display + badges, docs card level + toc), persisted to localStorage ----
   const SETTINGS_KEY = "disky-settings";
   const BADGE_KEYS = ["kind", "return", "change", "async", "shared", "since", "intents"];
-  const SETTINGS_DEFAULTS = { display: "compact", badges: {} };
-  BADGE_KEYS.forEach(k => SETTINGS_DEFAULTS.badges[k] = true);
+  const DOC_CARD_LEVELS = ["compact", "standard", "full"];
 
   function readSettings() {
     let raw = {};
     try { raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"); } catch (e) { /* ignore */ }
     const badges = {};
     BADGE_KEYS.forEach(k => { badges[k] = (raw.badges && k in raw.badges) ? !!raw.badges[k] : true; });
-    return { display: raw.display || SETTINGS_DEFAULTS.display, advanced: !!raw.advanced, badges: badges };
+    const docs = {
+      card: (raw.docs && DOC_CARD_LEVELS.indexOf(raw.docs.card) >= 0) ? raw.docs.card : "standard",
+      toc: !(raw.docs && raw.docs.toc === false)
+    };
+    return { display: raw.display || "compact", advanced: !!raw.advanced, badges: badges, docs: docs };
   }
 
   function applySettings(s) {
@@ -109,6 +112,8 @@ window.atlas = (function () {
     root.setAttribute("data-syntax-display", s.display);
     root.setAttribute("data-advanced", s.advanced ? "on" : "off");
     BADGE_KEYS.forEach(k => root.setAttribute("data-badge-" + k, s.badges[k] ? "on" : "off"));
+    root.setAttribute("data-doc-card", s.docs.card);
+    root.setAttribute("data-doc-toc", s.docs.toc ? "on" : "off");
   }
 
   function persistSettings(s) {
@@ -123,6 +128,10 @@ window.atlas = (function () {
   function setBadge(key, on) { const s = readSettings(); s.badges[key] = !!on; persistSettings(s); return s; }
 
   function setAdvanced(on) { const s = readSettings(); s.advanced = !!on; persistSettings(s); return s; }
+
+  function setDocCard(mode) { const s = readSettings(); s.docs.card = mode; persistSettings(s); return s; }
+
+  function setDocToc(on) { const s = readSettings(); s.docs.toc = !!on; persistSettings(s); return s; }
 
   // ---- ⌘K / Ctrl+K global hotkey, dispatched to a .NET object ----
   let hotkeyHandler = null;
@@ -149,7 +158,7 @@ window.atlas = (function () {
   return {
     initTheme, getTheme, setTheme, toggleTheme,
     copyText, scrollToId, clearForceOpen, focusSelector, scrollTop,
-    getSettings, setDisplay, setBadge, setAdvanced,
+    getSettings, setDisplay, setBadge, setAdvanced, setDocCard, setDocToc,
     registerHotkey, unregisterHotkey
   };
 })();

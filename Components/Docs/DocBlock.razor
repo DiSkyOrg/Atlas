@@ -1,0 +1,182 @@
+@* One markdown block → components/markup. The block coverage mirrors the closed extension
+   set in DocPipeline; anything unexpected renders as escaped literal text, never raw HTML. *@
+@using DiSkyAtlas.Services.Docs
+@using Markdig.Syntax
+@using Markdig.Extensions.Tables
+@using Markdig.Extensions.DefinitionLists
+@using Markdig.Extensions.CustomContainers
+@using Markdig.Extensions.Yaml
+
+@switch (Block)
+{
+    case YamlFrontMatterBlock:
+    case LinkReferenceDefinitionGroup:
+        break;
+
+    case ParagraphBlock paragraph:
+        <p><DocInlines Inline="paragraph.Inline" /></p>
+        break;
+
+    case HeadingBlock heading:
+        <DocHeadingView Heading="heading" />
+        break;
+
+    case CodeBlock code:
+        <DocCodeFence Block="code" />
+        break;
+
+    case QuoteBlock quote:
+        <blockquote><DocBlocks Blocks="quote" /></blockquote>
+        break;
+
+    case ListBlock list:
+        @if (list.IsOrdered)
+        {
+            <ol start="@OrderedStart(list)">@ListItems(list)</ol>
+        }
+        else
+        {
+            <ul>@ListItems(list)</ul>
+        }
+        break;
+
+    case ThematicBreakBlock:
+        <hr />
+        break;
+
+    case Table table:
+        <div class="doc-table-wrap">
+            <table class="doc-table">
+                @foreach (var rowBlock in table)
+                {
+                    if (rowBlock is not TableRow row) continue;
+                    if (row.IsHeader)
+                    {
+                        <thead><tr>@Cells(table, row, header: true)</tr></thead>
+                    }
+                    else
+                    {
+                        <tbody><tr>@Cells(table, row, header: false)</tr></tbody>
+                    }
+                }
+            </table>
+        </div>
+        break;
+
+    case DefinitionList definitionList:
+        <dl>
+            @foreach (var itemBlock in definitionList)
+            {
+                if (itemBlock is not DefinitionItem item) continue;
+                foreach (var child in item)
+                {
+                    if (child is DefinitionTerm term)
+                    {
+                        <dt><DocInlines Inline="term.Inline" /></dt>
+                    }
+                    else
+                    {
+                        <dd><DocBlock Block="child" /></dd>
+                    }
+                }
+            }
+        </dl>
+        break;
+
+    case AdmonitionBlock admonition:
+        <Admonition Block="admonition" />
+        break;
+
+    case DirectiveBlock directive:
+        @RenderRegistered(directive.Name, directive.Argument, directive.Options, null, directive.ResolvedRef)
+        break;
+
+    case CustomContainer container:
+        @RenderRegistered(container.Info?.Trim() ?? "", container.Arguments?.Trim() ?? "", EmptyOptions, container, null)
+        break;
+
+    case LeafBlock leaf:
+        @* Raw HTML is disabled in the pipeline; any leftover leaf renders as escaped text. *@
+        <p>@leaf.Lines.ToString()</p>
+        break;
+
+    case ContainerBlock container:
+        <DocBlocks Blocks="container" />
+        break;
+}
+
+@code {
+    [Parameter, EditorRequired] public Markdig.Syntax.Block Block { get; set; } = default!;
+    [CascadingParameter] public DocRenderContext Ctx { get; set; } = default!;
+
+    private static readonly IReadOnlyDictionary<string, string> EmptyOptions =
+        new Dictionary<string, string>();
+
+    private static string? OrderedStart(ListBlock list) =>
+        string.IsNullOrEmpty(list.OrderedStart) || list.OrderedStart == "1" ? null : list.OrderedStart;
+
+    private RenderFragment ListItems(ListBlock list) => __builder =>
+    {
+        foreach (var itemBlock in list)
+        {
+            if (itemBlock is not ListItemBlock item) continue;
+            <li>
+                @foreach (var child in item)
+                {
+                    // Tight lists render their single paragraphs inline (no <p> margins).
+                    if (!list.IsLoose && child is ParagraphBlock paragraph)
+                    {
+                        <DocInlines Inline="paragraph.Inline" />
+                    }
+                    else
+                    {
+                        <DocBlock Block="child" />
+                    }
+                }
+            </li>
+        }
+    };
+
+    private RenderFragment Cells(Table table, TableRow row, bool header) => __builder =>
+    {
+        for (var i = 0; i < row.Count; i++)
+        {
+            if (row[i] is not TableCell cell) continue;
+            var align = i < table.ColumnDefinitions.Count ? table.ColumnDefinitions[i].Alignment : null;
+            var style = align switch
+            {
+                TableColumnAlign.Center => "text-align:center",
+                TableColumnAlign.Right => "text-align:right",
+                _ => null
+            };
+            @if (header)
+            {
+                <th style="@style"><DocBlocks Blocks="cell" /></th>
+            }
+            else
+            {
+                <td style="@style"><DocBlocks Blocks="cell" /></td>
+            }
+        }
+    };
+
+    /// <summary>Dispatches a directive/container through the registry (DynamicComponent), or a degraded box.</summary>
+    private RenderFragment RenderRegistered(
+        string name, string argument, IReadOnlyDictionary<string, string> options,
+        ContainerBlock? body, Models.AtlasRef? resolvedRef) => __builder =>
+    {
+        if (name.Length > 0 && Ctx.Registry.TryGet(name, out var componentType))
+        {
+            var context = new DocDirectiveContext(name, argument, options, body, Ctx.Page)
+            {
+                ResolvedRef = resolvedRef
+            };
+            <DynamicComponent Type="componentType"
+                              Parameters="@(new Dictionary<string, object> { ["Context"] = context })" />
+        }
+        else
+        {
+            <UnknownDirective Name="@name" />
+        }
+    };
+}

@@ -1,0 +1,38 @@
+@* Entry point of the markdown renderer: cascades the render context (page + registry +
+   page-scoped toggle state) and walks the cached Markdig AST as real Blazor components.
+   No raw HTML is ever emitted — see DocPipeline for the safety model. *@
+@using DiSkyAtlas.Models
+@using DiSkyAtlas.Services.Docs
+@using Markdig.Syntax
+@inject DocsService Docs
+@inject DocComponentRegistry Registry
+
+<CascadingValue Value="_context">
+    <div class="prose">
+        <DocBlocks Blocks="Page.Document" />
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter, EditorRequired] public DocPage Page { get; set; } = default!;
+
+    private DocRenderContext _context = default!;
+
+    protected override void OnParametersSet()
+    {
+        if (_context is not null && ReferenceEquals(_context.Page, Page))
+            return;
+
+        // Fresh interactive state per page. Toggle defaults are seeded from the AST up front
+        // so a `::: when` block can precede the toggle that drives it.
+        var state = new DocPageState();
+        foreach (var toggle in Page.Document.Descendants<DirectiveBlock>())
+        {
+            if (toggle.Name != "toggle") continue;
+            var on = toggle.Options.TryGetValue("default", out var v) && v is "on" or "true";
+            state.Seed(toggle.Argument, on);
+        }
+
+        _context = new DocRenderContext(Page, Registry, Docs, state);
+    }
+}

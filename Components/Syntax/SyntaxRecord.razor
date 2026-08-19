@@ -2,6 +2,7 @@
    (patterns, description, change modes, examples) collapse/expand per the user's
    display setting (driven by CSS) and a per-record toggle. *@
 @inject ManifestService Manifest
+@inject DocsService Docs
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
@@ -52,6 +53,14 @@
     </div>
 
     <div class="record-details">
+        @foreach (var guide in Docs.GuidesFor(Syntax.Id))
+        {
+            <a class="doc-guide" href="@($"/docs/{guide.Page.Slug}")">
+                <LucideIcon Name="book-open" />
+                <span>Feeling lost? This is covered in the guide — <span class="dg-title">@guide.Page.Title</span></span>
+            </a>
+        }
+
         <div class="patterns">
             @foreach (var pattern in Syntax.Patterns)
             {
@@ -148,6 +157,20 @@
                 </div>
             }
         }
+
+        @{ var docMentions = Docs.MentionsOf(Syntax.Id); }
+        @if (docMentions.Count > 0)
+        {
+            <div class="record-foot b-docs">
+                <span class="cm-label">mentioned in</span>
+                @foreach (var mention in docMentions)
+                {
+                    <a class="chip chip-doc" href="@MentionHref(mention)">
+                        <LucideIcon Name="book-open" />@mention.Page.Title
+                    </a>
+                }
+            </div>
+        }
     </div>
 </article>
 
@@ -165,6 +188,11 @@
     private string LinkBase => LinkPath ?? $"/{EntityId}";
 
     private string? ReturnHref => TypeHref(Syntax.ReturnType);
+
+    private static string MentionHref(DocRefEntry mention) =>
+        mention.NearestHeadingAnchor is { Length: > 0 } anchor
+            ? $"/docs/{mention.Page.Slug}#{anchor}"
+            : $"/docs/{mention.Page.Slug}";
 
     private string? TypeHref(TypeRef? type) =>
         type is not null && Manifest.GetEntity(type.Id) is not null ? $"/{type.Id}" : null;

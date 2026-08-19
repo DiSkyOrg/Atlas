@@ -1,0 +1,58 @@
+@* Fenced/indented code. ```skript fences reuse the highlighted SkriptCodeBlock; any other
+   language renders as a plain (escaped) code block with a copy button + language caption. *@
+@using Markdig.Syntax
+@inject IJSRuntime JS
+
+@if (IsSkript)
+{
+    <SkriptCodeBlock Code="@Code" />
+}
+else
+{
+    <div class="code-block">
+        <button type="button" class="code-copy" style="@(_copied ? "opacity:1" : null)" @onclick="CopyAsync">
+            <LucideIcon Name="@(_copied ? "check" : "copy")" />
+            <span class="lbl">@(_copied ? "Copied" : "Copy")</span>
+        </button>
+        <pre>@Code</pre>
+        @if (Language is { Length: > 0 })
+        {
+            <div class="code-caption">@Language</div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public CodeBlock Block { get; set; } = default!;
+
+    private bool _copied;
+
+    private string? Language => (Block as FencedCodeBlock)?.Info?.Trim().ToLowerInvariant();
+
+    private bool IsSkript => Language is "skript" or "sk";
+
+    private string Code
+    {
+        get
+        {
+            var lines = Block.Lines;
+            var sb = new System.Text.StringBuilder();
+            for (var i = 0; i < lines.Count; i++)
+            {
+                if (i > 0) sb.Append('\n');
+                sb.Append(lines.Lines[i].Slice.AsSpan());
+            }
+            return sb.ToString();
+        }
+    }
+
+    private async Task CopyAsync()
+    {
+        try { await JS.InvokeAsync<bool>("atlas.copyText", Code); } catch { /* ignore */ }
+        _copied = true;
+        StateHasChanged();
+        await Task.Delay(1400);
+        _copied = false;
+        StateHasChanged();
+    }
+}

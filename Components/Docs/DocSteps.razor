@@ -1,0 +1,35 @@
+@* `::: steps` — numbered tutorial steps. The body must be a single ordered list;
+   each list item becomes one step with a styled number marker. *@
+@using DiSkyAtlas.Services.Docs
+@using Markdig.Syntax
+
+@{
+    var list = Context.Body?.OfType<ListBlock>().FirstOrDefault(l => l.IsOrdered);
+}
+@if (list is null)
+{
+    <div class="doc-unknown">
+        <LucideIcon Name="triangle-alert" />
+        <span><code>::: steps</code> needs an ordered list (<code>1.</code>, <code>2.</code>, …) as its body.</span>
+    </div>
+}
+else
+{
+    <div class="doc-steps">
+        @{ var number = 0; }
+        @foreach (var itemBlock in list)
+        {
+            if (itemBlock is not ListItemBlock item) continue;
+            number++;
+            var n = number;
+            <div class="doc-step">
+                <span class="doc-step-num">@n</span>
+                <div class="doc-step-body"><DocBlocks Blocks="item" /></div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public DocDirectiveContext Context { get; set; } = default!;
+}

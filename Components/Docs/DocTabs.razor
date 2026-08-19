@@ -1,0 +1,33 @@
+@* mkdocs-style content tabs (=== "Title"). Consecutive tab blocks are grouped by DocBlocks;
+   this component owns the active-tab state and renders the active body only. *@
+@using DiSkyAtlas.Services.Docs
+
+<div class="doc-tabs">
+    <div class="doc-tabs-list" role="tablist">
+        @for (var i = 0; i < Tabs.Count; i++)
+        {
+            var index = i;
+            <button type="button" role="tab" class="doc-tab @(index == _active ? "active" : "")"
+                    aria-selected="@(index == _active)" @onclick="() => _active = index">
+                @Tabs[index].Title
+            </button>
+        }
+    </div>
+    @if (_active < Tabs.Count)
+    {
+        <div class="doc-tabs-panel" role="tabpanel">
+            <DocBlocks Blocks="Tabs[_active]" />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public List<TabItemBlock> Tabs { get; set; } = [];
+
+    private int _active;
+
+    protected override void OnParametersSet()
+    {
+        if (_active >= Tabs.Count) _active = 0;
+    }
+}

@@ -1,0 +1,219 @@
+@page "/docs"
+@page "/docs/{*Slug}"
+@using DiSkyAtlas.Components.Docs
+@using DiSkyAtlas.Models
+@using DiSkyAtlas.Services.Docs
+@inject DocsService Docs
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@inject IWebHostEnvironment Env
+@implements IDisposable
+
+@if (Slug is null)
+{
+    <PageTitle>Documentation — DiSky Atlas</PageTitle>
+    <div class="page">
+        <div class="page-head">
+            <span class="head-icon"><LucideIcon Name="book-open" /></span>
+            <h1>Documentation</h1>
+        </div>
+        <p class="page-lead">Hand-written guides that complement the generated syntax reference.</p>
+
+        @if (Env.IsDevelopment() && Docs.LintWarnings.Count > 0)
+        {
+            <div class="doc-lint">
+                <div class="doc-lint-head">
+                    <LucideIcon Name="triangle-alert" />
+                    <span>@Docs.LintWarnings.Count doc lint warning@(Docs.LintWarnings.Count == 1 ? "" : "s") (shown in Development only)</span>
+                </div>
+                <ul>
+                    @foreach (var warning in Docs.LintWarnings)
+                    {
+                        <li><code>@warning.PageSlug</code> — @warning.Message</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @if (Docs.Sections.Count == 0)
+        {
+            <div class="empty">
+                <span class="empty-icon"><LucideIcon Name="book-open" /></span>
+                <h2>No documentation yet</h2>
+                <p>Pages live in the repository's <code>Docs/</code> folder — one folder per section, one markdown file per page.</p>
+            </div>
+        }
+        else
+        {
+            <div class="home-grid">
+                @foreach (var docSection in Docs.Sections)
+                {
+                    var count = docSection.Pages.Count + (docSection.Index is null ? 0 : 1);
+                    <a class="ecard" href="@(docSection.Index is not null ? $"/docs/{docSection.Id}" : $"/docs/{docSection.Pages.FirstOrDefault()?.Slug}")">
+                        <div class="ec-head">
+                            <span class="ec-icon"><LucideIcon Name="@(docSection.Icon ?? "book-open")" /></span>
+                            <span class="ec-name">@docSection.Title</span>
+                        </div>
+                        @if (docSection.Index?.Description is { Length: > 0 } description)
+                        {
+                            <div class="ec-desc">@description</div>
+                        }
+                        <div class="ec-count">@count page@(count == 1 ? "" : "s")</div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+}
+else if (_page is null)
+{
+    <PageTitle>Not found — DiSky Atlas</PageTitle>
+    <div class="page">
+        <div class="empty">
+            <span class="empty-icon"><LucideIcon Name="search-x" /></span>
+            <h2>Unknown doc page</h2>
+            <p>There's no documentation page at “@Slug”. Open search with <kbd>⌘</kbd><kbd>K</kbd> or browse <a href="/docs">the docs index</a>.</p>
+        </div>
+    </div>
+}
+else
+{
+    <PageTitle>@_page.Title — DiSky Atlas</PageTitle>
+    <div class="page">
+        <nav class="crumb">
+            <a href="/docs">Docs</a>
+            @if (!_page.IsIndex && _section is not null)
+            {
+                <span class="sep">/</span>
+                @if (_section.Index is not null)
+                {
+                    <a href="/docs/@_section.Id">@_section.Title</a>
+                }
+                else
+                {
+                    <span>@_section.Title</span>
+                }
+            }
+            <span class="sep">/</span>
+            <span class="cur">@_page.Title</span>
+        </nav>
+
+        <div class="page-head">
+            <span class="head-icon"><LucideIcon Name="@(_page.Icon ?? _section?.Icon ?? "book-open")" /></span>
+            <h1 class="doc-title">@_page.Title</h1>
+            <span class="badge kind-doc"><span class="dot"></span>guide</span>
+        </div>
+
+        @if (_page.Description is { Length: > 0 })
+        {
+            <p class="page-lead">@_page.Description</p>
+        }
+
+        @if (_page.Tags.Count > 0)
+        {
+            <div class="page-meta">
+                @foreach (var tag in _page.Tags)
+                {
+                    <span class="chip chip-tag"><LucideIcon Name="tag" />@tag</span>
+                }
+            </div>
+        }
+
+        <DocToc Page="_page" />
+
+        <DocMarkdown Page="_page" />
+
+        @if (_page.Syntaxes.Count > 0)
+        {
+            <section class="jump-section doc-related" id="related-syntaxes">
+                <SectionHead Title="Related syntaxes" Count="_page.Syntaxes.Count" />
+                @foreach (var reference in _page.Syntaxes)
+                {
+                    <SyntaxRefCard Ref="reference" />
+                }
+            </section>
+        }
+
+        @{ var (prev, next) = Docs.PrevNext(_page); }
+        @if (prev is not null || next is not null)
+        {
+            <nav class="doc-pn">
+                @if (prev is not null)
+                {
+                    <a class="doc-pn-link doc-pn-prev" href="/docs/@prev.Slug">
+                        <LucideIcon Name="chevron-left" />
+                        <span class="doc-pn-text"><span class="doc-pn-label">Previous</span><span class="doc-pn-title">@prev.Title</span></span>
+                    </a>
+                }
+                @if (next is not null)
+                {
+                    <a class="doc-pn-link doc-pn-next" href="/docs/@next.Slug">
+                        <span class="doc-pn-text"><span class="doc-pn-label">Next</span><span class="doc-pn-title">@next.Title</span></span>
+                        <LucideIcon Name="chevron-right" />
+                    </a>
+                }
+            </nav>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string? Slug { get; set; }
+
+    private DocPage? _page;
+    private DocSection? _section;
+    private string? _lastSlug;
+    private string? _pendingHash;
+    private bool _resetScroll;
+
+    protected override void OnInitialized() => Nav.LocationChanged += OnLocationChanged;
+
+    protected override void OnParametersSet()
+    {
+        _page = Slug is null ? null : Docs.GetPage(Slug);
+        _section = _page is null ? null : Docs.GetSection(_page.SectionId);
+
+        _pendingHash = GetHash();
+        if (!string.Equals(_lastSlug, Slug, StringComparison.OrdinalIgnoreCase))
+        {
+            _resetScroll = _pendingHash is null;
+            _lastSlug = Slug;
+        }
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        // Fragment-only navigation (same page, different #anchor) doesn't re-run
+        // OnParametersSet, so handle the scroll target here.
+        var hash = GetHash();
+        if (hash is not null)
+        {
+            _pendingHash = hash;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_pendingHash is { Length: > 0 } hash)
+        {
+            _pendingHash = null;
+            _resetScroll = false;
+            try { await JS.InvokeVoidAsync("atlas.scrollToId", hash, true); } catch { /* ignore */ }
+        }
+        else if (_resetScroll)
+        {
+            _resetScroll = false;
+            try { await JS.InvokeVoidAsync("atlas.scrollTop", ".content"); } catch { /* ignore */ }
+        }
+    }
+
+    private string? GetHash()
+    {
+        var uri = Nav.Uri;
+        var i = uri.IndexOf('#');
+        return i >= 0 && i < uri.Length - 1 ? uri[(i + 1)..] : null;
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

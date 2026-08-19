@@ -1,0 +1,25 @@
+@* `toggle: id "Label" [default:on]` — a page-scoped switch driving `::: when` blocks.
+   State lives in the cascaded DocPageState (per page render, per visitor). *@
+@implements IDisposable
+
+<span class="doc-toggle">
+    <BbSwitch Checked="@Ctx.State.Get(Id)"
+              CheckedChanged="@(v => Ctx.State.Set(Id, v))"
+              Size="SwitchSize.Small" AriaLabel="@Label" />
+    <span class="doc-toggle-label">@Label</span>
+</span>
+
+@code {
+    [Parameter, EditorRequired] public DocDirectiveContext Context { get; set; } = default!;
+    [CascadingParameter] public DocRenderContext Ctx { get; set; } = default!;
+
+    private string Id => Context.Argument;
+
+    private string Label => Context.Options.TryGetValue("label", out var label) ? label : Id;
+
+    protected override void OnInitialized() => Ctx.State.Changed += OnStateChanged;
+
+    private void OnStateChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Ctx.State.Changed -= OnStateChanged;
+}

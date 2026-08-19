@@ -1,0 +1,140 @@
+@* Inline renderer: literal text, emphasis (incl. mkdocs extras), inline code, links
+   (cross-links pre-rewritten at load time; `{ .md-button }` links become buttons),
+   images, task-list checkboxes. Raw HTML renders as escaped text. *@
+@using Markdig.Renderers.Html
+@using Markdig.Syntax.Inlines
+@using Markdig.Extensions.TaskLists
+@using DiSkyAtlas.Services.Docs
+
+@foreach (var node in Children())
+{
+    @switch (node)
+    {
+        case LiteralInline literal:
+            @literal.Content.ToString()
+            break;
+
+        case LineBreakInline lineBreak:
+            @if (lineBreak.IsHard)
+            {
+                <br />
+            }
+            else
+            {
+                @(" ")
+            }
+            break;
+
+        case CodeInline inlineCode:
+            <code>@inlineCode.Content</code>
+            break;
+
+        case EmphasisInline emphasis:
+            @Emphasis(emphasis)
+            break;
+
+        case LinkInline link:
+            @Link(link)
+            break;
+
+        case AutolinkInline autolink:
+            <a href="@autolink.Url" target="_blank" rel="noreferrer">@autolink.Url</a>
+            break;
+
+        case TaskList task:
+            <input type="checkbox" class="task-box" disabled checked="@task.Checked" />
+            break;
+
+        case HtmlEntityInline entity:
+            @entity.Transcoded.ToString()
+            break;
+
+        case HtmlInline html:
+            @html.Tag
+            break;
+
+        case ContainerInline container:
+            <DocInlines Inline="container" />
+            break;
+    }
+}
+
+@code {
+    [Parameter] public ContainerInline? Inline { get; set; }
+
+    private IEnumerable<Inline> Children()
+    {
+        for (var node = Inline?.FirstChild; node is not null; node = node.NextSibling)
+            yield return node;
+    }
+
+    private RenderFragment Emphasis(EmphasisInline emphasis) => __builder =>
+    {
+        var strong = emphasis.DelimiterCount >= 2;
+        switch (emphasis.DelimiterChar)
+        {
+            case '~' when strong:
+                <del><DocInlines Inline="emphasis" /></del>
+                break;
+            case '~':
+                <sub><DocInlines Inline="emphasis" /></sub>
+                break;
+            case '^':
+                <sup><DocInlines Inline="emphasis" /></sup>
+                break;
+            case '=':
+                <mark><DocInlines Inline="emphasis" /></mark>
+                break;
+            default:
+                @if (strong)
+                {
+                    <strong><DocInlines Inline="emphasis" /></strong>
+                }
+                else
+                {
+                    <em><DocInlines Inline="emphasis" /></em>
+                }
+                break;
+        }
+    };
+
+    private RenderFragment Link(LinkInline link) => __builder =>
+    {
+        var url = link.Url ?? "";
+
+        if (link.IsImage)
+        {
+            <img src="@url" alt="@DocIndexer.ExtractText(link)" title="@link.Title" loading="lazy" />
+            return;
+        }
+
+        // An atlas scheme still present means the indexer couldn't resolve it.
+        if (url.StartsWith("syntax:", StringComparison.OrdinalIgnoreCase) ||
+            url.StartsWith("entity:", StringComparison.OrdinalIgnoreCase) ||
+            url.StartsWith("event:", StringComparison.OrdinalIgnoreCase) ||
+            url.StartsWith("doc:", StringComparison.OrdinalIgnoreCase))
+        {
+            <span class="doc-broken-link" title="Unresolved reference: @url"><DocInlines Inline="link" /></span>
+            return;
+        }
+
+        var classes = link.TryGetAttributes()?.Classes;
+        var isButton = classes?.Contains("md-button") == true;
+        var external = url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                       url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                       url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase);
+
+        var cssClass = isButton
+            ? classes!.Contains("md-button--primary") ? "btn btn-primary" : "btn btn-secondary"
+            : null;
+
+        @if (external)
+        {
+            <a class="@cssClass" href="@url" target="_blank" rel="noreferrer"><DocInlines Inline="link" /></a>
+        }
+        else
+        {
+            <a class="@cssClass" href="@url"><DocInlines Inline="link" /></a>
+        }
+    };
+}

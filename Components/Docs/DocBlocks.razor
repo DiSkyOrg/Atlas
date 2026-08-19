@@ -1,0 +1,30 @@
+@* Renders the children of a container block. Consecutive tab items are grouped here
+   into a single tab strip, so the parser can stay one-block-per-`===` simple. *@
+@using DiSkyAtlas.Services.Docs
+@using Markdig.Syntax
+
+@{
+    var i = 0;
+    while (i < Blocks.Count)
+    {
+        if (Blocks[i] is TabItemBlock)
+        {
+            var tabs = new List<TabItemBlock>();
+            while (i < Blocks.Count && Blocks[i] is TabItemBlock tab)
+            {
+                tabs.Add(tab);
+                i++;
+            }
+            <DocTabs Tabs="tabs" />
+        }
+        else
+        {
+            <DocBlock Block="Blocks[i]" />
+            i++;
+        }
+    }
+}
+
+@code {
+    [Parameter, EditorRequired] public ContainerBlock Blocks { get; set; } = default!;
+}
