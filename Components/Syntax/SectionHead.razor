@@ -7,9 +7,14 @@
     {
         <span class="n">@Count</span>
     }
-    <button type="button" class="to-top" @onclick="ScrollTopAsync" title="Back to top" aria-label="Back to top">
-        <LucideIcon Name="arrow-up" />
-    </button>
+    <BbTooltip Placement="PopoverPlacement.Top">
+        <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap to-top-wrap">
+            <button type="button" class="to-top" @onclick="ScrollTopAsync" aria-label="Back to top">
+                <LucideIcon Name="arrow-up" />
+            </button>
+        </BbTooltipTrigger>
+        <BbTooltipContent>Back to top</BbTooltipContent>
+    </BbTooltip>
 </div>
 
 @code {

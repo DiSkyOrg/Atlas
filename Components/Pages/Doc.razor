@@ -76,23 +76,28 @@ else
 {
     <PageTitle>@_page.Title — DiSky Atlas</PageTitle>
     <div class="page">
-        <nav class="crumb">
-            <a href="/docs">Docs</a>
-            @if (!_page.IsIndex && _section is not null)
-            {
-                <span class="sep">/</span>
-                @if (_section.Index is not null)
-                {
-                    <a href="/docs/@_section.Id">@_section.Title</a>
-                }
-                else
-                {
-                    <span>@_section.Title</span>
-                }
-            }
-            <span class="sep">/</span>
-            <span class="cur">@_page.Title</span>
-        </nav>
+        <BbBreadcrumb Class="crumb">
+            <BbBreadcrumbList AutoSeparator="true">
+                <SeparatorContent><span class="sep">/</span></SeparatorContent>
+                <ChildContent>
+                    <BbBreadcrumbItem><BbBreadcrumbLink Href="/docs">Docs</BbBreadcrumbLink></BbBreadcrumbItem>
+                    @if (!_page.IsIndex && _section is not null)
+                    {
+                        <BbBreadcrumbItem>
+                            @if (_section.Index is not null)
+                            {
+                                <BbBreadcrumbLink Href="@("/docs/" + _section.Id)">@_section.Title</BbBreadcrumbLink>
+                            }
+                            else
+                            {
+                                <span>@_section.Title</span>
+                            }
+                        </BbBreadcrumbItem>
+                    }
+                    <BbBreadcrumbItem><BbBreadcrumbPage Class="cur">@_page.Title</BbBreadcrumbPage></BbBreadcrumbItem>
+                </ChildContent>
+            </BbBreadcrumbList>
+        </BbBreadcrumb>
 
         <div class="page-head">
             <span class="head-icon"><LucideIcon Name="@(_page.Icon ?? _section?.Icon ?? "book-open")" /></span>

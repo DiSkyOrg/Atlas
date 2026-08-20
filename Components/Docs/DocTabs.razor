@@ -1,33 +1,25 @@
-@* mkdocs-style content tabs (=== "Title"). Consecutive tab blocks are grouped by DocBlocks;
-   this component owns the active-tab state and renders the active body only. *@
+@* mkdocs-style content tabs (=== "Title"). Consecutive tab blocks are grouped by
+   DocBlocks; Blueprint tabs own the active state, roles and keyboard nav — the
+   .doc-tab* classes keep the enclosed DiSky look. *@
 @using DiSkyAtlas.Services.Docs
 
-<div class="doc-tabs">
-    <div class="doc-tabs-list" role="tablist">
+<BbTabs DefaultValue="0" Class="doc-tabs">
+    <BbTabsList Class="doc-tabs-list">
         @for (var i = 0; i < Tabs.Count; i++)
         {
             var index = i;
-            <button type="button" role="tab" class="doc-tab @(index == _active ? "active" : "")"
-                    aria-selected="@(index == _active)" @onclick="() => _active = index">
-                @Tabs[index].Title
-            </button>
+            <BbTabsTrigger Value="@index.ToString()" Class="doc-tab">@Tabs[index].Title</BbTabsTrigger>
         }
-    </div>
-    @if (_active < Tabs.Count)
+    </BbTabsList>
+    @for (var i = 0; i < Tabs.Count; i++)
     {
-        <div class="doc-tabs-panel" role="tabpanel">
-            <DocBlocks Blocks="Tabs[_active]" />
-        </div>
+        var index = i;
+        <BbTabsContent Value="@index.ToString()" Class="doc-tabs-panel">
+            <DocBlocks Blocks="Tabs[index]" />
+        </BbTabsContent>
     }
-</div>
+</BbTabs>
 
 @code {
     [Parameter, EditorRequired] public List<TabItemBlock> Tabs { get; set; } = [];
-
-    private int _active;
-
-    protected override void OnParametersSet()
-    {
-        if (_active >= Tabs.Count) _active = 0;
-    }
 }

@@ -2,9 +2,14 @@
    which toggles the .dark class on <html> (read by theme.css and Blueprint). *@
 @inject IJSRuntime JS
 
-<button type="button" class="icon-btn" title="Toggle theme" aria-label="Toggle theme" @onclick="Toggle">
-    <LucideIcon Name="@(_dark ? "sun" : "moon")" />
-</button>
+<BbTooltip Placement="PopoverPlacement.Bottom">
+    <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
+        <button type="button" class="icon-btn" aria-label="Toggle theme" @onclick="Toggle">
+            <LucideIcon Name="@(_dark ? "sun" : "moon")" />
+        </button>
+    </BbTooltipTrigger>
+    <BbTooltipContent>Toggle theme</BbTooltipContent>
+</BbTooltip>
 
 @code {
     private bool _dark = true;

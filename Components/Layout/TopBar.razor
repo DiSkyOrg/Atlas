@@ -21,13 +21,23 @@
         <span class="kbd"><kbd>⌘</kbd><kbd>K</kbd></span>
     </button>
 
-    <a class="icon-btn" href="https://github.com/DiSkyOrg/DiSky" target="_blank" rel="noreferrer" title="DiSky on GitHub">
-        <LucideIcon Name="github" />
-    </a>
+    <BbTooltip Placement="PopoverPlacement.Bottom">
+        <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
+            <a class="icon-btn" href="https://github.com/DiSkyOrg/DiSky" target="_blank" rel="noreferrer" aria-label="DiSky on GitHub">
+                <LucideIcon Name="github" />
+            </a>
+        </BbTooltipTrigger>
+        <BbTooltipContent>DiSky on GitHub</BbTooltipContent>
+    </BbTooltip>
 
-    <button type="button" class="icon-btn" title="Display options" aria-label="Display options" @onclick="OpenSettings">
-        <LucideIcon Name="settings" />
-    </button>
+    <BbTooltip Placement="PopoverPlacement.Bottom">
+        <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
+            <button type="button" class="icon-btn" aria-label="Display options" @onclick="OpenSettings">
+                <LucideIcon Name="settings" />
+            </button>
+        </BbTooltipTrigger>
+        <BbTooltipContent>Display options</BbTooltipContent>
+    </BbTooltip>
 
     <ThemeToggle />
 </header>

@@ -18,16 +18,19 @@ else
 {
     <PageTitle>@Manifest.DisplayName(_entity) — DiSky Atlas</PageTitle>
     <div class="page">
-        <nav class="crumb">
-            <a href="/">Entities</a>
-            @foreach (var ancestor in Manifest.Ancestors(_entity))
-            {
-                <span class="sep">/</span>
-                <a href="/@ancestor.Id">@Manifest.DisplayName(ancestor)</a>
-            }
-            <span class="sep">/</span>
-            <span class="cur">@Manifest.DisplayName(_entity)</span>
-        </nav>
+        <BbBreadcrumb Class="crumb">
+            <BbBreadcrumbList AutoSeparator="true">
+                <SeparatorContent><span class="sep">/</span></SeparatorContent>
+                <ChildContent>
+                    <BbBreadcrumbItem><BbBreadcrumbLink Href="/">Entities</BbBreadcrumbLink></BbBreadcrumbItem>
+                    @foreach (var ancestor in Manifest.Ancestors(_entity))
+                    {
+                        <BbBreadcrumbItem><BbBreadcrumbLink Href="@("/" + ancestor.Id)">@Manifest.DisplayName(ancestor)</BbBreadcrumbLink></BbBreadcrumbItem>
+                    }
+                    <BbBreadcrumbItem><BbBreadcrumbPage Class="cur">@Manifest.DisplayName(_entity)</BbBreadcrumbPage></BbBreadcrumbItem>
+                </ChildContent>
+            </BbBreadcrumbList>
+        </BbBreadcrumb>
 
         <div class="page-head">
             <span class="head-icon"><LucideIcon Name="@ManifestService.EntityIcon(_entity)" /></span>

@@ -1,7 +1,6 @@
 @* Fenced/indented code. ```skript fences reuse the highlighted SkriptCodeBlock; any other
    language renders as a plain (escaped) code block with a copy button + language caption. *@
 @using Markdig.Syntax
-@inject IJSRuntime JS
 
 @if (IsSkript)
 {
@@ -10,10 +9,7 @@
 else
 {
     <div class="code-block">
-        <button type="button" class="code-copy" style="@(_copied ? "opacity:1" : null)" @onclick="CopyAsync">
-            <LucideIcon Name="@(_copied ? "check" : "copy")" />
-            <span class="lbl">@(_copied ? "Copied" : "Copy")</span>
-        </button>
+        <CopyButton Text="@Code" />
         <pre>@Code</pre>
         @if (Language is { Length: > 0 })
         {
@@ -24,8 +20,6 @@ else
 
 @code {
     [Parameter, EditorRequired] public CodeBlock Block { get; set; } = default!;
-
-    private bool _copied;
 
     private string? Language => (Block as FencedCodeBlock)?.Info?.Trim().ToLowerInvariant();
 
@@ -44,15 +38,5 @@ else
             }
             return sb.ToString();
         }
-    }
-
-    private async Task CopyAsync()
-    {
-        try { await JS.InvokeAsync<bool>("atlas.copyText", Code); } catch { /* ignore */ }
-        _copied = true;
-        StateHasChanged();
-        await Task.Delay(1400);
-        _copied = false;
-        StateHasChanged();
     }
 }

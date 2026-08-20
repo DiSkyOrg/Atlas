@@ -1,0 +1,25 @@
+@* Copy-to-clipboard button with transient "Copied" feedback. Shared by the
+   code blocks; interop stays on atlas.copyText (Blueprint 3.10.2 has no
+   copy-text component). *@
+@inject IJSRuntime JS
+
+<button type="button" class="code-copy" style="@(_copied ? "opacity:1" : null)" @onclick="CopyAsync">
+    <LucideIcon Name="@(_copied ? "check" : "copy")" />
+    <span class="lbl">@(_copied ? "Copied" : "Copy")</span>
+</button>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = "";
+
+    private bool _copied;
+
+    private async Task CopyAsync()
+    {
+        try { await JS.InvokeAsync<bool>("atlas.copyText", Text); } catch { /* ignore */ }
+        _copied = true;
+        StateHasChanged();
+        await Task.Delay(1400);
+        _copied = false;
+        StateHasChanged();
+    }
+}

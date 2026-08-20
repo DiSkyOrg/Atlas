@@ -7,11 +7,15 @@
 <PageTitle>Events — DiSky Atlas</PageTitle>
 
 <div class="page">
-    <nav class="crumb">
-        <a href="/">Overview</a>
-        <span class="sep">/</span>
-        <span class="cur">Events</span>
-    </nav>
+    <BbBreadcrumb Class="crumb">
+        <BbBreadcrumbList AutoSeparator="true">
+            <SeparatorContent><span class="sep">/</span></SeparatorContent>
+            <ChildContent>
+                <BbBreadcrumbItem><BbBreadcrumbLink Href="/">Overview</BbBreadcrumbLink></BbBreadcrumbItem>
+                <BbBreadcrumbItem><BbBreadcrumbPage Class="cur">Events</BbBreadcrumbPage></BbBreadcrumbItem>
+            </ChildContent>
+        </BbBreadcrumbList>
+    </BbBreadcrumb>
 
     <div class="page-head">
         <span class="head-icon"><LucideIcon Name="zap" /></span>

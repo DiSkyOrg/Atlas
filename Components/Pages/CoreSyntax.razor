@@ -23,11 +23,15 @@ else
 
     <PageTitle>@label — Core — DiSky Atlas</PageTitle>
     <div class="page">
-        <nav class="crumb">
-            <a href="/">Overview</a>
-            <span class="sep">/</span>
-            <span class="cur">Core · @label</span>
-        </nav>
+        <BbBreadcrumb Class="crumb">
+            <BbBreadcrumbList AutoSeparator="true">
+                <SeparatorContent><span class="sep">/</span></SeparatorContent>
+                <ChildContent>
+                    <BbBreadcrumbItem><BbBreadcrumbLink Href="/">Overview</BbBreadcrumbLink></BbBreadcrumbItem>
+                    <BbBreadcrumbItem><BbBreadcrumbPage Class="cur">Core · @label</BbBreadcrumbPage></BbBreadcrumbItem>
+                </ChildContent>
+            </BbBreadcrumbList>
+        </BbBreadcrumb>
 
         <div class="page-head">
             <span class="head-icon"><LucideIcon Name="@ManifestService.KindIcon(kind)" /></span>

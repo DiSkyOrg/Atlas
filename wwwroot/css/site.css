@@ -108,7 +108,10 @@ a { color: inherit; }
 .content::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 12px; border: 3px solid var(--bg); }
 .page { max-width: 820px; margin: 0 auto; padding: 32px 40px 96px; }
 
+/* Rendered by BbBreadcrumb (nav > ol > li); the ol override pins DiSky's
+   spacing/size over BB's Tailwind defaults. */
 .crumb { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 18px; flex-wrap: wrap; }
+.crumb ol { gap: 8px; font-size: 13px; line-height: var(--lh-body); }
 .crumb a { color: var(--fg-muted); cursor: pointer; text-decoration: none; }
 .crumb a:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 2px; }
 .crumb .sep { color: var(--fg-faint); }
@@ -128,8 +131,12 @@ a { color: inherit; }
 }
 .section-head h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
 .section-head .n { font-family: var(--font-mono); font-size: 12px; color: var(--fg-faint); }
+.section-head .to-top-wrap { margin-left: auto; align-self: center; }
+/* BB's tooltip trigger nests a plain block span; collapse it so the button
+   is the flex item and the head keeps its pre-tooltip height. */
+.section-head .to-top-wrap > span { display: contents; }
 .section-head .to-top {
-  margin-left: auto; align-self: center; display: inline-flex; align-items: center; justify-content: center;
+  align-self: center; display: inline-flex; align-items: center; justify-content: center;
   background: none; border: 0; cursor: pointer; color: var(--fg-faint);
   padding: 4px; border-radius: var(--radius-sm);
   transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
@@ -600,35 +607,33 @@ details.admonition > summary::-webkit-details-marker { display: none; }
 details[open] > summary .adm-chev { transform: rotate(180deg); }
 .adm-chev svg { width: 15px; height: 15px; }
 
+/* Semantic kinds ride the theme-aware --success/--info/--warning/--danger
+   aliases (mapped onto Blueprint's --alert-* tokens), so no per-theme
+   duplication; note/example use brand hues with no alert equivalent. */
 .adm-note { --adm-fg: var(--blurple-300); --adm-bg: rgba(88, 101, 242, 0.08); --adm-bd: rgba(88, 101, 242, 0.28); }
-.adm-tip, .adm-hint { --adm-fg: var(--emerald-300); --adm-bg: var(--success-bg); --adm-bd: var(--success-bd); }
-.adm-success, .adm-check, .adm-done { --adm-fg: var(--emerald-300); --adm-bg: var(--success-bg); --adm-bd: var(--success-bd); }
-.adm-info, .adm-abstract, .adm-summary { --adm-fg: var(--sky-300); --adm-bg: var(--info-bg); --adm-bd: var(--info-bd); }
-.adm-question, .adm-faq, .adm-help { --adm-fg: var(--sky-300); --adm-bg: var(--info-bg); --adm-bd: var(--info-bd); }
-.adm-warning, .adm-caution, .adm-attention { --adm-fg: var(--amber-300); --adm-bg: var(--warning-bg); --adm-bd: var(--warning-bd); }
-.adm-danger, .adm-error, .adm-failure, .adm-bug { --adm-fg: var(--rose-300); --adm-bg: var(--destructive-bg); --adm-bd: var(--destructive-bd); }
+.adm-tip, .adm-hint,
+.adm-success, .adm-check, .adm-done { --adm-fg: var(--success); --adm-bg: var(--success-bg); --adm-bd: var(--success-bd); }
+.adm-info, .adm-abstract, .adm-summary,
+.adm-question, .adm-faq, .adm-help { --adm-fg: var(--info); --adm-bg: var(--info-bg); --adm-bd: var(--info-bd); }
+.adm-warning, .adm-caution, .adm-attention { --adm-fg: var(--warning); --adm-bg: var(--warning-bg); --adm-bd: var(--warning-bd); }
+.adm-danger, .adm-error, .adm-failure, .adm-bug { --adm-fg: var(--danger); --adm-bg: var(--destructive-bg); --adm-bd: var(--destructive-bd); }
 .adm-example { --adm-fg: #c4b5fd; --adm-bg: rgba(124, 58, 237, 0.10); --adm-bd: rgba(124, 58, 237, 0.30); }
 html:not(.dark) .adm-note { --adm-fg: var(--blurple-600); }
-html:not(.dark) .adm-tip, html:not(.dark) .adm-hint,
-html:not(.dark) .adm-success, html:not(.dark) .adm-check, html:not(.dark) .adm-done { --adm-fg: var(--emerald-600); }
-html:not(.dark) .adm-info, html:not(.dark) .adm-abstract, html:not(.dark) .adm-summary,
-html:not(.dark) .adm-question, html:not(.dark) .adm-faq, html:not(.dark) .adm-help { --adm-fg: var(--sky-600); }
-html:not(.dark) .adm-warning, html:not(.dark) .adm-caution, html:not(.dark) .adm-attention { --adm-fg: var(--amber-600); }
-html:not(.dark) .adm-danger, html:not(.dark) .adm-error,
-html:not(.dark) .adm-failure, html:not(.dark) .adm-bug { --adm-fg: var(--rose-600); }
 html:not(.dark) .adm-example { --adm-fg: #7c3aed; }
 
 /* ---- Content tabs (=== "Title") ---- */
+/* Rendered by Blueprint tabs (DocTabs.razor); the height/radius/shadow resets
+   neutralize BB's own trigger chrome, the active state keys off data-state. */
 .doc-tabs { margin: 0 0 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-raised); overflow: hidden; }
-.doc-tabs-list { display: flex; gap: 2px; border-bottom: 1px solid var(--border); background: var(--bg-inset); padding: 6px 8px 0; overflow-x: auto; }
+.doc-tabs-list { display: flex; gap: 2px; border-bottom: 1px solid var(--border); background: var(--bg-inset); padding: 6px 8px 0; overflow-x: auto; height: auto; border-radius: 0; }
 .doc-tab {
-  border: 0; background: none; color: var(--fg-muted); cursor: pointer;
+  border: 0; border-radius: 0; box-shadow: none; background: none; color: var(--fg-muted); cursor: pointer;
   font-family: var(--font-sans); font-size: 13px; font-weight: 500;
   padding: 7px 12px; border-bottom: 2px solid transparent; white-space: nowrap;
   transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
 .doc-tab:hover { color: var(--fg); }
-.doc-tab.active { color: var(--link); border-bottom-color: var(--primary); font-weight: 600; }
+.doc-tab[data-state="active"] { color: var(--link); border-bottom-color: var(--primary); font-weight: 600; background: none; box-shadow: none; }
 .doc-tabs-panel { padding: 14px; }
 .doc-tabs-panel > :last-child { margin-bottom: 0; }
 
