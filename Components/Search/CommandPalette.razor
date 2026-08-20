@@ -1,84 +1,56 @@
-@* ⌘K command palette — fuzzy search across entities + syntaxes + docs, grouped results,
-   keyboard navigation. The ⌘K/Ctrl+K hotkey is wired through atlas.js. *@
+@* ⌘K command palette — fuzzy search across entities + syntaxes + docs, grouped
+   results. Blueprint's CommandDialog owns the overlay, focus, keyboard nav and
+   the Ctrl/⌘+K shortcut (IKeyboardShortcutService); the ranking stays ours, so
+   Blueprint-side filtering is disabled and only pre-scored rows are rendered. *@
 @inject ManifestService Manifest
 @inject DiSkyAtlas.Services.Docs.DocsService Docs
 @inject NavigationManager Nav
-@inject IJSRuntime JS
-@implements IAsyncDisposable
+@inject IKeyboardShortcutService Shortcuts
+@implements IDisposable
 
-@if (_open)
-{
-    <div class="overlay" @onclick="Close">
-        <div class="palette" role="dialog" aria-label="Command palette" @onclick:stopPropagation>
-            <div class="pal-input">
-                <LucideIcon Name="search" />
-                <input @ref="_input" type="text" value="@_query" @oninput="OnInput" @onkeydown="OnKeyDown"
-                       placeholder="Search entities, syntaxes & docs…" autocomplete="off" spellcheck="false" />
-                <span class="esc">ESC</span>
-            </div>
+@* The hotkey is registered here rather than via the dialog's Shortcut param:
+   the internal toggle bypasses OpenChanged, leaving the parent's Open param
+   stale — the next re-render would slam the dialog shut. *@
+<BbCommandDialog Open="@_open" OpenChanged="OnOpenChanged"
+                 SearchQueryChanged="OnQueryChanged" FilterFunction="AlwaysMatch"
+                 Class="palette">
+    <BbCommandInput Placeholder="Search entities, syntaxes & docs…" DisableDebounce="true" AutoFocus="true" />
 
-            <div class="pal-results">
-                @if (_flat.Count == 0)
+    <BbCommandList Class="pal-results">
+        @if (_flat.Count == 0)
+        {
+            <div class="pal-empty">No results for “@_query”. Try a broader term.</div>
+        }
+        else
+        {
+            var index = 0;
+            @foreach (var (label, items) in Groups())
+            {
+                <div class="pal-group">@label</div>
+                foreach (var item in items)
                 {
-                    <div class="pal-empty">No results for “@_query”. Try a broader term.</div>
+                    var current = item;
+                    var i = index++;
+                    <BbCommandItem Value="@i.ToString()" Class="pal-row" OnSelect="() => Choose(current)">
+                        <span class="pn">@current.Name</span>
+                        <DotBadge Class="@("kind-" + current.Kind)" Label="@current.Kind" />
+                        <span class="par">@current.Parent</span>
+                    </BbCommandItem>
                 }
-                else
-                {
-                    var index = 0;
-                    if (_entities.Count > 0)
-                    {
-                        <div class="pal-group">Entities</div>
-                        foreach (var item in _entities)
-                        {
-                            var i = index++;
-                            @PalRow(item, i)
-                        }
-                    }
-                    if (_docs.Count > 0)
-                    {
-                        <div class="pal-group">Documentation</div>
-                        foreach (var item in _docs)
-                        {
-                            var i = index++;
-                            @PalRow(item, i)
-                        }
-                    }
-                    if (_events.Count > 0)
-                    {
-                        <div class="pal-group">Events</div>
-                        foreach (var item in _events)
-                        {
-                            var i = index++;
-                            @PalRow(item, i)
-                        }
-                    }
-                    if (_syntaxes.Count > 0)
-                    {
-                        <div class="pal-group">Syntaxes</div>
-                        foreach (var item in _syntaxes)
-                        {
-                            var i = index++;
-                            @PalRow(item, i)
-                        }
-                    }
-                }
-            </div>
+            }
+        }
+    </BbCommandList>
 
-            <div class="pal-foot">
-                <span><span class="k">↑↓</span>navigate</span>
-                <span><span class="k">↵</span>open</span>
-                <span><span class="k">esc</span>close</span>
-            </div>
-        </div>
+    <div class="pal-foot">
+        <span><span class="k">↑↓</span>navigate</span>
+        <span><span class="k">↵</span>open</span>
+        <span><span class="k">esc</span>close</span>
     </div>
-}
+</BbCommandDialog>
 
 @code {
     private bool _open;
     private string _query = "";
-    private int _sel;
-    private bool _focusPending;
-    private ElementReference _input;
 
     private List<SearchItem> _entities = [];
     private List<SearchItem> _docs = [];
@@ -86,78 +58,50 @@
     private List<SearchItem> _syntaxes = [];
     private List<SearchItem> _flat = [];
 
-    private DotNetObjectReference<CommandPalette>? _ref;
-    private bool _hotkeyRegistered;
+    private static bool AlwaysMatch(CommandItemMetadata item, string query) => true;
 
-    private RenderFragment PalRow(SearchItem item, int i) => __builder =>
-    {
-        <div class="pal-row @(i == _sel ? "sel" : "")" @onmouseenter="() => _sel = i" @onclick="() => Choose(item)">
-            <span class="pn">@item.Name</span>
-            <DotBadge Class="@("kind-" + item.Kind)" Label="@item.Kind" />
-            <span class="par">@item.Parent</span>
-        </div>
-    };
-
-    public Task Open()
-    {
-        _open = true;
-        _query = "";
-        _sel = 0;
-        _focusPending = true;
-        Recompute();
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-
-    [JSInvokable]
-    public Task OpenPalette() => Open();
-
-    private void Close() => _open = false;
+    private IDisposable? _hotkey;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !_hotkeyRegistered)
+        if (!firstRender) return;
+        try
         {
-            _ref = DotNetObjectReference.Create(this);
-            try
-            {
-                await JS.InvokeVoidAsync("atlas.registerHotkey", _ref);
-                _hotkeyRegistered = true;
-            }
-            catch { /* JS not ready during prerender */ }
+            _hotkey = await Shortcuts.RegisterAsync("Ctrl+K",
+                () => InvokeAsync(() => OnOpenChanged(true)));
         }
-
-        if (_focusPending && _open)
-        {
-            _focusPending = false;
-            try { await _input.FocusAsync(); } catch { /* ignore */ }
-        }
+        catch { /* JS not ready during prerender */ }
     }
 
-    private void OnInput(ChangeEventArgs e)
+    public Task Open()
     {
-        _query = e.Value?.ToString() ?? "";
-        _sel = 0;
+        OnOpenChanged(true);
+        return Task.CompletedTask;
+    }
+
+    private void OnOpenChanged(bool open)
+    {
+        _open = open;
+        if (open)
+        {
+            _query = "";
+            Recompute();
+        }
+        StateHasChanged();
+    }
+
+    private void OnQueryChanged(string query)
+    {
+        _query = query;
         Recompute();
     }
 
-    private void OnKeyDown(KeyboardEventArgs e)
+    private IEnumerable<(string Label, List<SearchItem> Items)> Groups()
     {
-        switch (e.Key)
-        {
-            case "ArrowDown":
-                _sel = Math.Min(_sel + 1, _flat.Count - 1);
-                break;
-            case "ArrowUp":
-                _sel = Math.Max(_sel - 1, 0);
-                break;
-            case "Enter":
-                if (_sel >= 0 && _sel < _flat.Count) Choose(_flat[_sel]);
-                break;
-            case "Escape":
-                Close();
-                break;
-        }
+        if (_entities.Count > 0) yield return ("Entities", _entities);
+        if (_docs.Count > 0) yield return ("Documentation", _docs);
+        if (_events.Count > 0) yield return ("Events", _events);
+        if (_syntaxes.Count > 0) yield return ("Syntaxes", _syntaxes);
     }
 
     private void Choose(SearchItem item)
@@ -204,7 +148,6 @@
         }
 
         _flat = [.. _entities, .. _docs, .. _events, .. _syntaxes];
-        if (_sel >= _flat.Count) _sel = Math.Max(0, _flat.Count - 1);
     }
 
     // Fuzzy score: substring match wins; otherwise subsequence match. Mirrors the design kit.
@@ -233,12 +176,5 @@
         return qi == query.Length ? score : -1;
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (_hotkeyRegistered)
-        {
-            try { await JS.InvokeVoidAsync("atlas.unregisterHotkey"); } catch { /* ignore */ }
-        }
-        _ref?.Dispose();
-    }
+    public void Dispose() => _hotkey?.Dispose();
 }

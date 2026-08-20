@@ -211,8 +211,12 @@ a { color: inherit; }
 }
 @keyframes ov-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .overlay { animation: none; } }
+/* Applied to Blueprint's CommandDialog content: repin BB's centered dialog to
+   the classic top-aligned palette and restore the DiSky chrome. */
 .palette {
-  width: min(560px, 92vw); background: var(--bg-raised);
+  top: 12vh; translate: -50% 0; transform: none;
+  display: flex; flex-direction: column; gap: 0; padding: 0;
+  width: min(560px, 92vw); max-width: none; background: var(--bg-raised);
   border: 1px solid var(--border-strong); border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg); overflow: hidden;
 }
@@ -221,6 +225,9 @@ a { color: inherit; }
 .pal-input input { all: unset; flex: 1; font-size: 15px; color: var(--fg); font-family: var(--font-sans); }
 .pal-input input::placeholder { color: var(--fg-faint); }
 .pal-input .esc { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-faint); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; }
+/* BB's command input draws its own focus affordance; the global blurple
+   :focus-visible outline would double up inside the dialog. */
+.palette input:focus-visible { outline: none; }
 .pal-results { max-height: 52vh; overflow-y: auto; overflow-x: hidden; padding: 6px; }
 .pal-results::-webkit-scrollbar { width: 10px; }
 .pal-results::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 10px; border: 3px solid var(--bg-raised); }
@@ -231,8 +238,8 @@ a { color: inherit; }
 }
 .pal-row .pn { font-family: var(--font-mono); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pal-row .par { margin-left: auto; color: var(--fg-faint); font-size: 11.5px; font-family: var(--font-mono); white-space: nowrap; }
-.pal-row.sel { background: rgba(88,101,242,0.14); }
-.pal-row.sel .par { color: var(--fg-muted); }
+.pal-row[data-focused="true"] { background: rgba(88,101,242,0.14); }
+.pal-row[data-focused="true"] .par { color: var(--fg-muted); }
 .pal-empty { padding: 26px; text-align: center; color: var(--fg-faint); font-size: 13.5px; }
 .pal-foot { display: flex; align-items: center; gap: 16px; padding: 9px 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--fg-faint); }
 .pal-foot .k { font-family: var(--font-mono); border: 1px solid var(--border); border-radius: 4px; padding: 0 5px; margin-right: 4px; }
