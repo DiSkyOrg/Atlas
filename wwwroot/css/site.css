@@ -94,14 +94,9 @@ a { color: inherit; }
   content: ""; position: absolute; left: 3px; top: 7px; bottom: 7px;
   width: 3px; border-radius: 999px; background: var(--primary);
 }
-.tree-row .chev { color: var(--fg-faint); transition: transform var(--dur) var(--ease); flex: none; display: inline-flex; }
-.tree-row .chev.open { transform: rotate(90deg); }
 .tree-row .leaf-icon { color: var(--fg-faint); flex: none; display: inline-flex; }
 .tree-row .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tree-row .count { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-faint); }
-.nest { margin-left: 15px; border-left: 1px solid var(--border); }
-.nest .tree-row { margin-left: 1px; }
-
 /* Sidebar tabs (Atlas | Documentation) */
 .side-tabs { margin: 2px 0 6px; }
 .side-tabs-list { display: flex; width: 100%; margin-bottom: 6px; }
@@ -185,7 +180,6 @@ a { color: inherit; }
 }
 .record:hover .record-head .anchor { opacity: 1; }
 .record-head .anchor:hover { color: var(--primary); }
-.record-head .grow { flex: 1; }
 .record .desc { color: var(--fg-muted); font-size: 13.5px; margin: 12px 0 0; }
 .record .desc + .desc { margin-top: 6px; }
 .record .patterns { display: grid; gap: 8px; }
@@ -215,17 +209,9 @@ a { color: inherit; }
   border-radius: var(--radius); padding: 8px 12px;
 }
 
-/* ---- Command palette (hand-built overlay; focus/scroll-lock via interop) ---- */
-.overlay {
-  position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-start; justify-content: center;
-  padding-top: 12vh; background: rgba(0, 0, 0, 0.6);
-  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
-  animation: ov-in var(--dur) var(--ease);
-}
-@keyframes ov-in { from { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .overlay { animation: none; } }
-/* Applied to Blueprint's CommandDialog content: repin BB's centered dialog to
-   the classic top-aligned palette and restore the DiSky chrome. */
+/* ---- Command palette (Blueprint CommandDialog) ----
+   .palette lands on the dialog content: repin BB's centered dialog to the
+   classic top-aligned palette and restore the DiSky chrome. */
 .palette {
   top: 12vh; translate: -50% 0; transform: none;
   display: flex; flex-direction: column; gap: 0; padding: 0;
@@ -233,11 +219,6 @@ a { color: inherit; }
   border: 1px solid var(--border-strong); border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg); overflow: hidden;
 }
-.pal-input { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-bottom: 1px solid var(--border); }
-.pal-input > svg { color: var(--fg-faint); flex: none; }
-.pal-input input { all: unset; flex: 1; font-size: 15px; color: var(--fg); font-family: var(--font-sans); }
-.pal-input input::placeholder { color: var(--fg-faint); }
-.pal-input .esc { font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-faint); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; }
 /* BB's command input draws its own focus affordance; the global blurple
    :focus-visible outline would double up inside the dialog. */
 .palette input:focus-visible { outline: none; }
@@ -314,10 +295,6 @@ a { color: inherit; }
   .scrim.show { display: block; position: fixed; inset: 56px 0 0 0; background: rgba(0,0,0,0.5); z-index: 15; }
 }
 
-@keyframes pal-in { from { opacity: 0; transform: translateY(-6px); } }
-.palette { animation: pal-in var(--dur-slow) var(--ease); }
-@media (prefers-reduced-motion: reduce) { .palette { animation: none; } }
-
 /* ============================================================================
    Icon sizing by context. Blueprint's <LucideIcon> renders a raw <svg>; we size
    it via descendant rules so we don't depend on Tailwind size utilities being
@@ -327,8 +304,6 @@ a { color: inherit; }
 .icon-btn svg { width: 18px; height: 18px; }
 .search-trigger > svg { width: 15px; height: 15px; }
 .side-search > svg { width: 14px; height: 14px; }
-.brand-fallback svg { width: 22px; height: 22px; }
-.tree-row .chev svg { width: 14px; height: 14px; }
 .tree-row .leaf-icon svg { width: 15px; height: 15px; }
 .page-head .head-icon svg { width: 26px; height: 26px; }
 .crumb svg { width: 13px; height: 13px; }
@@ -336,7 +311,6 @@ a { color: inherit; }
 .code-copy svg { width: 12px; height: 12px; }
 .record-head .anchor svg { width: 14px; height: 14px; }
 .ex-toggle .chev svg { width: 13px; height: 13px; }
-.pal-input > svg { width: 17px; height: 17px; }
 .pal-row svg { width: 14px; height: 14px; }
 .empty .empty-icon svg { width: 40px; height: 40px; }
 .chip svg, .badge svg, .cm svg { width: 12px; height: 12px; }
@@ -510,13 +484,6 @@ html:not(.dark) .kind-expression { color: #0d9488; }
 }
 .hc-item:hover { background: var(--bg-hover); color: var(--fg); }
 .hc-item svg { width: 14px; height: 14px; color: var(--fg-faint); flex: none; }
-.hc-action {
-  display: flex; align-items: center; gap: 6px; width: 100%; margin-top: 8px; padding: 7px 8px 2px;
-  border: 0; border-top: 1px solid var(--border); background: none;
-  color: var(--link); font-size: 12.5px; cursor: pointer; font-family: var(--font-sans);
-}
-.hc-action:hover { color: var(--primary); }
-.hc-action svg { width: 14px; height: 14px; }
 
 /* ============================================================================
    Settings dialog

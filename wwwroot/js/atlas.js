@@ -1,4 +1,4 @@
-// DiSky Atlas — browser interop: theme, clipboard, scroll, ⌘K hotkey.
+// DiSky Atlas — browser interop: theme, clipboard, scroll, display settings.
 window.atlas = (function () {
   const THEME_KEY = "disky-theme";
 
@@ -131,32 +131,9 @@ window.atlas = (function () {
 
   function setDocToc(on) { const s = readSettings(); s.docs.toc = !!on; persistSettings(s); return s; }
 
-  // ---- ⌘K / Ctrl+K global hotkey, dispatched to a .NET object ----
-  let hotkeyHandler = null;
-
-  function registerHotkey(dotNetRef) {
-    unregisterHotkey();
-    hotkeyHandler = function (e) {
-      const k = (e.key || "").toLowerCase();
-      if ((e.metaKey || e.ctrlKey) && k === "k") {
-        e.preventDefault();
-        dotNetRef.invokeMethodAsync("OpenPalette");
-      }
-    };
-    document.addEventListener("keydown", hotkeyHandler);
-  }
-
-  function unregisterHotkey() {
-    if (hotkeyHandler) {
-      document.removeEventListener("keydown", hotkeyHandler);
-      hotkeyHandler = null;
-    }
-  }
-
   return {
     initTheme, getTheme, setTheme, toggleTheme,
     copyText, scrollToId, clearForceOpen, focusSelector, scrollTop,
-    getSettings, setDisplay, setBadge, setAdvanced, setDocCard, setDocToc,
-    registerHotkey, unregisterHotkey
+    getSettings, setDisplay, setBadge, setAdvanced, setDocCard, setDocToc
   };
 })();
