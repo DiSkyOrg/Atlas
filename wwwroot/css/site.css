@@ -102,6 +102,19 @@ a { color: inherit; }
 .nest { margin-left: 15px; border-left: 1px solid var(--border); }
 .nest .tree-row { margin-left: 1px; }
 
+/* Sidebar tabs (Atlas | Documentation) */
+.side-tabs { margin: 2px 0 6px; }
+.side-tabs-list { display: flex; width: 100%; margin-bottom: 6px; }
+.side-tab { flex: 1; }
+
+/* Blueprint TreeView shims: the label anchor fills the row (real link,
+   middle-click), the empty chevron placeholder on leaves collapses so the
+   leaf icon sits in the chevron slot, and BB's chevron picks up DiSky ink. */
+.tree-link { display: flex; align-items: center; gap: 7px; flex: 1; min-width: 0; color: inherit; text-decoration: none; }
+.tree-link:hover { text-decoration: none; }
+.tree-row > span:empty { display: none; }
+.tree-row > button { color: var(--fg-faint); }
+
 /* ---- Content ---- */
 .content { overflow-y: auto; overflow-x: hidden; padding: 0; min-width: 0; }
 .content::-webkit-scrollbar { width: 12px; }

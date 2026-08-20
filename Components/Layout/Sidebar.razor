@@ -1,4 +1,7 @@
-@* Collapsible entity-tree sidebar built from the manifest hierarchy. *@
+@* Sidebar: search trigger, then Blueprint tabs splitting the nav into "Atlas"
+   (reference + entity tree) and "Documentation" (docs tree). Tab selection
+   follows the route (docs/* → Documentation); a manual tab click wins until
+   the next navigation. Trees are Blueprint TreeViews (see TreeNode/DocsNav). *@
 @inject ManifestService Manifest
 @inject DiSkyAtlas.Services.Docs.DocsService Docs
 @inject NavigationManager Nav
@@ -11,49 +14,29 @@
         <span class="kbd">⌘K</span>
     </button>
 
-    <div class="group">
-        <div class="group-label">Reference</div>
-        <a class="tree-row @(string.Equals(_activeId, "events", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
-           href="/events" @onclick="NavigatedAsync">
-            <span class="leaf-icon"><LucideIcon Name="zap" /></span>
-            <span class="label">Events</span>
-            <span class="count">@Manifest.Events.Count</span>
-        </a>
-    </div>
-
     @if (Docs.HasDocs)
     {
-        <div class="group">
-            <div class="group-label">Documentation</div>
-            <DiSkyAtlas.Components.Docs.DocsNav OnNavigate="NavigatedAsync" />
-        </div>
-    }
+        <BbTabs Value="@_tab" ValueChanged="OnTabClicked" Class="side-tabs">
+            <BbTabsList Class="side-tabs-list">
+                <BbTabsTrigger Value="atlas" Class="side-tab">Atlas</BbTabsTrigger>
+                <BbTabsTrigger Value="docs" Class="side-tab">Documentation</BbTabsTrigger>
+            </BbTabsList>
 
-    @if (Manifest.HasCore)
+            <BbTabsContent Value="atlas">
+                @AtlasNav
+            </BbTabsContent>
+
+            <BbTabsContent Value="docs">
+                <div class="group">
+                    <DiSkyAtlas.Components.Docs.DocsNav OnNavigate="NavigatedAsync" />
+                </div>
+            </BbTabsContent>
+        </BbTabs>
+    }
+    else
     {
-        <div class="group">
-            <div class="group-label">Core / Global</div>
-            @foreach (var kind in Manifest.CoreKinds)
-            {
-                var slug = ManifestService.KindPlural(kind);
-                <a class="tree-row @(string.Equals(_activeId, $"core/{slug}", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
-                   href="/core/@slug" @onclick="NavigatedAsync">
-                    <span class="leaf-icon"><LucideIcon Name="@ManifestService.KindIcon(kind)" /></span>
-                    <span class="label">@ManifestService.KindLabel(kind)</span>
-                    <span class="count">@Manifest.CoreSyntaxes(kind).Count</span>
-                </a>
-            }
-        </div>
+        @AtlasNav
     }
-
-    <div class="group">
-        <div class="group-label">Entities</div>
-        @foreach (var root in Manifest.Roots)
-        {
-            <TreeNode Entity="root" ActiveId="@_activeId" Expanded="_expanded"
-                      OnToggle="Toggle" OnNavigate="NavigatedAsync" />
-        }
-    </div>
 </nav>
 
 @code {
@@ -61,20 +44,70 @@
     [Parameter] public EventCallback OnOpenPalette { get; set; }
     [Parameter] public EventCallback OnNavigated { get; set; }
 
-    private readonly HashSet<string> _expanded = new(StringComparer.OrdinalIgnoreCase);
+    private HashSet<string> _expanded = new(StringComparer.OrdinalIgnoreCase);
     private string? _activeId;
+    private string? _tab = "atlas";
+
+    private RenderFragment AtlasNav => __builder =>
+    {
+        <div class="group">
+            <div class="group-label">Reference</div>
+            <a class="tree-row @(string.Equals(_activeId, "events", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+               href="/events" @onclick="NavigatedAsync">
+                <span class="leaf-icon"><LucideIcon Name="zap" /></span>
+                <span class="label">Events</span>
+                <span class="count">@Manifest.Events.Count</span>
+            </a>
+        </div>
+
+        @if (Manifest.HasCore)
+        {
+            <div class="group">
+                <div class="group-label">Core / Global</div>
+                @foreach (var kind in Manifest.CoreKinds)
+                {
+                    var slug = ManifestService.KindPlural(kind);
+                    <a class="tree-row @(string.Equals(_activeId, $"core/{slug}", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                       href="/core/@slug" @onclick="NavigatedAsync">
+                        <span class="leaf-icon"><LucideIcon Name="@ManifestService.KindIcon(kind)" /></span>
+                        <span class="label">@ManifestService.KindLabel(kind)</span>
+                        <span class="count">@Manifest.CoreSyntaxes(kind).Count</span>
+                    </a>
+                }
+            </div>
+        }
+
+        <div class="group">
+            <div class="group-label">Entities</div>
+            <BbTreeView TItem="string" AriaLabel="Entities"
+                        ExpandedValues="_expanded" ExpandedValuesChanged="OnExpandedChanged">
+                @foreach (var root in Manifest.Roots)
+                {
+                    <TreeNode Entity="root" ActiveId="@_activeId" OnNavigate="NavigatedAsync" />
+                }
+            </BbTreeView>
+        </div>
+    };
 
     protected override void OnInitialized()
     {
         Nav.LocationChanged += OnLocationChanged;
         UpdateActive();
+        _tab = TabForRoute();
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         UpdateActive();
+        _tab = TabForRoute();
         InvokeAsync(StateHasChanged);
     }
+
+    private string TabForRoute() =>
+        _activeId is not null && _activeId.StartsWith("docs", StringComparison.OrdinalIgnoreCase)
+            ? "docs" : "atlas";
+
+    private void OnTabClicked(string? tab) => _tab = tab ?? "atlas";
 
     private void UpdateActive()
     {
@@ -90,11 +123,8 @@
             _expanded.Add(entity.Id);
     }
 
-    private void Toggle(string id)
-    {
-        if (!_expanded.Add(id))
-            _expanded.Remove(id);
-    }
+    private void OnExpandedChanged(HashSet<string> values) =>
+        _expanded = new HashSet<string>(values, StringComparer.OrdinalIgnoreCase);
 
     private Task OpenPaletteAsync() => OnOpenPalette.InvokeAsync();
     private Task NavigatedAsync() => OnNavigated.InvokeAsync();

@@ -1,50 +1,60 @@
-@* Sidebar rows for the Documentation group: one expandable row per section, page rows
-   nested under it. Mirrors the entity tree's look (tree-row / nest / active). *@
+@* Documentation tree on Blueprint's TreeView: one expandable node per section,
+   page rows nested under it. Row look and active/auto-expand behavior mirror
+   the entity tree (tree-row / tree-link / active). *@
 @using DiSkyAtlas.Models
 @using DiSkyAtlas.Services.Docs
 @inject DocsService Docs
 @inject NavigationManager Nav
 @implements IDisposable
 
-@foreach (var docSection in Docs.Sections)
-{
-    var section = docSection;
-    var expanded = IsExpanded(section);
-    <a class="tree-row @(IsActive(SectionSlug(section)) ? "active" : "")" href="@SectionHref(section)"
-       @onclick="() => NavigatedAsync(section)">
+<BbTreeView TItem="string" AriaLabel="Documentation"
+            ExpandedValues="_expanded" ExpandedValuesChanged="OnExpandedChanged">
+    @foreach (var docSection in Docs.Sections)
+    {
+        var section = docSection;
         @if (section.Pages.Count > 0)
         {
-            <span class="chev @(expanded ? "open" : "")"
-                  @onclick="() => Toggle(section.Id)" @onclick:preventDefault @onclick:stopPropagation>
-                <LucideIcon Name="chevron-right" />
-            </span>
+            <BbTreeItem Value="@section.Id" Class="@RowClass(SectionSlug(section))">
+                <LabelTemplate>
+                    <a class="tree-link" href="@SectionHref(section)" @onclick="() => NavigatedAsync(section)">
+                        <span class="label">@section.Title</span>
+                        <span class="count">@(section.Pages.Count + (section.Index is null ? 0 : 1))</span>
+                    </a>
+                </LabelTemplate>
+                <ChildContent>
+                    @foreach (var docPage in section.Pages)
+                    {
+                        <BbTreeItem Value="@docPage.Slug" Class="@RowClass($"docs/{docPage.Slug}")" IsLeaf="true">
+                            <LabelTemplate>
+                                <a class="tree-link" href="@($"/docs/{docPage.Slug}")" @onclick="() => NavigatedAsync(null)">
+                                    <span class="leaf-icon"><LucideIcon Name="@(docPage.Icon ?? "file-text")" /></span>
+                                    <span class="label">@docPage.Title</span>
+                                </a>
+                            </LabelTemplate>
+                        </BbTreeItem>
+                    }
+                </ChildContent>
+            </BbTreeItem>
         }
         else
         {
-            <span class="leaf-icon"><LucideIcon Name="@(section.Icon ?? "book-open")" /></span>
+            <BbTreeItem Value="@section.Id" Class="@RowClass(SectionSlug(section))" IsLeaf="true">
+                <LabelTemplate>
+                    <a class="tree-link" href="@SectionHref(section)" @onclick="() => NavigatedAsync(section)">
+                        <span class="leaf-icon"><LucideIcon Name="@(section.Icon ?? "book-open")" /></span>
+                        <span class="label">@section.Title</span>
+                        <span class="count">@(section.Index is null ? 0 : 1)</span>
+                    </a>
+                </LabelTemplate>
+            </BbTreeItem>
         }
-        <span class="label">@(section.Title)</span>
-        <span class="count">@(section.Pages.Count + (section.Index is null ? 0 : 1))</span>
-    </a>
-    @if (expanded && section.Pages.Count > 0)
-    {
-        <div class="nest">
-            @foreach (var docPage in section.Pages)
-            {
-                <a class="tree-row @(IsActive($"docs/{docPage.Slug}") ? "active" : "")" href="@($"/docs/{docPage.Slug}")"
-                   @onclick="() => NavigatedAsync(null)">
-                    <span class="leaf-icon"><LucideIcon Name="@(docPage.Icon ?? "file-text")" /></span>
-                    <span class="label">@docPage.Title</span>
-                </a>
-            }
-        </div>
     }
-}
+</BbTreeView>
 
 @code {
     [Parameter] public EventCallback OnNavigate { get; set; }
 
-    private readonly HashSet<string> _expanded = new(StringComparer.OrdinalIgnoreCase);
+    private HashSet<string> _expanded = new(StringComparer.OrdinalIgnoreCase);
     private string? _activePath;
 
     protected override void OnInitialized()
@@ -73,21 +83,16 @@
         }
     }
 
-    private bool IsActive(string path) =>
-        string.Equals(_activePath, path, StringComparison.OrdinalIgnoreCase);
+    private void OnExpandedChanged(HashSet<string> values) =>
+        _expanded = new HashSet<string>(values, StringComparer.OrdinalIgnoreCase);
 
-    private bool IsExpanded(DocSection section) => _expanded.Contains(section.Id);
+    private string RowClass(string path) =>
+        string.Equals(_activePath, path, StringComparison.OrdinalIgnoreCase) ? "tree-row active" : "tree-row";
 
     private static string SectionSlug(DocSection section) =>
         section.Index is not null ? $"docs/{section.Id}" : $"docs/{section.Pages.FirstOrDefault()?.Slug}";
 
     private static string SectionHref(DocSection section) => "/" + SectionSlug(section);
-
-    private void Toggle(string id)
-    {
-        if (!_expanded.Add(id))
-            _expanded.Remove(id);
-    }
 
     private Task NavigatedAsync(DocSection? section)
     {
