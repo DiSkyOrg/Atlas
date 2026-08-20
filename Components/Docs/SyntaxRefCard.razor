@@ -25,7 +25,7 @@ else if (reference.Syntax is { } syntax)
             <span class="sref-name">@syntax.Name</span>
             @if (syntax.Deprecated)
             {
-                <span class="badge badge-deprecated"><span class="dot"></span>deprecated</span>
+                <DotBadge Class="badge-deprecated" Label="deprecated" />
             }
             <span class="sref-src">@SourceLabel(reference)</span>
         </span>
@@ -55,7 +55,7 @@ else if (reference.EntityId is { } entityId && Manifest.GetEntity(entityId) is {
         <span class="sref-head">
             <span class="sref-icon"><LucideIcon Name="@ManifestService.EntityIcon(entity)" /></span>
             <span class="sref-name">@Manifest.DisplayName(entity)</span>
-            <span class="badge kind-type"><span class="dot"></span>type</span>
+            <DotBadge Class="kind-type" Label="type" />
             <span class="sref-src">@entity.Syntaxes.Count synta@(entity.Syntaxes.Count == 1 ? "x" : "xes")</span>
         </span>
         <span class="sref-desc">@EntityBlurbs.For(entity, Manifest.DisplayName(entity))</span>

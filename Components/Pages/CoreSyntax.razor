@@ -8,11 +8,9 @@
 {
     <PageTitle>Not found — DiSky Atlas</PageTitle>
     <div class="page">
-        <div class="empty">
-            <span class="empty-icon"><LucideIcon Name="search-x" /></span>
-            <h2>Unknown section</h2>
+        <EmptyState Icon="search-x" Title="Unknown section">
             <p>There's no core section called “@Kind”. Pick one from the sidebar.</p>
-        </div>
+        </EmptyState>
     </div>
 }
 else
@@ -34,7 +32,7 @@ else
         <div class="page-head">
             <span class="head-icon"><LucideIcon Name="@ManifestService.KindIcon(kind)" /></span>
             <h1>@label</h1>
-            <span class="badge kind-@slug"><span class="dot"></span>@slug</span>
+            <DotBadge Class="@("kind-" + slug)" Label="@slug" />
         </div>
 
         <p class="page-lead">Global, non-entity @label.ToLowerInvariant() — usable anywhere in your scripts.</p>
@@ -43,27 +41,16 @@ else
             <span class="chip chip-since">@all.Count @(all.Count == 1 ? "syntax" : "syntaxes")</span>
         </div>
 
-        <div class="filter-bar">
-            <span class="filter-icon"><LucideIcon Name="filter" /></span>
-            <input class="filter-input" value="@_filter" @oninput="OnFilterInput"
-                   placeholder="Filter… e.g. since:>=5.0.0 bot"
-                   spellcheck="false" autocomplete="off" aria-label="Filter @label" />
-            @if (!string.IsNullOrEmpty(_filter))
-            {
-                <button type="button" class="filter-clear" @onclick="ClearFilter" title="Clear filter">
-                    <LucideIcon Name="x" />
-                </button>
-            }
-            <span class="filter-count">@visible.Count / @all.Count</span>
-        </div>
+        <FilterBar Value="@_filter" ValueChanged="SetFilter"
+                   Placeholder="Filter… e.g. since:>=5.0.0 bot"
+                   AriaLabel="@($"Filter {label}")"
+                   MatchCount="visible.Count" Total="all.Count" />
 
         @if (visible.Count == 0)
         {
-            <div class="empty">
-                <span class="empty-icon"><LucideIcon Name="search-x" /></span>
-                <h2>No matching syntaxes</h2>
+            <EmptyState Icon="search-x" Title="No matching syntaxes">
                 <p>Nothing matches “@_filter”. Try a broader query or clear the filter.</p>
-            </div>
+            </EmptyState>
         }
         else
         {
@@ -119,16 +106,10 @@ else
         }
     }
 
-    private void OnFilterInput(ChangeEventArgs e)
+    private void SetFilter(string value)
     {
-        _filter = e.Value?.ToString() ?? "";
+        _filter = value;
         _parsedFilter = SyntaxFilter.Parse(_filter);
-    }
-
-    private void ClearFilter()
-    {
-        _filter = "";
-        _parsedFilter = SyntaxFilter.Empty;
     }
 
     private string? GetHash()

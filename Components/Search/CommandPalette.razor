@@ -93,7 +93,7 @@
     {
         <div class="pal-row @(i == _sel ? "sel" : "")" @onmouseenter="() => _sel = i" @onclick="() => Choose(item)">
             <span class="pn">@item.Name</span>
-            <span class="badge kind-@item.Kind"><span class="dot"></span>@item.Kind</span>
+            <DotBadge Class="@("kind-" + item.Kind)" Label="@item.Kind" />
             <span class="par">@item.Parent</span>
         </div>
     };

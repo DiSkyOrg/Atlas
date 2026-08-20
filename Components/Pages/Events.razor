@@ -16,7 +16,7 @@
     <div class="page-head">
         <span class="head-icon"><LucideIcon Name="zap" /></span>
         <h1>Events</h1>
-        <span class="badge kind-event"><span class="dot"></span>event</span>
+        <DotBadge Class="kind-event" Label="event" />
     </div>
 
     <p class="page-lead">
@@ -41,27 +41,16 @@
 
     <SectionJump Sections="sections" />
 
-    <div class="filter-bar">
-        <span class="filter-icon"><LucideIcon Name="filter" /></span>
-        <input class="filter-input" value="@_filter" @oninput="OnFilterInput"
-               placeholder="Filter events… e.g. since:&gt;=5.0.0 cancellable:true intent:members message"
-               spellcheck="false" autocomplete="off" aria-label="Filter events" />
-        @if (!string.IsNullOrEmpty(_filter))
-        {
-            <button type="button" class="filter-clear" @onclick="ClearFilter" title="Clear filter">
-                <LucideIcon Name="x" />
-            </button>
-        }
-        <span class="filter-count">@filtered.Count / @Manifest.Events.Count</span>
-    </div>
+    <FilterBar Value="@_filter" ValueChanged="SetFilter"
+               Placeholder="Filter events… e.g. since:>=5.0.0 cancellable:true intent:members message"
+               AriaLabel="Filter events"
+               MatchCount="filtered.Count" Total="Manifest.Events.Count" />
 
     @if (filtered.Count == 0)
     {
-        <div class="empty">
-            <span class="empty-icon"><LucideIcon Name="search-x" /></span>
-            <h2>No matching events</h2>
+        <EmptyState Icon="search-x" Title="No matching events">
             <p>Nothing matches “@_filter”. Try a broader query or clear the filter.</p>
-        </div>
+        </EmptyState>
     }
     else
     {
@@ -108,16 +97,10 @@
         }
     }
 
-    private void OnFilterInput(ChangeEventArgs e)
+    private void SetFilter(string value)
     {
-        _filter = e.Value?.ToString() ?? "";
+        _filter = value;
         _parsedFilter = SyntaxFilter.Parse(_filter);
-    }
-
-    private void ClearFilter()
-    {
-        _filter = "";
-        _parsedFilter = SyntaxFilter.Empty;
     }
 
     private string? GetHash()

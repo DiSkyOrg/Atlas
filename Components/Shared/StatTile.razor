@@ -1,0 +1,7 @@
+@* One numeric stat tile (home page hero row). *@
+<div class="stat"><div class="num">@Number</div><div class="lbl">@Label</div></div>
+
+@code {
+    [Parameter, EditorRequired] public int Number { get; set; }
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+}

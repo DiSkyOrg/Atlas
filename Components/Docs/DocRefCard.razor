@@ -16,7 +16,7 @@ else
         <span class="sref-head">
             <span class="sref-icon"><LucideIcon Name="@(target.Icon ?? "book-open")" /></span>
             <span class="sref-name">@target.Title</span>
-            <span class="badge kind-doc"><span class="dot"></span>guide</span>
+            <DotBadge Class="kind-doc" Label="guide" />
             <span class="sref-src">@SectionTitle(target)</span>
         </span>
         @if (target.Description is { Length: > 0 } description)

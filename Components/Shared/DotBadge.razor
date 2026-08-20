@@ -1,0 +1,10 @@
+@* Neutral mono badge with a hue-tinted dot ("puce") — DiSky's kind/status
+   marker. Deliberately maison: BbBadge's dot is a corner notification dot,
+   not this inline colored bullet. The color rides a class (kind-*,
+   badge-deprecated) whose hues live in ds-components.css on the theme vars. *@
+<span class="badge @Class"><span class="dot"></span>@Label</span>
+
+@code {
+    [Parameter, EditorRequired] public string Class { get; set; } = "";
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+}

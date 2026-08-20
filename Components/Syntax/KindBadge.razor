@@ -1,5 +1,5 @@
-@* Kind badge — neutral fill + a hue-tinted dot/label (design ds-components.css). *@
-<span class="badge kind-@Slug"><span class="dot"></span>@Slug</span>
+@* Kind badge — DotBadge colored by the syntax kind's slug. *@
+<DotBadge Class="@("kind-" + Slug)" Label="@Slug" />
 
 @code {
     [Parameter, EditorRequired] public SyntaxKind Kind { get; set; }

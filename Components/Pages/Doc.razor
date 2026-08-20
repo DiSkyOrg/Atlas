@@ -37,11 +37,9 @@
 
         @if (Docs.Sections.Count == 0)
         {
-            <div class="empty">
-                <span class="empty-icon"><LucideIcon Name="book-open" /></span>
-                <h2>No documentation yet</h2>
+            <EmptyState Icon="book-open" Title="No documentation yet">
                 <p>Pages live in the repository's <code>Docs/</code> folder — one folder per section, one markdown file per page.</p>
-            </div>
+            </EmptyState>
         }
         else
         {
@@ -69,11 +67,9 @@ else if (_page is null)
 {
     <PageTitle>Not found — DiSky Atlas</PageTitle>
     <div class="page">
-        <div class="empty">
-            <span class="empty-icon"><LucideIcon Name="search-x" /></span>
-            <h2>Unknown doc page</h2>
+        <EmptyState Icon="search-x" Title="Unknown doc page">
             <p>There's no documentation page at “@Slug”. Open search with <kbd>⌘</kbd><kbd>K</kbd> or browse <a href="/docs">the docs index</a>.</p>
-        </div>
+        </EmptyState>
     </div>
 }
 else
@@ -101,7 +97,7 @@ else
         <div class="page-head">
             <span class="head-icon"><LucideIcon Name="@(_page.Icon ?? _section?.Icon ?? "book-open")" /></span>
             <h1 class="doc-title">@_page.Title</h1>
-            <span class="badge kind-doc"><span class="dot"></span>guide</span>
+            <DotBadge Class="kind-doc" Label="guide" />
         </div>
 
         @if (_page.Description is { Length: > 0 })

@@ -9,11 +9,9 @@
 {
     <PageTitle>Not found — DiSky Atlas</PageTitle>
     <div class="page">
-        <div class="empty">
-            <span class="empty-icon"><LucideIcon Name="search-x" /></span>
-            <h2>Unknown entity</h2>
+        <EmptyState Icon="search-x" Title="Unknown entity">
             <p>There's no entity called “@EntityId”. Open search with <kbd>⌘</kbd><kbd>K</kbd> or pick one from the sidebar.</p>
-        </div>
+        </EmptyState>
     </div>
 }
 else
@@ -34,7 +32,7 @@ else
         <div class="page-head">
             <span class="head-icon"><LucideIcon Name="@ManifestService.EntityIcon(_entity)" /></span>
             <h1>@Manifest.DisplayName(_entity)</h1>
-            <span class="badge kind-type"><span class="dot"></span>type</span>
+            <DotBadge Class="kind-type" Label="type" />
         </div>
 
         <p class="page-lead">@EntityBlurbs.For(_entity, Manifest.DisplayName(_entity))</p>
@@ -84,39 +82,26 @@ else
 
         @if (_allGroups.Count > 0)
         {
-            <div class="filter-bar">
-                <span class="filter-icon"><LucideIcon Name="filter" /></span>
-                <input class="filter-input" value="@_filter" @oninput="OnFilterInput"
-                       placeholder="Filter… e.g. type:property since:>=5.0.0 change:set reactions"
-                       spellcheck="false" autocomplete="off" aria-label="Filter syntaxes" />
-                @if (!string.IsNullOrEmpty(_filter))
-                {
-                    <button type="button" class="filter-clear" @onclick="ClearFilter" title="Clear filter">
-                        <LucideIcon Name="x" />
-                    </button>
-                }
-                <span class="filter-count">@matchCount / @_entity.Syntaxes.Count</span>
-            </div>
+            <FilterBar Value="@_filter" ValueChanged="SetFilter"
+                       Placeholder="Filter… e.g. type:property since:>=5.0.0 change:set reactions"
+                       AriaLabel="Filter syntaxes"
+                       MatchCount="matchCount" Total="_entity.Syntaxes.Count" />
         }
 
         @if (_allGroups.Count == 0)
         {
-            <div class="empty">
-                <span class="empty-icon"><LucideIcon Name="box" /></span>
-                <h2>No syntaxes here yet</h2>
+            <EmptyState Icon="box" Title="No syntaxes here yet">
                 <p>
                     This type doesn't document any syntaxes directly@(Manifest.HasChildren(_entity.Id)
                         ? " — its subtypes in the sidebar do." : ".")
                 </p>
-            </div>
+            </EmptyState>
         }
         else if (visible.Count == 0)
         {
-            <div class="empty">
-                <span class="empty-icon"><LucideIcon Name="search-x" /></span>
-                <h2>No matching syntaxes</h2>
+            <EmptyState Icon="search-x" Title="No matching syntaxes">
                 <p>Nothing matches “@_filter”. Try a broader query or clear the filter.</p>
-            </div>
+            </EmptyState>
         }
         else
         {
@@ -217,16 +202,10 @@ else
         }
     }
 
-    private void OnFilterInput(ChangeEventArgs e)
+    private void SetFilter(string value)
     {
-        _filter = e.Value?.ToString() ?? "";
+        _filter = value;
         _parsedFilter = SyntaxFilter.Parse(_filter);
-    }
-
-    private void ClearFilter()
-    {
-        _filter = "";
-        _parsedFilter = SyntaxFilter.Empty;
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
