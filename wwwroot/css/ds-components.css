@@ -60,14 +60,14 @@
 .kind-structure  { color: #fda4af; }       /* rose-300 */
 .kind-type       { color: var(--fg-faint); }
 /* light-theme overrides keep them legible on white */
-[data-theme="light"] .kind-expression { color: var(--sky-600); }
-[data-theme="light"] .kind-getter     { color: #7c3aed; }       /* violet-600 */
-[data-theme="light"] .kind-effect     { color: var(--blurple-600); }
-[data-theme="light"] .kind-condition  { color: var(--emerald-600); }
-[data-theme="light"] .kind-event      { color: var(--amber-600); }
-[data-theme="light"] .kind-section    { color: #c026d3; }
-[data-theme="light"] .kind-structure  { color: var(--rose-600); }
-[data-theme="light"] .kind-type       { color: var(--fg-faint); }
+html:not(.dark) .kind-expression { color: var(--sky-600); }
+html:not(.dark) .kind-getter     { color: #7c3aed; }       /* violet-600 */
+html:not(.dark) .kind-effect     { color: var(--blurple-600); }
+html:not(.dark) .kind-condition  { color: var(--emerald-600); }
+html:not(.dark) .kind-event      { color: var(--amber-600); }
+html:not(.dark) .kind-section    { color: #c026d3; }
+html:not(.dark) .kind-structure  { color: var(--rose-600); }
+html:not(.dark) .kind-type       { color: var(--fg-faint); }
 
 /* ---- Badges: CHANGE MODES (settable properties) ----------------------- */
 .changemodes { display: inline-flex; gap: 0.3125rem; flex-wrap: wrap; }
@@ -83,7 +83,7 @@
   line-height: 1.5;
 }
 .cm-delete {
-  color: var(--destructive);
+  color: var(--danger);
   background: var(--destructive-bg);
   border-color: var(--destructive-bd);
 }
@@ -101,7 +101,7 @@
   line-height: 1.5;
 }
 .chip-return { color: var(--sky-300); }
-[data-theme="light"] .chip-return { color: var(--sky-600); }
+html:not(.dark) .chip-return { color: var(--sky-600); }
 .chip-since { color: var(--fg-faint); background: transparent; border-color: var(--border); }
 .chip-shared {
   color: var(--blurple-300); border-color: var(--blurple-600);
@@ -109,7 +109,7 @@
   font-family: var(--font-sans); font-weight: 600; font-size: var(--fs-micro);
   letter-spacing: var(--tracking-wide); text-transform: uppercase;
 }
-[data-theme="light"] .chip-shared { color: var(--blurple-600); }
+html:not(.dark) .chip-shared { color: var(--blurple-600); }
 
 /* ---- Code block ------------------------------------------------------- */
 .code-block {

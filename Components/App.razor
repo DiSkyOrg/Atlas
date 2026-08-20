@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" class="dark" data-syntax-display="compact" data-doc-card="standard" data-doc-toc="on">
+<html lang="en" class="dark" data-syntax-display="compact" data-doc-card="standard" data-doc-toc="on">
 
 <head>
     <meta charset="utf-8"/>
@@ -11,10 +11,8 @@
         (function () {
             try {
                 var t = localStorage.getItem('disky-theme') || 'dark';
-                document.documentElement.setAttribute('data-theme', t);
                 document.documentElement.classList.toggle('dark', t === 'dark');
             } catch (e) {
-                document.documentElement.setAttribute('data-theme', 'dark');
                 document.documentElement.classList.add('dark');
             }
         })();
@@ -48,11 +46,13 @@
 
     <ResourcePreloader/>
 
-    @* Blueprint first, then the DiSky design tokens, then the bridge + layout. *@
+    @* Theme (shadcn contract, source of truth) first, then Blueprint, then the
+       DiSky token aliases/extensions + layout. Blueprint's own token defaults
+       live in @layer, so our unlayered theme.css always wins. *@
+    <link rel="stylesheet" href="css/theme.css"/>
     <link rel="stylesheet" href="_content/BlazorBlueprint.Components/blazorblueprint.css"/>
-    <link rel="stylesheet" href="css/colors_and_type.css"/>
+    <link rel="stylesheet" href="css/tokens.css"/>
     <link rel="stylesheet" href="css/ds-components.css"/>
-    <link rel="stylesheet" href="css/theme-bridge.css"/>
     <link rel="stylesheet" href="css/site.css"/>
     <link rel="stylesheet" href="@Assets["app.css"]"/>
     <link rel="stylesheet" href="@Assets["DiSkyAtlas.styles.css"]"/>

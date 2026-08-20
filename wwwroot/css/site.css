@@ -187,10 +187,10 @@ a { color: inherit; }
 .chip-list { color: var(--fg-muted); }
 .intent-chip { color: var(--warning); border-color: var(--warning-bd); background: var(--warning-bg); }
 .badge-deprecated {
-  color: var(--destructive); background: var(--destructive-bg); border-color: var(--destructive-bd);
+  color: var(--danger); background: var(--destructive-bg); border-color: var(--destructive-bd);
 }
 .deprecated-note {
-  margin-top: 10px; font-size: 13px; color: var(--destructive);
+  margin-top: 10px; font-size: 13px; color: var(--danger);
   background: var(--destructive-bg); border: 1px solid var(--destructive-bd);
   border-radius: var(--radius); padding: 8px 12px;
 }
@@ -451,9 +451,9 @@ html:not([data-advanced="on"]) .page-jda { display: none; }
 /* Kind colours: PROPERTY (new, dominant) reuses the calm sky; EXPRESSION (rare,
    non-property) gets a distinct teal so the two read apart. */
 .kind-property { color: var(--sky-300); }
-[data-theme="light"] .kind-property { color: var(--sky-600); }
+html:not(.dark) .kind-property { color: var(--sky-600); }
 .kind-expression { color: #2dd4bf; }
-[data-theme="light"] .kind-expression { color: #0d9488; }
+html:not(.dark) .kind-expression { color: #0d9488; }
 
 /* ---- "Returned by" section on entity pages ---- */
 .returns-lead { color: var(--fg-muted); font-size: 13px; margin: 0 0 12px; }
@@ -536,7 +536,7 @@ html:not([data-advanced="on"]) .page-jda { display: none; }
 
 /* ---- Doc identity (badge hue, tags, title) ---- */
 .kind-doc { color: var(--blurple-300); }
-[data-theme="light"] .kind-doc { color: var(--blurple-600); }
+html:not(.dark) .kind-doc { color: var(--blurple-600); }
 .page-head .doc-title { font-family: var(--font-sans); }
 .chip-tag { color: var(--fg-muted); font-family: var(--font-sans); }
 
@@ -608,15 +608,15 @@ details[open] > summary .adm-chev { transform: rotate(180deg); }
 .adm-warning, .adm-caution, .adm-attention { --adm-fg: var(--amber-300); --adm-bg: var(--warning-bg); --adm-bd: var(--warning-bd); }
 .adm-danger, .adm-error, .adm-failure, .adm-bug { --adm-fg: var(--rose-300); --adm-bg: var(--destructive-bg); --adm-bd: var(--destructive-bd); }
 .adm-example { --adm-fg: #c4b5fd; --adm-bg: rgba(124, 58, 237, 0.10); --adm-bd: rgba(124, 58, 237, 0.30); }
-[data-theme="light"] .adm-note { --adm-fg: var(--blurple-600); }
-[data-theme="light"] .adm-tip, [data-theme="light"] .adm-hint,
-[data-theme="light"] .adm-success, [data-theme="light"] .adm-check, [data-theme="light"] .adm-done { --adm-fg: var(--emerald-600); }
-[data-theme="light"] .adm-info, [data-theme="light"] .adm-abstract, [data-theme="light"] .adm-summary,
-[data-theme="light"] .adm-question, [data-theme="light"] .adm-faq, [data-theme="light"] .adm-help { --adm-fg: var(--sky-600); }
-[data-theme="light"] .adm-warning, [data-theme="light"] .adm-caution, [data-theme="light"] .adm-attention { --adm-fg: var(--amber-600); }
-[data-theme="light"] .adm-danger, [data-theme="light"] .adm-error,
-[data-theme="light"] .adm-failure, [data-theme="light"] .adm-bug { --adm-fg: var(--rose-600); }
-[data-theme="light"] .adm-example { --adm-fg: #7c3aed; }
+html:not(.dark) .adm-note { --adm-fg: var(--blurple-600); }
+html:not(.dark) .adm-tip, html:not(.dark) .adm-hint,
+html:not(.dark) .adm-success, html:not(.dark) .adm-check, html:not(.dark) .adm-done { --adm-fg: var(--emerald-600); }
+html:not(.dark) .adm-info, html:not(.dark) .adm-abstract, html:not(.dark) .adm-summary,
+html:not(.dark) .adm-question, html:not(.dark) .adm-faq, html:not(.dark) .adm-help { --adm-fg: var(--sky-600); }
+html:not(.dark) .adm-warning, html:not(.dark) .adm-caution, html:not(.dark) .adm-attention { --adm-fg: var(--amber-600); }
+html:not(.dark) .adm-danger, html:not(.dark) .adm-error,
+html:not(.dark) .adm-failure, html:not(.dark) .adm-bug { --adm-fg: var(--rose-600); }
+html:not(.dark) .adm-example { --adm-fg: #7c3aed; }
 
 /* ---- Content tabs (=== "Title") ---- */
 .doc-tabs { margin: 0 0 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--bg-raised); overflow: hidden; }
@@ -747,7 +747,7 @@ a.doc-guide:hover { background: rgba(88, 101, 242, 0.14); text-decoration: none;
 .doc-guide .dg-title { color: var(--link); font-weight: 600; }
 .chip-doc { color: var(--blurple-300); font-family: var(--font-sans); text-decoration: none; }
 .chip-doc:hover { background: var(--bg-hover); border-color: var(--border-strong); text-decoration: none; }
-[data-theme="light"] .chip-doc { color: var(--blurple-600); }
+html:not(.dark) .chip-doc { color: var(--blurple-600); }
 
 /* "Documentation" rows on entity pages (Documented in) */
 .ret-doc-icon { display: inline-flex; color: var(--link); flex: none; }

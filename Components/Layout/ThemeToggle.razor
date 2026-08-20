@@ -1,5 +1,5 @@
 @* Dark ⇄ light toggle. The actual theme switch + persistence lives in atlas.js,
-   which drives both [data-theme] (DiSky tokens) and the .dark class (Blueprint). *@
+   which toggles the .dark class on <html> (read by theme.css and Blueprint). *@
 @inject IJSRuntime JS
 
 <button type="button" class="icon-btn" title="Toggle theme" aria-label="Toggle theme" @onclick="Toggle">

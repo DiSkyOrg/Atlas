@@ -3,13 +3,11 @@ window.atlas = (function () {
   const THEME_KEY = "disky-theme";
 
   function applyTheme(theme) {
-    const root = document.documentElement;
-    root.setAttribute("data-theme", theme);
-    root.classList.toggle("dark", theme === "dark");
+    document.documentElement.classList.toggle("dark", theme === "dark");
   }
 
   function getTheme() {
-    return document.documentElement.getAttribute("data-theme") || "dark";
+    return document.documentElement.classList.contains("dark") ? "dark" : "light";
   }
 
   function setTheme(theme) {
