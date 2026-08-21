@@ -50,7 +50,7 @@ public sealed class DocPage
 
     public IReadOnlyList<string> Tags { get; init; } = [];
 
-    /// <summary>Resolved frontmatter <c>syntaxes:</c> refs — these syntaxes show a "read this guide" card.</summary>
+    /// <summary>Resolved frontmatter <c>syntaxes:</c> refs; these syntaxes show a "read this guide" card.</summary>
     public IReadOnlyList<AtlasRef> Syntaxes { get; set; } = [];
 
     /// <summary>Sort order within the section (frontmatter <c>order:</c>; unspecified pages sort last, alphabetically).</summary>

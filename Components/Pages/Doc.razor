@@ -11,7 +11,7 @@
 
 @if (Slug is null)
 {
-    <PageTitle>Documentation — DiSky Atlas</PageTitle>
+    <PageTitle>Documentation | DiSky Atlas</PageTitle>
     <div class="page">
         <div class="page-head">
             <span class="head-icon"><LucideIcon Name="book-open" /></span>
@@ -29,7 +29,7 @@
                 <ul>
                     @foreach (var warning in Docs.LintWarnings)
                     {
-                        <li><code>@warning.PageSlug</code> — @warning.Message</li>
+                        <li><code>@warning.PageSlug</code>: @warning.Message</li>
                     }
                 </ul>
             </div>
@@ -38,7 +38,7 @@
         @if (Docs.Sections.Count == 0)
         {
             <EmptyState Icon="book-open" Title="No documentation yet">
-                <p>Pages live in the repository's <code>Docs/</code> folder — one folder per section, one markdown file per page.</p>
+                <p>Pages live in the repository's <code>Docs/</code> folder: one folder per section, one markdown file per page.</p>
             </EmptyState>
         }
         else
@@ -65,7 +65,7 @@
 }
 else if (_page is null)
 {
-    <PageTitle>Not found — DiSky Atlas</PageTitle>
+    <PageTitle>Not found | DiSky Atlas</PageTitle>
     <div class="page">
         <EmptyState Icon="search-x" Title="Unknown doc page">
             <p>There's no documentation page at “@Slug”. Open search with <kbd>⌘</kbd><kbd>K</kbd> or browse <a href="/docs">the docs index</a>.</p>
@@ -74,7 +74,7 @@ else if (_page is null)
 }
 else
 {
-    <PageTitle>@_page.Title — DiSky Atlas</PageTitle>
+    <PageTitle>@_page.Title | DiSky Atlas</PageTitle>
     <div class="page">
         <BbBreadcrumb Class="crumb">
             <BbBreadcrumbList AutoSeparator="true">

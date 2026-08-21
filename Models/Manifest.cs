@@ -156,7 +156,7 @@ public sealed class EventValueDetail
     public TypeRef? Type { get; init; }
     public bool List { get; init; }
 
-    /// <summary>"present" | "past" | "future" — update events expose a past/present pair.</summary>
+    /// <summary>"present" | "past" | "future"; update events expose a past/present pair.</summary>
     public string? Time { get; init; }
 }
 
@@ -191,7 +191,7 @@ public sealed class TypeRef
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SyntaxKind
 {
-    /// <summary>A <c>&lt;name&gt; of %type%</c> property — both per-type and cross-type (shared); listed together.</summary>
+    /// <summary>A <c>&lt;name&gt; of %type%</c> property, both per-type and cross-type (shared); listed together.</summary>
     Property,
     /// <summary>A non-property expression (e.g. <c>a new discord bot</c>).</summary>
     Expression,

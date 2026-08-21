@@ -16,6 +16,12 @@ namespace DiSkyAtlas.Services.Docs;
 /// </summary>
 public static class DocIndexer
 {
+    /// <summary>Markdig data key under which a rewritten inline link keeps its resolved <see cref="AtlasRef"/>.</summary>
+    public static readonly object ResolvedRefKey = new();
+
+    /// <summary>The atlas reference an inline link was rewritten from, or null for ordinary links.</summary>
+    public static AtlasRef? GetResolvedRef(LinkInline link) => link.GetData(ResolvedRefKey) as AtlasRef;
+
     /// <summary>One atlas reference found in a page body, with the nearest preceding h2 anchor.</summary>
     public sealed record Mention(AtlasRef Ref, string? NearestHeadingAnchor);
 
@@ -130,7 +136,7 @@ public static class DocIndexer
         if (link.IsImage)
         {
             if (!url.StartsWith('/') && !url.Contains("://", StringComparison.Ordinal) && !url.StartsWith("data:", StringComparison.Ordinal))
-                warn($"image “{url}” uses a relative path — put doc images in wwwroot/assets/docs/ and reference them as /assets/docs/…");
+                warn($"image “{url}” uses a relative path; put doc images in wwwroot/assets/docs/ and reference them as /assets/docs/…");
             return;
         }
 
@@ -143,6 +149,7 @@ public static class DocIndexer
             if (reference.Resolved)
             {
                 link.Url = reference.Href;
+                link.SetData(ResolvedRefKey, reference); // DocInlines renders a hover preview from it
                 mentions.Add(new Mention(reference, lastH2));
             }
             else

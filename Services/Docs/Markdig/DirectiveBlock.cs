@@ -7,7 +7,7 @@ namespace DiSkyAtlas.Services.Docs;
 /// <summary>
 /// A one-line reference directive, e.g. <c>syntax: guild#ban</c> or <c>toggle: use-cache "Use cache"</c>.
 /// The whole line must parse as directive grammar (argument + known flags / key:value options /
-/// quoted label) — any line carrying free prose falls through to a normal paragraph.
+/// quoted label); any line carrying free prose falls through to a normal paragraph.
 /// </summary>
 public sealed class DirectiveBlock(BlockParser parser) : LeafBlock(parser)
 {
@@ -115,7 +115,7 @@ public sealed class DirectiveParser : BlockParser
                 continue;
             }
 
-            return false; // free prose — not a directive line
+            return false; // free prose, not a directive line
         }
 
         return true;

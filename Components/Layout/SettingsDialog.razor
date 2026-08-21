@@ -11,7 +11,7 @@
         </BbDialogHeader>
 
         <BbTabs DefaultValue="atlas" Class="settings-tabs">
-            <BbTabsList>
+            <BbTabsList Class="settings-tabs-list">
                 <BbTabsTrigger Value="atlas">Atlas</BbTabsTrigger>
                 <BbTabsTrigger Value="docs">Documentation</BbTabsTrigger>
             </BbTabsList>
@@ -46,7 +46,7 @@
                 <div class="settings-section">
                     <div class="settings-label">Developer</div>
                     <label class="settings-switch">
-                        <span>Advanced mode <span class="settings-sub">— show JDA classes</span></span>
+                        <span>Advanced mode <span class="settings-sub">(show JDA classes)</span></span>
                         <BbSwitch Checked="@_advanced" CheckedChanged="OnAdvancedChanged"
                                   Size="SwitchSize.Small" AriaLabel="Advanced developer mode" />
                     </label>
@@ -68,7 +68,7 @@
                 <div class="settings-section">
                     <div class="settings-label">Pages</div>
                     <label class="settings-switch">
-                        <span>Page contents <span class="settings-sub">— jump links to each section</span></span>
+                        <span>Page contents <span class="settings-sub">(jump links to each section)</span></span>
                         <BbSwitch Checked="@_docToc" CheckedChanged="OnDocTocChanged"
                                   Size="SwitchSize.Small" AriaLabel="Show page contents" />
                     </label>

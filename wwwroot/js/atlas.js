@@ -1,4 +1,4 @@
-// DiSky Atlas — browser interop: theme, clipboard, scroll, display settings.
+// DiSky Atlas: browser interop: theme, clipboard, scroll, display settings.
 window.atlas = (function () {
   const THEME_KEY = "disky-theme";
 

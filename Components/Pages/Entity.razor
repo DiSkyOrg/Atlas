@@ -7,7 +7,7 @@
 
 @if (_entity is null)
 {
-    <PageTitle>Not found — DiSky Atlas</PageTitle>
+    <PageTitle>Not found | DiSky Atlas</PageTitle>
     <div class="page">
         <EmptyState Icon="search-x" Title="Unknown entity">
             <p>There's no entity called “@EntityId”. Open search with <kbd>⌘</kbd><kbd>K</kbd> or pick one from the sidebar.</p>
@@ -16,7 +16,7 @@
 }
 else
 {
-    <PageTitle>@Manifest.DisplayName(_entity) — DiSky Atlas</PageTitle>
+    <PageTitle>@Manifest.DisplayName(_entity) | DiSky Atlas</PageTitle>
     <div class="page">
         <BbBreadcrumb Class="crumb">
             <BbBreadcrumbList AutoSeparator="true">
@@ -96,7 +96,7 @@ else
             <EmptyState Icon="box" Title="No syntaxes here yet">
                 <p>
                     This type doesn't document any syntaxes directly@(Manifest.HasChildren(_entity.Id)
-                        ? " — its subtypes in the sidebar do." : ".")
+                        ? "; its subtypes in the sidebar do." : ".")
                 </p>
             </EmptyState>
         }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Components;
 namespace DiSkyAtlas.Services;
 
 /// <summary>
-/// Pragmatic Skript syntax highlighter — a C# port of the design kit's highlight.js.
+/// Pragmatic Skript syntax highlighter: a C# port of the design kit's highlight.js.
 /// Emits HTML with .tok-* spans (styled by ds-components.css). Not a full parser; good
 /// enough for reference examples. Input is HTML-escaped, so the output is safe to render.
 /// </summary>

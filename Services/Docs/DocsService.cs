@@ -52,7 +52,7 @@ public sealed class DocsService
     /// <summary>Search rows for the ⌘K palette (Type "doc"; EntityId carries the slug).</summary>
     public IReadOnlyList<SearchItem> SearchIndex => Current.SearchIndex;
 
-    /// <summary>Docs that declare this syntax in their frontmatter — the "read this guide" card.</summary>
+    /// <summary>Docs that declare this syntax in their frontmatter; the "read this guide" card.</summary>
     public IReadOnlyList<DocRefEntry> GuidesFor(string syntaxId) =>
         Current.Guides.TryGetValue(syntaxId, out var list) ? list : [];
 
@@ -60,7 +60,7 @@ public sealed class DocsService
     public IReadOnlyList<DocRefEntry> MentionsOf(string syntaxId) =>
         Current.Mentions.TryGetValue(syntaxId, out var list) ? list : [];
 
-    /// <summary>Docs that reference this entity or any of its syntaxes — the entity page's "Documented in" section.</summary>
+    /// <summary>Docs that reference this entity or any of its syntaxes; the entity page's "Documented in" section.</summary>
     public IReadOnlyList<DocRefEntry> DocsForEntity(string entityId) =>
         Current.DocsByEntity.TryGetValue(entityId, out var list) ? list : [];
 
@@ -180,7 +180,7 @@ public sealed class DocsService
             if (snapshot.PagesBySlug.TryAdd(page.Slug, page))
                 pages.Add(page);
             else
-                warnings.Add(new DocLintWarning(page.Slug, file, $"duplicate slug “{page.Slug}” — page ignored"));
+                warnings.Add(new DocLintWarning(page.Slug, file, $"duplicate slug “{page.Slug}”; page ignored"));
         }
 
         // Second pass: needs the full slug map (doc: refs, relative links).
@@ -225,7 +225,7 @@ public sealed class DocsService
         if (segments.Length == 1)
         {
             warnings.Add(new DocLintWarning(rel, file,
-                "root-level pages are ignored — put pages inside a section folder (Docs/<section>/<page>.md)"));
+                "root-level pages are ignored; put pages inside a section folder (Docs/<section>/<page>.md)"));
             return null;
         }
 
@@ -258,7 +258,7 @@ public sealed class DocsService
         if (title is null)
         {
             title = Humanize(fileName.Equals("index", StringComparison.OrdinalIgnoreCase) ? segments[0] : fileName);
-            Warn($"frontmatter has no “title:” — using “{title}”");
+            Warn($"frontmatter has no “title:”; using “{title}”");
         }
 
         var syntaxRefs = new List<AtlasRef>();
@@ -267,7 +267,7 @@ public sealed class DocsService
             var reference = resolver.Resolve(raw);
             if (reference.Kind == AtlasRefKind.Doc)
             {
-                Warn($"frontmatter syntaxes: “{raw}” is a doc ref — only atlas refs belong here");
+                Warn($"frontmatter syntaxes: “{raw}” is a doc ref; only atlas refs belong here");
                 continue;
             }
             if (!reference.Resolved)

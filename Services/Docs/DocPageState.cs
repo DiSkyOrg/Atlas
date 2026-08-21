@@ -3,7 +3,7 @@ namespace DiSkyAtlas.Services.Docs;
 /// <summary>
 /// Per-page-render interactive state for dynamic doc components (toggles today; inputs later
 /// for the code-playground follow-up). One instance is created per rendered doc page and
-/// cascaded through the markdown component tree — never shared between visitors or pages.
+/// cascaded through the markdown component tree; never shared between visitors or pages.
 /// </summary>
 public sealed class DocPageState
 {

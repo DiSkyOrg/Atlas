@@ -5,7 +5,7 @@ namespace DiSkyAtlas.Services.Docs;
 
 /// <summary>
 /// The single place the docs' Markdig extension set lives. The block coverage is a deliberately
-/// closed set — every enabled construct has a matching arm in the DocBlock/DocInlines renderers,
+/// closed set: every enabled construct has a matching arm in the DocBlock/DocInlines renderers,
 /// and raw HTML is disabled (it renders as literal text), so nothing ever reaches the page as
 /// unescaped markup.
 /// </summary>

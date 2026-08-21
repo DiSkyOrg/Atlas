@@ -1,6 +1,7 @@
 @* Inline renderer: literal text, emphasis (incl. mkdocs extras), inline code, links
-   (cross-links pre-rewritten at load time; `{ .md-button }` links become buttons),
-   images, task-list checkboxes. Raw HTML renders as escaped text. *@
+   (cross-links pre-rewritten at load time; atlas refs get a hover preview card,
+   `{ .md-button }` links become buttons), images, task-list checkboxes.
+   Raw HTML renders as escaped text. *@
 @using Markdig.Renderers.Html
 @using Markdig.Syntax.Inlines
 @using Markdig.Extensions.TaskLists
@@ -131,6 +132,11 @@
         @if (external)
         {
             <a class="@cssClass" href="@url" target="_blank" rel="noreferrer"><DocInlines Inline="link" /></a>
+        }
+        else if (!isButton && DocIndexer.GetResolvedRef(link) is { Resolved: true, Kind: not AtlasRefKind.Doc } reference)
+        {
+            // Inline atlas reference (syntax:/entity:/event:): hovering previews the element's card.
+            <DocRefLink Ref="reference" Href="@url"><DocInlines Inline="link" /></DocRefLink>
         }
         else
         {

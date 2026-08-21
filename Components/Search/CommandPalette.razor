@@ -1,4 +1,4 @@
-@* ⌘K command palette — fuzzy search across entities + syntaxes + docs, grouped
+@* ⌘K command palette: fuzzy search across entities + syntaxes + docs, grouped
    results. Blueprint's CommandDialog owns the overlay, focus, keyboard nav and
    the Ctrl/⌘+K shortcut (IKeyboardShortcutService); the ranking stays ours, so
    Blueprint-side filtering is disabled and only pre-scored rows are rendered. *@
@@ -10,7 +10,7 @@
 
 @* The hotkey is registered here rather than via the dialog's Shortcut param:
    the internal toggle bypasses OpenChanged, leaving the parent's Open param
-   stale — the next re-render would slam the dialog shut. *@
+   stale; the next re-render would slam the dialog shut. *@
 <BbCommandDialog Open="@_open" OpenChanged="OnOpenChanged"
                  SearchQueryChanged="OnQueryChanged" FilterFunction="AlwaysMatch"
                  Class="palette">

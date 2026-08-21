@@ -1,5 +1,5 @@
 /* ============================================================================
-   DiSky Atlas — application layout. Depends on the design tokens
+   DiSky Atlas: application layout. Depends on the design tokens
    (colors_and_type.css) + components (ds-components.css) + theme-bridge.css.
    Ported from the design kit's app.css and extended for the Blazor app.
    ========================================================================== */
@@ -266,6 +266,15 @@ a { color: inherit; }
 .ecard .ec-desc { color: var(--fg-muted); font-size: 13px; line-height: 1.5; }
 .ecard .ec-count { margin-top: auto; font-family: var(--font-mono); font-size: 11px; color: var(--fg-faint); }
 .home-section-label { margin: 30px 0 12px; }
+.home-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.home-section-head .home-section-label { margin-bottom: 12px; }
+.home-section-more {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--fg-muted);
+  text-decoration: none; white-space: nowrap;
+}
+.home-section-more:hover { color: var(--link); text-decoration: none; }
+.home-section-more svg { width: 13px; height: 13px; }
+.ecard-doc .ec-name { font-family: var(--font-sans); }
 
 /* ---- Empty / not-found states ---- */
 .empty {
@@ -319,7 +328,7 @@ a { color: inherit; }
 .tipwrap { display: inline-flex; align-items: center; }
 
 /* ============================================================================
-   Signature accent — replace the hard blurple left border with a clean rounded
+   Signature accent: replace the hard blurple left border with a clean rounded
    inset bar that doesn't clash with the rounded corners.
    ========================================================================== */
 .signature { border-left: 1px solid var(--border); position: relative; padding-left: 1.05rem; }
@@ -422,7 +431,7 @@ html:not([data-advanced="on"]) .page-jda { display: none; }
 .settings-sub { color: var(--fg-faint); font-size: 12px; }
 
 /* ============================================================================
-   Event records — cancellable badge + "Event values" / "Event expressions"
+   Event records: cancellable badge + "Event values" / "Event expressions"
    ========================================================================== */
 .chip-cancellable { color: var(--warning); border-color: var(--warning-bd); background: var(--warning-bg); }
 
@@ -524,7 +533,7 @@ html:not(.dark) .kind-expression { color: #0d9488; }
 .hx-count { margin-left: auto; font-family: var(--font-mono); font-size: 10.5px; color: var(--fg-faint); flex: none; }
 
 /* ============================================================================
-   Documentation — hand-written markdown pages (/docs). Rendered as components
+   Documentation: hand-written markdown pages (/docs). Rendered as components
    by Components/Docs/*; these styles only use the existing design tokens.
    ========================================================================== */
 
@@ -695,6 +704,14 @@ html[data-doc-card="standard"] .sref:not([data-detail]) .sref-meta { display: no
 .sref[data-detail="compact"] .sref-meta,
 .sref[data-detail="standard"] .sref-meta { display: none; }
 
+/* Inline atlas links ([text](syntax:…)); hover shows the element's reference card. */
+.prose a.doc-ref-link { color: var(--link); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+.prose a.doc-ref-link:hover { text-decoration-style: solid; }
+.doc-hover { width: min(440px, calc(100vw - 24px)); animation: doc-hover-in 120ms var(--ease) both; }
+.doc-hover .sref { margin: 0; box-shadow: var(--shadow-lg, 0 10px 30px rgba(0, 0, 0, 0.25)); cursor: pointer; }
+.doc-hover .sref-desc { -webkit-line-clamp: 3; }
+@keyframes doc-hover-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
 /* ---- On-page ToC ---- */
 .doc-toc { margin-bottom: 18px; }
 html[data-doc-toc="off"] .doc-toc { display: none; }
@@ -747,8 +764,9 @@ html:not(.dark) .chip-doc { color: var(--blurple-600); }
 .ret-doc-title { font-size: 13.5px; font-weight: 600; color: var(--fg); white-space: nowrap; }
 .ret-doc-desc { font-size: 12.5px; color: var(--fg-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
 
-/* Settings dialog tabs */
+/* Settings dialog tabs: the Blueprint tablist is inline-flex; centre it in the dialog. */
 .settings-tabs { margin-top: 12px; }
+.settings-tabs-list { display: flex; width: fit-content; margin: 0 auto; }
 .settings-tabs .settings-section:first-of-type { margin-top: 16px; }
 
 /* Blueprint's CSS reset strips list markers; restore them inside prose. */

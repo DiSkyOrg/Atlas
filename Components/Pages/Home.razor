@@ -1,7 +1,8 @@
 @page "/"
 @inject ManifestService Manifest
+@inject DocsService Docs
 
-<PageTitle>DiSky Atlas — Skript-for-Discord syntax reference</PageTitle>
+<PageTitle>DiSky Atlas | Skript-for-Discord syntax reference</PageTitle>
 
 <div class="home">
     <div class="home-hero">
@@ -11,7 +12,7 @@
     </div>
 
     <p class="home-lead">
-        A javadoc-style reference for <strong>DiSky</strong> — browse every Discord entity and the
+        A javadoc-style reference for <strong>DiSky</strong>. Browse every Discord entity and the
         exhaustive list of Skript syntaxes it exposes: real patterns, return types, change modes and
         copyable examples, generated straight from the plugin. Press
         <kbd>⌘</kbd><kbd>K</kbd> to search anything.
@@ -24,13 +25,39 @@
         <StatTile Number="TypeCount" Label="Types" />
     </div>
 
+    @if (Docs.Sections.Count > 0)
+    {
+        <div class="home-section-head">
+            <div class="label-eyebrow home-section-label">Documentation</div>
+            <a class="home-section-more" href="/docs">All guides <LucideIcon Name="arrow-right" /></a>
+        </div>
+        <div class="home-grid home-docs">
+            @foreach (var docSection in Docs.Sections)
+            {
+                var count = docSection.Pages.Count + (docSection.Index is null ? 0 : 1);
+                <a class="ecard ecard-doc" href="@SectionHref(docSection)">
+                    <div class="ec-head">
+                        <span class="ec-icon"><LucideIcon Name="@(docSection.Icon ?? "book-open")" /></span>
+                        <span class="ec-name">@docSection.Title</span>
+                    </div>
+                    @if (docSection.Index?.Description is { Length: > 0 } description)
+                    {
+                        <div class="ec-desc">@description</div>
+                    }
+                    <div class="ec-count">@count page@(count == 1 ? "" : "s")</div>
+                </a>
+            }
+        </div>
+    }
+
+    <div class="label-eyebrow home-section-label">Atlas</div>
     <a class="ecard ecard-wide" href="/events">
         <div class="ec-head">
             <span class="ec-icon"><LucideIcon Name="zap" /></span>
             <span class="ec-name">Events</span>
         </div>
         <div class="ec-desc">
-            Every Discord event you can listen to — message, guild, member, voice, interaction… each
+            Every Discord event you can listen to (message, guild, member, voice, interaction…), each
             with its <code>event-value</code>s and event-scoped expressions.
         </div>
         <div class="ec-count">@EventCount events</div>
@@ -59,4 +86,7 @@
     private int SyntaxCount => Manifest.Manifest.Entities.Sum(e => e.Syntaxes.Count) + Manifest.Manifest.Core.Count;
     private int EventCount => Manifest.Events.Count;
     private int TypeCount => Manifest.Manifest.Types.Count;
+
+    private static string SectionHref(DocSection section) =>
+        section.Index is not null ? $"/docs/{section.Id}" : $"/docs/{section.Pages.FirstOrDefault()?.Slug}";
 }

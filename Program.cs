@@ -1,8 +1,15 @@
+using System.Globalization;
 using BlazorBlueprint.Components;
 using DiSkyAtlas.Components;
 using DiSkyAtlas.Components.Docs;
 using DiSkyAtlas.Services;
 using DiSkyAtlas.Services.Docs;
+
+// The UI is English-only and Blazor Blueprint formats floating-element positions with the
+// thread culture (a French host yields "left: 1158,09px", which the browser ignores), so
+// pin every circuit to the invariant culture.
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 var builder = WebApplication.CreateBuilder(args);
 

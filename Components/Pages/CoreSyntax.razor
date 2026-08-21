@@ -6,7 +6,7 @@
 
 @if (_kind is null)
 {
-    <PageTitle>Not found — DiSky Atlas</PageTitle>
+    <PageTitle>Not found | DiSky Atlas</PageTitle>
     <div class="page">
         <EmptyState Icon="search-x" Title="Unknown section">
             <p>There's no core section called “@Kind”. Pick one from the sidebar.</p>
@@ -21,7 +21,7 @@ else
     var all = Manifest.CoreSyntaxes(kind);
     var visible = all.Where(_parsedFilter.Matches).ToList();
 
-    <PageTitle>@label — Core — DiSky Atlas</PageTitle>
+    <PageTitle>@label | Core | DiSky Atlas</PageTitle>
     <div class="page">
         <BbBreadcrumb Class="crumb">
             <BbBreadcrumbList AutoSeparator="true">
@@ -39,7 +39,7 @@ else
             <DotBadge Class="@("kind-" + slug)" Label="@slug" />
         </div>
 
-        <p class="page-lead">Global, non-entity @label.ToLowerInvariant() — usable anywhere in your scripts.</p>
+        <p class="page-lead">Global, non-entity @label.ToLowerInvariant(), usable anywhere in your scripts.</p>
 
         <div class="page-meta">
             <span class="chip chip-since">@all.Count @(all.Count == 1 ? "syntax" : "syntaxes")</span>

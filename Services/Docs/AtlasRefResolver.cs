@@ -4,15 +4,15 @@ namespace DiSkyAtlas.Services.Docs;
 
 /// <summary>
 /// Resolves doc-side references to atlas elements. The canonical format mirrors the site's
-/// URLs — an author copies a deep link and pastes it without the origin:
+/// URLs: an author copies a deep link and pastes it without the origin:
 /// <list type="bullet">
-/// <item><c>guild#emotes</c> — a syntax on an entity page</item>
-/// <item><c>core/effects#await</c> (or <c>core#await</c>) — a Core/Global syntax</item>
-/// <item><c>events#guild-join</c> — an event</item>
-/// <item><c>guild</c> — an entity page itself</item>
+/// <item><c>guild#emotes</c>: a syntax on an entity page</item>
+/// <item><c>core/effects#await</c> (or <c>core#await</c>): a Core/Global syntax</item>
+/// <item><c>events#guild-join</c>: an event</item>
+/// <item><c>guild</c>: an entity page itself</item>
 /// </list>
 /// An optional scheme (<c>syntax:</c>, <c>entity:</c>, <c>event:</c>, <c>doc:</c>) may prefix the
-/// path (inline links always carry one). Never throws — unresolved refs come back with a null
+/// path (inline links always carry one). Never throws; unresolved refs come back with a null
 /// <see cref="AtlasRef.Href"/> and the caller emits a lint warning.
 /// </summary>
 public sealed class AtlasRefResolver(ManifestService manifest)

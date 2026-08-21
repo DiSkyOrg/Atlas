@@ -8,7 +8,7 @@ order: 4
 
 ## The reference format
 
-References mirror the site's URLs — open any syntax on its atlas page, click its link
+References mirror the site's URLs: open any syntax on its atlas page, click its link
 button, and paste the path without the origin:
 
 | You want                | You write                     | Lands on                        |
@@ -21,7 +21,7 @@ button, and paste the path without the origin:
 
 ## Syntax cards
 
-A standalone `syntax:` line renders a live card of the syntax — kind, pattern, description
+A standalone `syntax:` line renders a live card of the syntax: kind, pattern, description
 and meta, all clickable:
 
 syntax: guild#members
@@ -50,6 +50,9 @@ Reference anything mid-sentence with a scheme link: the
 [message receive event](event:events#message-receive), the
 [Member entity](entity:member), or the [setup guide](doc:contributing/setup).
 
+Hovering an inline `syntax:` / `entity:` / `event:` link previews the element's reference
+card without leaving the page; try it on the links above.
+
 Relative links between pages just work with plain file paths: [Components](components.md)
 or with a heading fragment, [the admonition list](components.md#admonitions).
 
@@ -65,7 +68,7 @@ Every reference you make is indexed both ways:
 
 ## When a reference breaks
 
-Typos never crash a page — they degrade into a visible warning card and are listed at
+Typos never crash a page; they degrade into a visible warning card and are listed at
 startup (and on `/docs` in development mode). This one is intentionally broken:
 
 ??? bug "A deliberately broken reference (click to see the degraded card)"

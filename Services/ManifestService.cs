@@ -196,7 +196,7 @@ public sealed class ManifestService
 
     public IReadOnlyList<SyntaxInfo> Events => Manifest.Events;
 
-    /// <summary>A coarse category for grouping events — the first word of the display name.</summary>
+    /// <summary>A coarse category for grouping events: the first word of the display name.</summary>
     public static string EventCategory(SyntaxInfo ev)
     {
         var space = ev.Name.IndexOf(' ');
@@ -333,7 +333,7 @@ public sealed class ManifestService
     public static string ChangeModeSlug(ChangeMode mode) => mode.ToString().ToLowerInvariant();
 
     /// <summary>
-    /// Short, stable anchor for a syntax within its entity page — the syntax id with the
+    /// Short, stable anchor for a syntax within its entity page: the syntax id with the
     /// owning entity's id prefix stripped (e.g. "slowmodechannel-slowmode" → "slowmode"),
     /// giving clean deep links like /slowmodechannel#slowmode.
     /// </summary>

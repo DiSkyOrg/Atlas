@@ -1,4 +1,4 @@
-@* Interactive subtype hierarchy — the entity's descendants as a clickable tree. *@
+@* Interactive subtype hierarchy: the entity's descendants as a clickable tree. *@
 @inject ManifestService Manifest
 @inject NavigationManager Nav
 
@@ -21,7 +21,7 @@
     private bool _open;
     private EntityInfo? _root;
 
-    private string Title => _root is null ? "Hierarchy" : $"{Manifest.DisplayName(_root)} — subtype hierarchy";
+    private string Title => _root is null ? "Hierarchy" : $"{Manifest.DisplayName(_root)}: subtype hierarchy";
 
     public void Open(EntityInfo root)
     {

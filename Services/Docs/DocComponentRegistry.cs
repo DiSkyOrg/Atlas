@@ -23,8 +23,8 @@ public sealed record DocDirectiveContext(
 /// Maps doc constructs to Blazor components. Two families share one component contract
 /// (a single <c>Context</c> parameter of type <see cref="DocDirectiveContext"/>):
 /// <list type="bullet">
-/// <item>directives — one-line <c>name: argument [options]</c> (also teaches the markdown parser the name),</item>
-/// <item>containers — fenced <c>::: name args</c> blocks with a markdown body.</item>
+/// <item>directives: one-line <c>name: argument [options]</c> (also teaches the markdown parser the name),</item>
+/// <item>containers: fenced <c>::: name args</c> blocks with a markdown body.</item>
 /// </list>
 /// Adding a construct = one component + one Register call in Program.cs.
 /// </summary>

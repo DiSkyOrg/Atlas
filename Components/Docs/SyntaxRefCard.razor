@@ -1,7 +1,7 @@
 @* Simplified syntax card for doc pages (`syntax: guild#ban`). Clicking it lands on the real
    record with the existing deep-link force-open + flash. The amount of detail follows the
    user's "Documentation" settings (html[data-doc-card]) unless the author forces a level
-   per card (`syntax: guild#ban full`) — both are pure CSS, no re-render. *@
+   per card (`syntax: guild#ban full`); both are pure CSS, no re-render. *@
 @using DiSkyAtlas.Models
 @using DiSkyAtlas.Services.Docs
 @inject ManifestService Manifest
@@ -12,8 +12,8 @@
     <div class="sref sref-missing">
         <span class="sref-missing-icon"><LucideIcon Name="triangle-alert" /></span>
         <span>
-            Unknown reference <code>@(Reference?.Raw ?? Context?.Argument)</code>
-            — check the id (copy it from the syntax's link button on its atlas page).
+            Unknown reference <code>@(Reference?.Raw ?? Context?.Argument)</code>; check the id
+            (copy it from the syntax's link button on its atlas page).
         </span>
     </div>
 }
@@ -63,7 +63,7 @@ else if (reference.EntityId is { } entityId && Manifest.GetEntity(entityId) is {
 }
 
 @code {
-    /// <summary>Registry contract — set when the card comes from a `syntax:`/`entity:`/`event:` directive.</summary>
+    /// <summary>Registry contract; set when the card comes from a `syntax:`/`entity:`/`event:` directive.</summary>
     [Parameter] public DocDirectiveContext? Context { get; set; }
 
     /// <summary>Direct usage (e.g. the "Related syntaxes" section on a doc page).</summary>

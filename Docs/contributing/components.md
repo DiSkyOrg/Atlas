@@ -16,7 +16,7 @@ Regular markdown works everywhere: **bold**, *italic*, ~~strikethrough~~, `inlin
 ==highlighted==, H~2~O subscript and x^2^ superscript, plus [links](https://docs.disky.me)
 (external links open in a new tab).
 
-> Blockquotes are for quoting text — for callouts, prefer admonitions below.
+> Blockquotes are for quoting text; for callouts, prefer admonitions below.
 
 Raw HTML is intentionally **not** supported: it renders as plain text. Every rich element
 on this page is a real component instead.
@@ -41,7 +41,7 @@ Term to define
 :   Its definition, indented with a colon marker.
 
 `another term`
-:   Definitions can contain markdown too — *emphasis*, `code`, [links](writing-pages.md).
+:   Definitions can contain markdown too: *emphasis*, `code`, [links](writing-pages.md).
 
 ## Tables
 
@@ -72,7 +72,7 @@ tags: [reference]
 The mkdocs syntax you know: `!!! kind "Optional title"`, body indented by 4 spaces.
 
 !!! note
-    A note without a custom title — the kind name is used.
+    A note without a custom title; the kind name is used.
 
 !!! tip "Pro tip"
     Kinds: `note`, `tip`, `info`, `success`, `warning`, `danger`, `bug`, `example`,
@@ -89,7 +89,7 @@ The mkdocs syntax you know: `!!! kind "Optional title"`, body indented by 4 spac
     Use `danger` for anything irreversible.
 
 ??? question "Collapsed by default (click me)"
-    `???` renders a collapsed block — perfect for optional details.
+    `???` renders a collapsed block, perfect for optional details.
 
 ???+ example "Collapsible, but open by default"
     `???+` starts expanded and can be collapsed.
@@ -121,14 +121,14 @@ Links become buttons with the mkdocs-material attribute syntax:
 ::: steps
 1. Write your page in `Docs/<section>/<page>.md`.
 
-2. Reference syntaxes with a `syntax:` line — see [Linking](linking.md).
+2. Reference syntaxes with a `syntax:` line; see [Linking](linking.md).
 
 3. Refresh the browser: in development mode the docs reload on save.
 :::
 
 ## Toggles & conditional content
 
-Pages can carry their own interactive state — toggles with ids, and `::: when` blocks that
+Pages can carry their own interactive state: toggles with ids, and `::: when` blocks that
 show or hide based on boolean expressions over them:
 
 toggle: use-cache "Use the cache"
@@ -152,7 +152,7 @@ retrieve member with id "123" in event-guild and store it in {_m}
     `&&`, `||`, `!` and parentheses.
 :::
 
-Flip the toggles above — the code block follows. A full playground (inputs interpolated
+Flip the toggles above; the code block follows. A full playground (inputs interpolated
 into code) is planned on top of this same state engine.
 
 !!! warning "Indentation rules"
@@ -161,7 +161,7 @@ into code) is planned on top of this same state engine.
 
 ## Referencing the atlas
 
-Covered in depth on the next page, but the star of the show belongs here too — a one-line
+Covered in depth on the next page, but the star of the show belongs here too: a one-line
 `syntax:` directive renders a live card:
 
 syntax: guild#member-count
