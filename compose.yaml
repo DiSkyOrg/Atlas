@@ -7,8 +7,13 @@ services:
     container_name: diskyatlas
     restart: unless-stopped
     ports:
-      # host:container — change 5159 on the left if the port is taken on the server
-      - "5159:8080"
+      # host:container — change 8080 on the left if the port is taken on the server
+      - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
+    volumes:
+      # Persist Data Protection keys (antiforgery / Blazor circuits) across container recreations.
+      - dataprotection-keys:/home/app/.aspnet/DataProtection-Keys
+
+volumes:
+  dataprotection-keys:
