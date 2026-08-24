@@ -1,0 +1,11 @@
+{
+  "prod": "https://atlas.disky.me",
+  "local": "http://127.0.0.1:5987",
+  "pages": [
+    { "id": "home", "path": "/", "label": "Accueil" },
+    { "id": "events", "path": "/events", "label": "Page générée très longue (events)" },
+    { "id": "guild", "path": "/guild", "label": "Entité avec beaucoup de blocs de syntaxe" },
+    { "id": "docs-style-guide", "path": "/docs/contributing/style-guide", "label": "Doc rédigée longue" },
+    { "id": "not-found", "path": "/nonexistent-page-xyz", "label": "404" }
+  ]
+}
