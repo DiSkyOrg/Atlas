@@ -161,6 +161,9 @@ else
 @code {
     [Parameter] public string? Slug { get; set; }
 
+    // Static SSR only: unknown doc slugs answer 404 instead of a soft 200.
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
     private DocPage? _page;
     private DocSection? _section;
     private string? _lastSlug;
@@ -173,6 +176,8 @@ else
     {
         _page = Slug is null ? null : Docs.GetPage(Slug);
         _section = _page is null ? null : Docs.GetSection(_page.SectionId);
+        if (Slug is not null && _page is null && HttpContext is { Response.HasStarted: false })
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
 
         _pendingHash = GetHash();
         if (!string.Equals(_lastSlug, Slug, StringComparison.OrdinalIgnoreCase))

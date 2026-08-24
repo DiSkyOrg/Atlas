@@ -3,6 +3,18 @@
 
 <PageTitle>Not found | DiSky Atlas</PageTitle>
 
+@code {
+    // Direct hits on /not-found (or the router's NotFoundPage during static SSR)
+    // should carry the 404 status; re-executed requests already have it.
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (HttpContext is { Response.HasStarted: false })
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+    }
+}
+
 <div class="page">
     <EmptyState Icon="compass" Title="Page not found">
         <p>The page you're looking for doesn't exist. Open search with <kbd>⌘</kbd><kbd>K</kbd> or browse the entities in the sidebar.</p>

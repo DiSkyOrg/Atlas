@@ -69,6 +69,9 @@ else
 @code {
     [Parameter] public string Kind { get; set; } = "";
 
+    // Static SSR only: unknown core sections answer 404 instead of a soft 200.
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
     private SyntaxKind? _kind;
     private string _filter = "";
     private SyntaxFilter _parsedFilter = SyntaxFilter.Empty;
@@ -82,6 +85,8 @@ else
     protected override void OnParametersSet()
     {
         _kind = Manifest.ParseCoreKindSlug(Kind);
+        if (_kind is null && HttpContext is { Response.HasStarted: false })
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
         _pendingHash = GetHash();
         if (!string.Equals(_lastKind, Kind, StringComparison.OrdinalIgnoreCase))
         {
