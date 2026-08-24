@@ -46,14 +46,21 @@
 
     <ResourcePreloader/>
 
+    @* Fonts are discovered late (CSS -> @font-face -> fetch); preloading the two
+       primary files removes that waterfall. Both are self-hosted. *@
+    <link rel="preload" href="css/fonts/Outfit-VariableFont_wght.woff2" as="font" type="font/woff2" crossorigin/>
+    <link rel="preload" href="css/fonts/jetbrains-mono/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin/>
+
     @* Theme (shadcn contract, source of truth) first, then Blueprint, then the
        DiSky token aliases/extensions + layout. Blueprint's own token defaults
        live in @layer, so our unlayered theme.css always wins. *@
-    <link rel="stylesheet" href="css/theme.css"/>
-    <link rel="stylesheet" href="_content/BlazorBlueprint.Components/blazorblueprint.css"/>
-    <link rel="stylesheet" href="css/tokens.css"/>
-    <link rel="stylesheet" href="css/ds-components.css"/>
-    <link rel="stylesheet" href="css/site.css"/>
+    @* All through @Assets: fingerprinted URLs get immutable far-future caching
+       (and ResourcePreloader coverage) instead of a revalidation per visit. *@
+    <link rel="stylesheet" href="@Assets["css/theme.css"]"/>
+    <link rel="stylesheet" href="@Assets["_content/BlazorBlueprint.Components/blazorblueprint.css"]"/>
+    <link rel="stylesheet" href="@Assets["css/tokens.css"]"/>
+    <link rel="stylesheet" href="@Assets["css/ds-components.css"]"/>
+    <link rel="stylesheet" href="@Assets["css/site.css"]"/>
     <link rel="stylesheet" href="@Assets["app.css"]"/>
     <link rel="stylesheet" href="@Assets["DiSkyAtlas.styles.css"]"/>
 
@@ -67,7 +74,7 @@
 <Routes @rendermode="InteractiveServer"/>
 <ReconnectModal/>
 <script src="@Assets["_framework/blazor.web.js"]"></script>
-<script src="js/atlas.js"></script>
+<script src="@Assets["js/atlas.js"]"></script>
 </body>
 
 </html>
