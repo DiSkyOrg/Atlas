@@ -20,7 +20,7 @@
             <span class="b-kind"><KindBadge Kind="Syntax.Kind" /></span>
             @if (Syntax.ReturnType is not null)
             {
-                <span class="b-return"><ReturnTypeChip Type="Syntax.ReturnType" List="Syntax.ReturnList" Href="@ReturnHref" /></span>
+                <span class="b-return @(Syntax.WriteOnly ? "unreadable" : "")"><ReturnTypeChip Type="Syntax.ReturnType" List="Syntax.ReturnList" Href="@ReturnHref" /></span>
             }
             @if (Syntax.Async is not null)
             {
@@ -29,6 +29,10 @@
             @if (Syntax.Shared)
             {
                 <span class="b-shared"><SharedChip Name="@Syntax.Name" /></span>
+            }
+            @if (Syntax.WriteOnly)
+            {
+                <WriteOnlyChip TypeName="@Syntax.ReturnType?.Name" />
             }
             @if (Syntax.Deprecated)
             {

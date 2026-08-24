@@ -200,6 +200,10 @@ a { color: inherit; }
 }
 .chip-list { color: var(--fg-muted); }
 .intent-chip { color: var(--warning); border-color: var(--warning-bd); background: var(--warning-bg); }
+.chip-writeonly {
+  color: var(--warning); border-color: var(--warning-bd); background: var(--warning-bg);
+  font-weight: 600;
+}
 .badge-deprecated {
   color: var(--danger); background: var(--destructive-bg); border-color: var(--destructive-bd);
 }
@@ -354,6 +358,11 @@ a { color: inherit; }
 .rec-chev svg { width: 14px; height: 14px; }
 .rec-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
 .rec-meta .b-since { margin-left: auto; }
+.rec-meta .b-return.unreadable .chip-return {
+  color: var(--fg-faint);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
 .record-details { margin-top: 12px; }
 
 /* compact: collapsed unless toggled open */
@@ -563,6 +572,25 @@ html:not(.dark) .kind-doc { color: var(--blurple-600); }
 .prose dd { margin: 4px 0 10px 18px; color: var(--fg-muted); }
 .prose .code-block { margin: 0 0 14px; }
 .prose mark { background: rgba(252, 211, 77, 0.28); color: inherit; border-radius: 2px; padding: 0 2px; }
+
+/* Inline code copies itself on click (atlas.js). Inside a link the click
+   navigates instead, so the affordance is dropped there. */
+.prose code.copyable {
+  cursor: pointer; position: relative;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.prose code.copyable:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+.prose a code.copyable { cursor: inherit; }
+.prose a code.copyable:hover { border-color: var(--border); background: var(--bg-inset); }
+.prose code.copyable.code-copied { border-color: var(--success-bd); }
+.prose code.copyable.code-copied::after {
+  content: "Copied";
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  font-family: var(--font-sans); font-size: var(--fs-micro); font-weight: 600;
+  color: var(--success); background: var(--success-bg);
+  border: 1px solid var(--success-bd); border-radius: var(--radius-sm);
+  padding: 1px 6px; pointer-events: none;
+}
 
 /* Heading hover copy-link (same affordance as syntax records) */
 .doc-h .anchor {

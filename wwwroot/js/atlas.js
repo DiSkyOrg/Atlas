@@ -49,6 +49,20 @@ window.atlas = (function () {
     } catch (e) { return false; }
   }
 
+  // Docs: inline `code` spans copy their own text on click (delegated once, the
+  // markdown renderer re-emits them on every navigation). Skipped inside links,
+  // where the click already means "follow me".
+  document.addEventListener("click", function (e) {
+    const code = e.target && e.target.closest ? e.target.closest("code.copyable") : null;
+    if (!code || code.closest("a")) return;
+    copyText(code.textContent || "").then(function (ok) {
+      if (!ok) return;
+      code.classList.add("code-copied");
+      clearTimeout(code._copyTimer);
+      code._copyTimer = setTimeout(function () { code.classList.remove("code-copied"); }, 1200);
+    });
+  });
+
   function scrollToId(id, smooth) {
     const el = document.getElementById(id);
     if (el) {

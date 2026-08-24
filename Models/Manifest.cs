@@ -84,6 +84,12 @@ public sealed class SyntaxInfo
     /// <summary>True when the same syntax is registered on several entities (e.g. "name", "jump url").</summary>
     public bool Shared { get; init; }
 
+    /// <summary>
+    /// True when the property can only be changed, never read: a <c>get</c> yields &lt;none&gt;.
+    /// <see cref="ReturnType"/> then describes what a change accepts, not what a read returns.
+    /// </summary>
+    public bool WriteOnly { get; init; }
+
     public string? Since { get; init; }
 
     /// <summary>Description paragraphs.</summary>

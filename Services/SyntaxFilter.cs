@@ -7,7 +7,7 @@ namespace DiSkyAtlas.Services;
 /// (substring over name + patterns + description, AND-combined) and key:value filters:
 ///   type:expression   kind:effect
 ///   since:>5.1.0   since:&gt;=5.0.0   since:&lt;5.2.0   since:5.0.0
-///   return:Text   change:set   shared:true   async:true   intent:guild_members   name:roles
+///   return:Text   change:set   shared:true   writeonly:true   async:true   intent:guild_members   name:roles
 /// All clauses are AND-combined.
 /// </summary>
 public sealed class SyntaxFilter
@@ -90,6 +90,10 @@ public sealed class SyntaxFilter
 
             case "shared":
                 return s => s.Shared == ParseBool(v);
+
+            case "write":
+            case "writeonly":
+                return s => s.WriteOnly == (v == "only" || ParseBool(v));
 
             case "async":
             case "awaitable":

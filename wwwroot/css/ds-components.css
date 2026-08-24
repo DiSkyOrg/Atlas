@@ -32,16 +32,16 @@
 .badge {
   display: inline-flex; align-items: center; gap: 0.4em;
   font-family: var(--font-mono);
-  font-size: var(--fs-micro);
+  font-size: var(--fs-caption);
   font-weight: 600;
   letter-spacing: 0.01em;
-  padding: 0.15rem 0.5rem;
+  padding: 0.125rem 0.5rem;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--bg-inset);
   color: var(--fg-muted);
   white-space: nowrap;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
 
@@ -100,8 +100,7 @@ html:not(.dark) .chip-return { color: var(--sky-600); }
 .chip-shared {
   color: var(--blurple-300); border-color: var(--blurple-600);
   background: rgba(88,101,242,0.10);
-  font-family: var(--font-sans); font-weight: 600; font-size: var(--fs-micro);
-  letter-spacing: var(--tracking-wide); text-transform: uppercase;
+  font-weight: 600;
 }
 html:not(.dark) .chip-shared { color: var(--blurple-600); }
 
