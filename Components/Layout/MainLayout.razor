@@ -1,11 +1,13 @@
 @inherits LayoutComponentBase
 
+<a class="skip-link" href="#main-content">Skip to content</a>
+
 <div class="app">
     <TopBar OnOpenPalette="OpenPalette" OnToggleSidebar="ToggleSidebar" />
     <div class="body">
         <Sidebar Open="_sidebarOpen" OnOpenPalette="OpenPalette" OnNavigated="CloseSidebar" />
         <div class="scrim @(_sidebarOpen ? "show" : "")" @onclick="CloseSidebar"></div>
-        <main class="content">
+        <main class="content" id="main-content" tabindex="-1">
             @Body
         </main>
     </div>

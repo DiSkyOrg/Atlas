@@ -5,7 +5,8 @@
 
 <button type="button" class="code-copy" style="@(_copied ? "opacity:1" : null)" @onclick="CopyAsync">
     <LucideIcon Name="@(_copied ? "check" : "copy")" />
-    <span class="lbl">@(_copied ? "Copied" : "Copy")</span>
+    @* role=status: the Copy -> Copied swap is announced to screen readers. *@
+    <span class="lbl" role="status">@(_copied ? "Copied" : "Copy")</span>
 </button>
 
 @code {

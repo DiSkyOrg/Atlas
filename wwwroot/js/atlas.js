@@ -63,6 +63,12 @@ window.atlas = (function () {
     });
   });
 
+  // JS scroll options ignore the CSS scroll-behavior override, so the reduced
+  // motion preference has to be honoured here as well.
+  function reducedMotion() {
+    return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }
+
   function scrollToId(id, smooth) {
     const el = document.getElementById(id);
     if (el) {
@@ -70,7 +76,7 @@ window.atlas = (function () {
         el.classList.add("force-open");
         flashElement(el);
       }
-      el.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+      el.scrollIntoView({ behavior: smooth && !reducedMotion() ? "smooth" : "auto", block: "start" });
     }
     return !!el;
   }
@@ -99,7 +105,7 @@ window.atlas = (function () {
 
   function scrollTop(selector, smooth) {
     const el = document.querySelector(selector);
-    if (el) el.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });
+    if (el) el.scrollTo({ top: 0, behavior: smooth && !reducedMotion() ? "smooth" : "auto" });
   }
 
   // ---- Settings (atlas display + badges, docs card level + toc), persisted to localStorage ----

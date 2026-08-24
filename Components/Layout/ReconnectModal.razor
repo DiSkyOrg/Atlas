@@ -1,7 +1,9 @@
 ﻿<script type="module" src="@Assets["Components/Layout/ReconnectModal.razor.js"]"></script>
 
-<dialog id="components-reconnect-modal" data-nosnippet>
-    <div class="components-reconnect-container">
+@* showModal() gives the native dialog role + focus trap; the assertive live
+   region re-announces the status text as it flips between attempt states. *@
+<dialog id="components-reconnect-modal" data-nosnippet aria-label="Connection status">
+    <div class="components-reconnect-container" aria-live="assertive">
         <div class="components-rejoining-animation" aria-hidden="true">
             <div></div>
             <div></div>

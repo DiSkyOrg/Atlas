@@ -14,7 +14,12 @@
 <BbCommandDialog Open="@_open" OpenChanged="OnOpenChanged"
                  SearchQueryChanged="OnQueryChanged" FilterFunction="AlwaysMatch"
                  Class="palette">
-    <BbCommandInput Placeholder="Search entities, syntaxes & docs…" DisableDebounce="true" AutoFocus="true" />
+    @* Debounce stays on (Blueprint default): in InteractiveServer every keystroke
+       is a server round-trip + a re-render of up to 60 rows. *@
+    <BbCommandInput Placeholder="Search entities, syntaxes & docs…" AutoFocus="true" />
+
+    @* Result count for screen readers; the visual list itself isn't announced. *@
+    <div class="sr-only" aria-live="polite">@(_flat.Count == 0 ? "No results" : $"{_flat.Count} results")</div>
 
     <BbCommandList Class="pal-results">
         @if (_flat.Count == 0)

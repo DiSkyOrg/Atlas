@@ -142,6 +142,9 @@ html:not(.dark) .chip-shared { color: var(--blurple-600); }
   cursor: pointer;
 }
 .code-block:hover .code-copy { opacity: 1; }
+/* Keyboard users tab onto the button while the block isn't hovered: it must
+   become visible on focus too, not only on mouse-over. */
+.code-copy:focus-visible { opacity: 1; }
 .code-copy:hover { background: var(--bg-hover); color: var(--fg); }
 
 /* ---- Syntax-highlight token classes ----------------------------------- */
