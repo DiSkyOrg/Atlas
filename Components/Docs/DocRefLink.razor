@@ -1,0 +1,68 @@
+@* Inline atlas link (`[text](syntax:guild#ban)` / `entity:` / `event:`): a normal anchor
+   to the element's deep link, plus a hover preview of its simplified reference card
+   (SyntaxRefCard, full detail) so readers don't have to leave the page to recall what
+   a syntax does.
+
+   The open/close logic is owned here rather than by Blueprint's BbHoverCard: its trigger
+   and content each run their own close timer, so moving the pointer from the link onto
+   the card closes it. We keep the pointer state for both (link + card) in one place and
+   only use Blueprint's BbFloatingPortal for the portal + positioning. The markup is kept
+   on one line on purpose: whitespace between the tags would leak into the paragraph as a
+   stray space after the link (e.g. before a comma). *@
+@using DiSkyAtlas.Models
+@using BlazorBlueprint.Primitives.Floating
+@implements IDisposable
+
+<a @ref="_anchor" class="doc-ref-link" href="@Href" aria-haspopup="dialog" aria-controls="@_contentId" aria-expanded="@(_open ? "true" : "false")" @onmouseenter="LinkEnter" @onmouseleave="LinkLeave" @onfocus="LinkEnter" @onblur="LinkLeave">@ChildContent</a><BbFloatingPortal IsOpen="_open" ForceMount="false" AnchorElement="_anchor" PortalId="@_portalId" Side="PopoverSide.Bottom" Align="PopoverAlign.Start" Offset="6" Strategy="PositioningStrategy.Absolute" ZIndex="50"><div id="@_contentId" class="doc-hover" role="dialog" aria-describedby="@_contentId" @onmouseenter="CardEnter" @onmouseleave="CardLeave"><SyntaxRefCard Ref="Ref" Detail="full" /></div></BbFloatingPortal>
+
+@code {
+    private const int OpenDelay = 250;
+    private const int CloseDelay = 150;
+
+    [Parameter, EditorRequired] public AtlasRef Ref { get; set; } = default!;
+    [Parameter, EditorRequired] public string Href { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private readonly string _portalId = "doc-hover-" + Guid.NewGuid().ToString("N");
+    private string _contentId => _portalId + "-content";
+
+    private ElementReference _anchor;
+    private bool _open, _overLink, _overCard;
+    private CancellationTokenSource? _pending;
+
+    private void LinkEnter() { _overLink = true; Schedule(open: true, OpenDelay); }
+    private void LinkLeave() { _overLink = false; Schedule(open: false, CloseDelay); }
+    private void CardEnter() { _overCard = true; Cancel(); }
+    private void CardLeave() { _overCard = false; Schedule(open: false, CloseDelay); }
+
+    private void Schedule(bool open, int delay)
+    {
+        Cancel();
+        var cts = _pending = new CancellationTokenSource();
+        _ = RunAsync(open, delay, cts.Token);
+    }
+
+    private async Task RunAsync(bool open, int delay, CancellationToken token)
+    {
+        try { await Task.Delay(delay, token); }
+        catch (OperationCanceledException) { return; }
+        if (token.IsCancellationRequested) return;
+
+        // Re-check the pointer state at fire time: the delay is there precisely so a quick
+        // pass over the link doesn't open, and a link → card move doesn't close.
+        if (open ? !_overLink : (_overLink || _overCard)) return;
+        if (_open == open) return;
+
+        _open = open;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void Cancel()
+    {
+        _pending?.Cancel();
+        _pending?.Dispose();
+        _pending = null;
+    }
+
+    public void Dispose() => Cancel();
+}

@@ -1,6 +1,8 @@
 using System.Text.RegularExpressions;
+using Markdig.Helpers;
 using Markdig.Parsers;
 using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
 
 namespace DiSkyAtlas.Services.Docs;
 
@@ -14,6 +16,25 @@ public sealed class AdmonitionBlock(BlockParser parser) : ContainerBlock(parser)
     public string? Title { get; set; }
     public bool Collapsible { get; set; }
     public bool InitiallyOpen { get; set; }
+
+    /// <summary>The custom title parsed as markdown inlines, or null when no title was given.</summary>
+    public ContainerInline? TitleInline =>
+        Count > 0 && this[0] is AdmonitionTitleBlock title ? title.Inline : null;
+}
+
+/// <summary>
+/// Holder for an admonition's custom title so it runs through Markdig's inline parser
+/// (inline code, emphasis, links). Always the first child of its <see cref="AdmonitionBlock"/>;
+/// the block renderer skips it and the admonition renders it as its heading.
+/// </summary>
+public sealed class AdmonitionTitleBlock : LeafBlock
+{
+    public AdmonitionTitleBlock(BlockParser parser, string title) : base(parser)
+    {
+        Lines = new StringLineGroup(title);
+        ProcessInlines = true;
+        IsOpen = false;
+    }
 }
 
 /// <summary>Block parser for <see cref="AdmonitionBlock"/>. Body = lines indented by 4+ columns.</summary>
@@ -34,15 +55,20 @@ public sealed partial class AdmonitionParser : BlockParser
             return BlockState.None;
 
         var marker = match.Groups[1].Value;
-        processor.NewBlocks.Push(new AdmonitionBlock(this)
+        var title = match.Groups[3].Success ? match.Groups[3].Value : null;
+        var block = new AdmonitionBlock(this)
         {
             Column = processor.Column,
             Span = new SourceSpan(processor.Start, processor.Line.End),
             Kind = match.Groups[2].Value.ToLowerInvariant(),
-            Title = match.Groups[3].Success ? match.Groups[3].Value : null,
+            Title = title,
             Collapsible = marker[0] == '?',
             InitiallyOpen = marker is "???+" or "!!!"
-        });
+        };
+        if (title is not null)
+            block.Add(new AdmonitionTitleBlock(this, title) { Column = processor.Column, Span = block.Span });
+
+        processor.NewBlocks.Push(block);
         return BlockState.ContinueDiscard;
     }
 

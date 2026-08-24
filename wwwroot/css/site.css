@@ -746,7 +746,7 @@ html[data-doc-toc="off"] .doc-toc { display: none; }
 
 /* ---- Atlas-side backlinks: guide strip + "mentioned in" chips on records ---- */
 .doc-guide {
-  display: flex; align-items: center; gap: 10px; margin: 12px 0 0; padding: 9px 12px;
+  display: flex; align-items: center; gap: 10px; margin: 12px 0; padding: 9px 12px;
   border: 1px solid rgba(88, 101, 242, 0.3); background: rgba(88, 101, 242, 0.08);
   border-radius: var(--radius); font-size: 13px; color: var(--fg-muted); text-decoration: none;
   transition: background var(--dur) var(--ease);
@@ -777,3 +777,8 @@ html:not(.dark) .chip-doc { color: var(--blurple-600); }
 /* Markdown links (site.css resets `a` to inherit; classless prose links get the link color). */
 .prose a:not([class]) { color: var(--link); }
 .prose a:not([class]):hover { text-decoration: underline; text-underline-offset: 2px; }
+
+/* Markdown buttons (`{ .md-button }`): several in one paragraph need breathing room, and
+   they must stay aligned with surrounding text when they wrap. */
+.prose .btn { margin: 0 8px 6px 0; vertical-align: middle; }
+.prose .btn:last-child { margin-right: 0; }

@@ -87,6 +87,10 @@
         <Admonition Block="admonition" />
         break;
 
+    case AdmonitionTitleBlock:
+        @* Rendered by the enclosing Admonition as its heading, not as body content. *@
+        break;
+
     case DirectiveBlock directive:
         @RenderRegistered(directive.Name, directive.Argument, directive.Options, null, directive.ResolvedRef)
         break;

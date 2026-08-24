@@ -12,6 +12,7 @@ laid out, how to write a page, and every rich component you can use.
 - [Writing pages](writing-pages.md): file layout, frontmatter and slugs.
 - [Components](components.md): every rich markdown construct, demonstrated.
 - [Linking](linking.md): referencing syntaxes, entities, events and other pages.
+- [Style guide](style-guide.md): how a topic page is structured, worded and referenced.
 
 !!! tip "Everything is markdown"
     Pages are plain `.md` files in the repository's `Docs/` folder. If you can write

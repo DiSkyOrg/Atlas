@@ -7,7 +7,7 @@
     <details class="admonition adm-@Block.Kind" open="@Block.InitiallyOpen">
         <summary class="adm-title">
             <span class="adm-icon"><LucideIcon Name="@Icon" /></span>
-            <span class="adm-label">@Title</span>
+            <span class="adm-label">@TitleContent</span>
             <span class="adm-chev"><LucideIcon Name="chevron-down" /></span>
         </summary>
         <div class="adm-body"><DocBlocks Blocks="Block" /></div>
@@ -18,7 +18,7 @@ else
     <div class="admonition adm-@Block.Kind">
         <div class="adm-title">
             <span class="adm-icon"><LucideIcon Name="@Icon" /></span>
-            <span class="adm-label">@Title</span>
+            <span class="adm-label">@TitleContent</span>
         </div>
         <div class="adm-body"><DocBlocks Blocks="Block" /></div>
     </div>
@@ -27,7 +27,18 @@ else
 @code {
     [Parameter, EditorRequired] public AdmonitionBlock Block { get; set; } = default!;
 
-    private string Title => Block.Title ?? DefaultTitle(Block.Kind);
+    // Custom titles are markdown (inline code, emphasis, links); the default is the kind name.
+    private RenderFragment TitleContent => __builder =>
+    {
+        if (Block.TitleInline is { } inline)
+        {
+            <DocInlines Inline="inline" />
+        }
+        else
+        {
+            @DefaultTitle(Block.Kind)
+        }
+    };
 
     private static string DefaultTitle(string kind) =>
         kind.Length == 0 ? "Note" : char.ToUpperInvariant(kind[0]) + kind[1..];

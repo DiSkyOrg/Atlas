@@ -122,6 +122,9 @@
   --warning-bd: rgba(217, 119, 6, 0.30);
   --destructive-bd: rgba(225, 29, 72, 0.30);
   --info-bd: rgba(2, 132, 199, 0.28);
+  /* Blueprint's --alert-danger-foreground resolves to --destructive-foreground (white, the
+     fill-button text color), which vanishes on the light tint. Pin a real status text color. */
+  --danger: #e11d48;   /* rose-600 */
 
   /* ---- Skript syntax palette (light, on zinc-50) ---- */
   --code-bg:        var(--zinc-50);
@@ -148,6 +151,7 @@
   --warning-bd: rgba(245, 158, 11, 0.30);
   --destructive-bd: rgba(244, 63, 94, 0.32);
   --info-bd: rgba(14, 165, 233, 0.30);
+  --danger: #fb7185;   /* rose-400 */
 
   /* ---- Skript syntax palette (dark, calm on zinc-900) ---- */
   --code-bg:        var(--zinc-900);
@@ -222,6 +226,7 @@ code, .mono, .code {
   border-radius: var(--radius-sm);
   padding: 0.1em 0.36em;
   color: var(--fg);
+  white-space: nowrap; /* never break an inline code span across lines */
 }
 
 /* Focus ring: disciplined blurple */
