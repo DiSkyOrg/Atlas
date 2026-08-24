@@ -1,0 +1,3073 @@
+{
+  "generated": "2026-08-24T23:41:28.581Z",
+  "methodology": {
+    "network": "curl, 10 itérations/page, médiane+p95. Sandbox derrière proxy CONNECT: dns/connect non significatifs, TLS+TTFB bout-en-bout.",
+    "browser": "Playwright + Chromium headless, lib web-vitals injectée (LCP/CLS/INP/TTFB/FCP), axe-core 4.x (wcag2a, wcag2aa, wcag21aa, best-practice), throttling CDP (Fast 3G: 1.6Mbps/150ms, Slow 4G: 9Mbps/60ms).",
+    "http3": "Négociation réelle non testable depuis la sandbox (curl sans QUIC, proxy CONNECT HTTP) -> null. Seule la présence d’alt-svc est observée.",
+    "circuitRam": "RSS du process serveur local avant/après ouverture de N onglets interactifs."
+  },
+  "prod": {
+    "network": {
+      "target": "prod",
+      "base": "https://atlas.disky.me",
+      "date": "2026-08-24T22:53:13.107Z",
+      "iterations": 10,
+      "caveats": [
+        "Sandbox: trafic via proxy CONNECT local. dns/connect mesurent le proxy local, pas l’origine (marqués proxyAffected).",
+        "TLS (appconnect-connect) et TTFB sont bout-en-bout et fiables en relatif.",
+        "HTTP/3 : négociation non testable (curl sans QUIC + proxy CONNECT) -> null."
+      ],
+      "pages": {
+        "home": {
+          "path": "/",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 75053,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 267,
+            "p95": 451,
+            "min": 239,
+            "max": 451
+          },
+          "ttfbTotalMs": {
+            "median": 388,
+            "p95": 577,
+            "min": 354,
+            "max": 577
+          },
+          "appTtfbMs": {
+            "median": 123,
+            "p95": 128,
+            "min": 115,
+            "max": 128
+          },
+          "totalMs": {
+            "median": 590,
+            "p95": 751,
+            "min": 530,
+            "max": 751
+          }
+        },
+        "events": {
+          "path": "/events",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 413498,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 258,
+            "p95": 493,
+            "min": 238,
+            "max": 493
+          },
+          "ttfbTotalMs": {
+            "median": 464,
+            "p95": 620,
+            "min": 368,
+            "max": 620
+          },
+          "appTtfbMs": {
+            "median": 133,
+            "p95": 354,
+            "min": 122,
+            "max": 354
+          },
+          "totalMs": {
+            "median": 860,
+            "p95": 1032,
+            "min": 732,
+            "max": 1032
+          }
+        },
+        "guild": {
+          "path": "/guild",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 123915,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 241,
+            "p95": 275,
+            "min": 239,
+            "max": 275
+          },
+          "ttfbTotalMs": {
+            "median": 364,
+            "p95": 405,
+            "min": 361,
+            "max": 405
+          },
+          "appTtfbMs": {
+            "median": 124,
+            "p95": 130,
+            "min": 119,
+            "max": 130
+          },
+          "totalMs": {
+            "median": 629,
+            "p95": 690,
+            "min": 624,
+            "max": 690
+          }
+        },
+        "docs-style-guide": {
+          "path": "/docs/contributing/style-guide",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 49986,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 242,
+            "p95": 257,
+            "min": 237,
+            "max": 257
+          },
+          "ttfbTotalMs": {
+            "median": 364,
+            "p95": 394,
+            "min": 357,
+            "max": 394
+          },
+          "appTtfbMs": {
+            "median": 123,
+            "p95": 137,
+            "min": 120,
+            "max": 137
+          },
+          "totalMs": {
+            "median": 539,
+            "p95": 575,
+            "min": 535,
+            "max": 575
+          }
+        },
+        "not-found": {
+          "path": "/nonexistent-page-xyz",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 52782,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 243,
+            "p95": 629,
+            "min": 240,
+            "max": 629
+          },
+          "ttfbTotalMs": {
+            "median": 368,
+            "p95": 746,
+            "min": 359,
+            "max": 746
+          },
+          "appTtfbMs": {
+            "median": 120,
+            "p95": 128,
+            "min": 117,
+            "max": 128
+          },
+          "totalMs": {
+            "median": 546,
+            "p95": 923,
+            "min": 535,
+            "max": 923
+          }
+        }
+      },
+      "compression": [
+        {
+          "url": "/",
+          "kind": "html",
+          "contentType": "text/html; charset=utf-8",
+          "identityBytes": 75103,
+          "brotli": null,
+          "gzip": {
+            "bytes": 14954,
+            "ratio": 0.199
+          },
+          "servedEncoding": "gzip"
+        },
+        {
+          "url": "/docs/contributing/style-guide",
+          "kind": "html",
+          "contentType": "text/html; charset=utf-8",
+          "identityBytes": 49991,
+          "brotli": null,
+          "gzip": {
+            "bytes": 15070,
+            "ratio": 0.301
+          },
+          "servedEncoding": "gzip"
+        },
+        {
+          "url": "/css/theme.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 7259,
+          "brotli": {
+            "bytes": 1271,
+            "ratio": 0.175
+          },
+          "gzip": {
+            "bytes": 1558,
+            "ratio": 0.215
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/_content/BlazorBlueprint.Components/blazorblueprint.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 106877,
+          "brotli": {
+            "bytes": 14530,
+            "ratio": 0.136
+          },
+          "gzip": {
+            "bytes": 17660,
+            "ratio": 0.165
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/css/tokens.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 9191,
+          "brotli": {
+            "bytes": 2811,
+            "ratio": 0.306
+          },
+          "gzip": {
+            "bytes": 3349,
+            "ratio": 0.364
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/css/ds-components.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 6494,
+          "brotli": {
+            "bytes": 1467,
+            "ratio": 0.226
+          },
+          "gzip": {
+            "bytes": 1744,
+            "ratio": 0.269
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/css/site.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 44886,
+          "brotli": {
+            "bytes": 8308,
+            "ratio": 0.185
+          },
+          "gzip": {
+            "bytes": 9676,
+            "ratio": 0.216
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/app.l4uysqy7yq.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 927,
+          "brotli": {
+            "bytes": 385,
+            "ratio": 0.415
+          },
+          "gzip": {
+            "bytes": 510,
+            "ratio": 0.55
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/DiSkyAtlas.jz4lfvptln.styles.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 5259,
+          "brotli": {
+            "bytes": 1105,
+            "ratio": 0.21
+          },
+          "gzip": {
+            "bytes": 1301,
+            "ratio": 0.247
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/Components/Layout/ReconnectModal.cyz5k529gx.razor.js",
+          "kind": "js",
+          "contentType": "text/javascript",
+          "identityBytes": 2385,
+          "brotli": {
+            "bytes": 579,
+            "ratio": 0.243
+          },
+          "gzip": {
+            "bytes": 740,
+            "ratio": 0.31
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/_framework/blazor.web.wyu7y4jcvb.js",
+          "kind": "js",
+          "contentType": "text/javascript",
+          "identityBytes": 200645,
+          "brotli": {
+            "bytes": 47560,
+            "ratio": 0.237
+          },
+          "gzip": {
+            "bytes": 55644,
+            "ratio": 0.277
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/js/atlas.js",
+          "kind": "js",
+          "contentType": "text/javascript",
+          "identityBytes": 5584,
+          "brotli": {
+            "bytes": 1574,
+            "ratio": 0.282
+          },
+          "gzip": {
+            "bytes": 1884,
+            "ratio": 0.337
+          },
+          "servedEncoding": "br"
+        }
+      ],
+      "cache": [
+        {
+          "url": "/",
+          "kind": "html",
+          "status": 200,
+          "cacheControl": "no-cache, no-store, max-age=0",
+          "etag": null,
+          "lastModified": null,
+          "expires": null,
+          "vary": null,
+          "age": null
+        },
+        {
+          "url": "/docs/contributing/style-guide",
+          "kind": "html",
+          "status": 200,
+          "cacheControl": "no-cache, no-store, max-age=0",
+          "etag": null,
+          "lastModified": null,
+          "expires": null,
+          "vary": null,
+          "age": null
+        },
+        {
+          "url": "/css/theme.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"BlrQ3Oo5hWlpAEuku8Vt+QCMg0uEm8SOoVffdic2cVE=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/_content/BlazorBlueprint.Components/blazorblueprint.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"JCgP/9feq8fIRwJalTxAt+Gzc1jvHwZG5uW1ewCx07I=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/css/tokens.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"mF+/2Qh/4ttC119eGbn4xrdp7JTwYSv6bsQiKHjw4Tg=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/css/ds-components.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"9CMg8VoIz1VquIECARulws72v3UF8HaP6Ld4/q6ZWms=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/css/site.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"Z2uJhajXkdQ+TE2mmpU1O5kjE3MAom8CxyX0/68B2lg=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/app.l4uysqy7yq.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "max-age=31536000, immutable",
+          "etag": "\"T4N8egh0Zx65BusUFutGP81LfR811dVUx57A9iJaDQ4=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/DiSkyAtlas.jz4lfvptln.styles.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "max-age=31536000, immutable",
+          "etag": "\"aiahe39NPME0hK09GoPwYZpXjLJjGoz2mfIX0xqN3Qw=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/Components/Layout/ReconnectModal.cyz5k529gx.razor.js",
+          "kind": "js",
+          "status": 200,
+          "cacheControl": "max-age=31536000, immutable",
+          "etag": "\"pmD7XHDJUGmSx5I/AbvWnvTLPcEbqx4i8VcnQJ59hrY=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/_framework/blazor.web.wyu7y4jcvb.js",
+          "kind": "js",
+          "status": 200,
+          "cacheControl": "max-age=31536000, immutable",
+          "etag": "\"tSqBaVNBIGzKi7ei3wYEpfUMcNpey/2t20/Vz9+XW/4=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/js/atlas.js",
+          "kind": "js",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"6ywsWMv5HElOZJV53LvTmyajsiVhiCU0zJTyVEgP9co=\"",
+          "lastModified": "Mon, 24 Aug 2026 18:05:10 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        }
+      ],
+      "conditionalRequests": [
+        {
+          "url": "/",
+          "ifNoneMatch": null,
+          "ifModifiedSince": null
+        },
+        {
+          "url": "/docs/contributing/style-guide",
+          "ifNoneMatch": null,
+          "ifModifiedSince": null
+        },
+        {
+          "url": "/css/theme.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/_content/BlazorBlueprint.Components/blazorblueprint.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/css/tokens.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/css/ds-components.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/css/site.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/app.l4uysqy7yq.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/DiSkyAtlas.jz4lfvptln.styles.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/Components/Layout/ReconnectModal.cyz5k529gx.razor.js",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/_framework/blazor.web.wyu7y4jcvb.js",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/js/atlas.js",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        }
+      ],
+      "securityHeaders": {
+        "strictTransportSecurity": null,
+        "xContentTypeOptions": null,
+        "referrerPolicy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "contentSecurityPolicy": "frame-ancestors 'self'",
+        "permissionsPolicy": null,
+        "server": "nginx/1.22.1"
+      },
+      "http3": {
+        "altSvc": null,
+        "negotiated": null,
+        "negotiatedNullReason": "curl sandbox sans support QUIC + proxy CONNECT HTTP (UDP non tunnelable)"
+      },
+      "negotiatedHttpVersion": 1.1
+    },
+    "browser": {
+      "target": "prod",
+      "base": "https://atlas.disky.me",
+      "date": "2026-08-24T23:19:15.142Z",
+      "webVitals": {
+        "home": {
+          "none": {
+            "LCP": 1696,
+            "CLS": 0.02,
+            "TTFB": 584.7,
+            "INP": null,
+            "FCP": 1696
+          },
+          "fast3g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          },
+          "slow4g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          }
+        },
+        "events": {
+          "none": {
+            "LCP": 1604,
+            "CLS": 0.002,
+            "TTFB": 551.1,
+            "INP": null,
+            "FCP": 1604
+          },
+          "fast3g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          },
+          "slow4g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          }
+        },
+        "guild": {
+          "none": {
+            "LCP": 1512,
+            "CLS": 0,
+            "TTFB": 480,
+            "INP": null,
+            "FCP": 1512
+          },
+          "fast3g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          },
+          "slow4g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          }
+        },
+        "docs-style-guide": {
+          "none": {
+            "LCP": 1492,
+            "CLS": 0.047,
+            "TTFB": 569.6,
+            "INP": null,
+            "FCP": 1492
+          },
+          "fast3g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          },
+          "slow4g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          }
+        },
+        "not-found": {
+          "none": {
+            "LCP": 1644,
+            "CLS": 0.009,
+            "TTFB": 607.8,
+            "INP": null,
+            "FCP": 1644
+          },
+          "fast3g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          },
+          "slow4g": {
+            "null": true,
+            "reason": "throttling CDP inopérant sur routes relayées (fetch Node) — mesuré en LOCAL uniquement"
+          }
+        }
+      },
+      "signalr": {
+        "null": true,
+        "reason": "WebSocket non tunnelable par le proxy sandbox (limitation documentée) — transport/reconnexion mesurés en LOCAL uniquement"
+      },
+      "axe": {
+        "home": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-2086-trigger-docs",
+                "html": "<button id=\"tabs-2086-trigger-do...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-2086-content-do...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              },
+              {
+                "target": ".group:nth-child(1) > .group-label",
+                "html": "<div class=\"group-label\">Reference</div>"
+              },
+              {
+                "target": ".tree-row[href$=\"events\"] > .count",
+                "html": "<span class=\"count\">123</span>"
+              }
+            ],
+            "nodeCount": 23
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[target=\"_blank\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 66
+          }
+        ],
+        "events": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-2169-trigger-docs",
+                "html": "<button id=\"tabs-2169-trigger-do...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-2169-content-do...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              },
+              {
+                "target": ".group:nth-child(1) > .group-label",
+                "html": "<div class=\"group-label\">Reference</div>"
+              },
+              {
+                "target": ".active > .count",
+                "html": "<span class=\"count\">123</span>"
+              }
+            ],
+            "nodeCount": 22
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[target=\"_blank\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 302
+          }
+        ],
+        "guild": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-2304-trigger-docs",
+                "html": "<button id=\"tabs-2304-trigger-do...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-2304-content-do...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              },
+              {
+                "target": ".group:nth-child(1) > .group-label",
+                "html": "<div class=\"group-label\">Reference</div>"
+              },
+              {
+                "target": "a[href$=\"events\"] > .count",
+                "html": "<span class=\"count\">123</span>"
+              }
+            ],
+            "nodeCount": 19
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[aria-label=\"DiSky on GitHub\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 97
+          }
+        ],
+        "docs-style-guide": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-2410-trigger-atlas",
+                "html": "<button id=\"tabs-2410-trigger-at...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-2410-content-at...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              }
+            ],
+            "nodeCount": 3
+          },
+          {
+            "id": "label",
+            "impact": "critical",
+            "help": "Form elements must have labels",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "li:nth-child(1) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              },
+              {
+                "target": "li:nth-child(2) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              },
+              {
+                "target": "li:nth-child(3) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              },
+              {
+                "target": "li:nth-child(4) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              },
+              {
+                "target": "li:nth-child(5) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              }
+            ],
+            "nodeCount": 6
+          },
+          {
+            "id": "landmark-unique",
+            "impact": "moderate",
+            "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+            "tags": [
+              "best-practice"
+            ],
+            "nodes": [
+              {
+                "target": ".sidebar",
+                "html": "<nav class=\"sidebar \">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[target=\"_blank\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 23
+          }
+        ],
+        "not-found": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-2475-trigger-docs",
+                "html": "<button id=\"tabs-2475-trigger-do...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-2475-content-do...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              },
+              {
+                "target": ".group:nth-child(1) > .group-label",
+                "html": "<div class=\"group-label\">Reference</div>"
+              },
+              {
+                "target": "a[href$=\"events\"] > .count",
+                "html": "<span class=\"count\">123</span>"
+              }
+            ],
+            "nodeCount": 14
+          },
+          {
+            "id": "page-has-heading-one",
+            "impact": "moderate",
+            "help": "Page should contain a level-one heading",
+            "tags": [
+              "best-practice"
+            ],
+            "nodes": [
+              {
+                "target": "html",
+                "html": "<html lang=\"en\" class=\"dark\" data-syntax-display=\"compact\" data-doc-card=\"standard\" data-doc-toc=\"on\" data-advanced=\"off\" data-badge-kind=\"on\" data-badge-return=\"on\" data-badge-change=\"on\" data-badge-"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[target=\"_blank\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 36
+          }
+        ]
+      },
+      "structure": {
+        "home": {
+          "lang": "en",
+          "h1Count": 1,
+          "headingCount": 1,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png",
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        },
+        "events": {
+          "lang": "en",
+          "h1Count": 1,
+          "headingCount": 20,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        },
+        "guild": {
+          "lang": "en",
+          "h1Count": 1,
+          "headingCount": 5,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        },
+        "docs-style-guide": {
+          "lang": "en",
+          "h1Count": 1,
+          "headingCount": 8,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        },
+        "not-found": {
+          "lang": "en",
+          "h1Count": 0,
+          "headingCount": 1,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        }
+      },
+      "keyboard": {
+        "tabStops": [
+          {
+            "tag": "a",
+            "text": "DiSky\n        v5.0.0",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 149,
+            "h": 30
+          },
+          {
+            "tag": "button",
+            "text": "Search entities & syntaxes…\n        ⌘K",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 300,
+            "h": 38
+          },
+          {
+            "tag": "a",
+            "text": "DiSky on GitHub",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "button",
+            "text": "Display options",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "button",
+            "text": "Toggle theme",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "button",
+            "text": "Search…\n        ⌘K",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 255,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "text": "Documentation",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 124,
+            "h": 32
+          },
+          {
+            "tag": "div",
+            "text": "How to contribute\n                      ",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 255,
+            "h": 188
+          },
+          {
+            "tag": "div",
+            "text": "How to contribute\n                      ",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 255,
+            "h": 188
+          },
+          {
+            "tag": "a",
+            "text": "How to contribute\n                      ",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 210,
+            "h": 19
+          },
+          {
+            "tag": "a",
+            "text": "Setup",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 217,
+            "h": 19
+          },
+          {
+            "tag": "a",
+            "text": "Writing pages",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 217,
+            "h": 19
+          },
+          {
+            "tag": "a",
+            "text": "Components",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 217,
+            "h": 19
+          },
+          {
+            "tag": "a",
+            "text": "Linking",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 217,
+            "h": 19
+          },
+          {
+            "tag": "a",
+            "text": "Style guide",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 217,
+            "h": 19
+          },
+          {
+            "tag": "a",
+            "text": "Docs",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 28,
+            "h": 21
+          },
+          {
+            "tag": "a",
+            "text": "How to contribute",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 101,
+            "h": 21
+          },
+          {
+            "tag": "button",
+            "text": "Page anatomy",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 127,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Voice and wording",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 167,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Code examples",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 135,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Referencing the atlas",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 200,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Components budget",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 167,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Before you submit",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 167,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Skeleton",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 94,
+            "h": 26
+          },
+          {
+            "tag": "a",
+            "text": "",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 14,
+            "h": 14
+          }
+        ],
+        "summary": {
+          "stopsReached": 25,
+          "withoutVisibleFocus": 0,
+          "firstStop": {
+            "tag": "a",
+            "text": "DiSky\n        v5.0.0",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 149,
+            "h": 30
+          },
+          "skipLinkFirst": false
+        },
+        "spaNavigation": {
+          "activeAfterNav": "a",
+          "liveRegionContent": [],
+          "title": "DiSky Atlas | Skript-for-Discord syntax reference",
+          "focusMovedToContent": false
+        }
+      },
+      "noJs": {
+        "home": {
+          "status": 200,
+          "textLength": 2799,
+          "textSample": "DiSky Atlas v5 A javadoc-style reference for DiSky. Browse every Discord entity and the exhaustive list of Skript syntaxes it exposes: real patterns, ",
+          "h1": "DiSky Atlas",
+          "linkCount": 67,
+          "looksEmpty": false
+        },
+        "events": {
+          "status": 200,
+          "textLength": 3539,
+          "textSample": "Overview / Events Events event Every Discord event DiSky can listen to. Each event exposes event-values (accessed by type) and event-scoped expression",
+          "h1": "Events",
+          "linkCount": 584,
+          "looksEmpty": false
+        },
+        "guild": {
+          "status": 200,
+          "textLength": 1192,
+          "textSample": "Entities / Guild Guild type A Discord server: members, channels, roles, boosts and settings. 27 syntaxes Properties 26 Getters 1 Returned by 11 Docume",
+          "h1": "Guild",
+          "linkCount": 99,
+          "looksEmpty": false
+        },
+        "docs-style-guide": {
+          "status": 200,
+          "textLength": 6846,
+          "textSample": "Docs / How to contribute / Style guide Style guide guide How a topic page is structured, worded and referenced, so every page reads the same. referenc",
+          "h1": "Style guide",
+          "linkCount": 19,
+          "looksEmpty": false
+        },
+        "not-found": {
+          "status": 200,
+          "textLength": 113,
+          "textSample": "Unknown entity There's no entity called “nonexistent-page-xyz”. Open search with ⌘K or pick one from the sidebar.",
+          "h1": null,
+          "linkCount": 36,
+          "looksEmpty": true
+        }
+      }
+    }
+  },
+  "local": {
+    "network": {
+      "target": "local",
+      "base": "http://127.0.0.1:5987",
+      "date": "2026-08-24T22:58:42.594Z",
+      "iterations": 10,
+      "caveats": [
+        "Sandbox: trafic via proxy CONNECT local. dns/connect mesurent le proxy local, pas l’origine (marqués proxyAffected).",
+        "TLS (appconnect-connect) et TTFB sont bout-en-bout et fiables en relatif.",
+        "HTTP/3 : négociation non testable (curl sans QUIC + proxy CONNECT) -> null."
+      ],
+      "pages": {
+        "home": {
+          "path": "/",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 74958,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0
+          },
+          "ttfbTotalMs": {
+            "median": 7,
+            "p95": 18,
+            "min": 6,
+            "max": 18
+          },
+          "appTtfbMs": {
+            "median": 7,
+            "p95": 18,
+            "min": 6,
+            "max": 18
+          },
+          "totalMs": {
+            "median": 7,
+            "p95": 19,
+            "min": 7,
+            "max": 19
+          }
+        },
+        "events": {
+          "path": "/events",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 413458,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0
+          },
+          "ttfbTotalMs": {
+            "median": 24,
+            "p95": 85,
+            "min": 19,
+            "max": 85
+          },
+          "appTtfbMs": {
+            "median": 24,
+            "p95": 85,
+            "min": 19,
+            "max": 85
+          },
+          "totalMs": {
+            "median": 28,
+            "p95": 90,
+            "min": 22,
+            "max": 90
+          }
+        },
+        "guild": {
+          "path": "/guild",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 123911,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0
+          },
+          "ttfbTotalMs": {
+            "median": 9,
+            "p95": 35,
+            "min": 8,
+            "max": 35
+          },
+          "appTtfbMs": {
+            "median": 9,
+            "p95": 35,
+            "min": 8,
+            "max": 35
+          },
+          "totalMs": {
+            "median": 10,
+            "p95": 35,
+            "min": 9,
+            "max": 35
+          }
+        },
+        "docs-style-guide": {
+          "path": "/docs/contributing/style-guide",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 49959,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0
+          },
+          "ttfbTotalMs": {
+            "median": 5,
+            "p95": 30,
+            "min": 4,
+            "max": 30
+          },
+          "appTtfbMs": {
+            "median": 5,
+            "p95": 30,
+            "min": 4,
+            "max": 30
+          },
+          "totalMs": {
+            "median": 5,
+            "p95": 30,
+            "min": 5,
+            "max": 30
+          }
+        },
+        "not-found": {
+          "path": "/nonexistent-page-xyz",
+          "status": 200,
+          "httpVersion": 1.1,
+          "sizeDownload": 52758,
+          "dnsMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "connectMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0,
+            "proxyAffected": true
+          },
+          "tlsHandshakeMs": {
+            "median": 0,
+            "p95": 0,
+            "min": 0,
+            "max": 0
+          },
+          "ttfbTotalMs": {
+            "median": 4,
+            "p95": 6,
+            "min": 4,
+            "max": 6
+          },
+          "appTtfbMs": {
+            "median": 4,
+            "p95": 6,
+            "min": 4,
+            "max": 6
+          },
+          "totalMs": {
+            "median": 4,
+            "p95": 6,
+            "min": 4,
+            "max": 6
+          }
+        }
+      },
+      "compression": [
+        {
+          "url": "/",
+          "kind": "html",
+          "contentType": "text/html; charset=utf-8",
+          "identityBytes": 74999,
+          "brotli": null,
+          "gzip": null,
+          "servedEncoding": "identity"
+        },
+        {
+          "url": "/docs/contributing/style-guide",
+          "kind": "html",
+          "contentType": "text/html; charset=utf-8",
+          "identityBytes": 49979,
+          "brotli": null,
+          "gzip": null,
+          "servedEncoding": "identity"
+        },
+        {
+          "url": "/css/theme.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 7259,
+          "brotli": {
+            "bytes": 1271,
+            "ratio": 0.175
+          },
+          "gzip": {
+            "bytes": 1558,
+            "ratio": 0.215
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/_content/BlazorBlueprint.Components/blazorblueprint.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 106877,
+          "brotli": {
+            "bytes": 14530,
+            "ratio": 0.136
+          },
+          "gzip": {
+            "bytes": 17660,
+            "ratio": 0.165
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/css/tokens.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 9191,
+          "brotli": {
+            "bytes": 2811,
+            "ratio": 0.306
+          },
+          "gzip": {
+            "bytes": 3349,
+            "ratio": 0.364
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/css/ds-components.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 6494,
+          "brotli": {
+            "bytes": 1467,
+            "ratio": 0.226
+          },
+          "gzip": {
+            "bytes": 1744,
+            "ratio": 0.269
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/css/site.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 44886,
+          "brotli": {
+            "bytes": 8308,
+            "ratio": 0.185
+          },
+          "gzip": {
+            "bytes": 9676,
+            "ratio": 0.216
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/app.l4uysqy7yq.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 927,
+          "brotli": {
+            "bytes": 385,
+            "ratio": 0.415
+          },
+          "gzip": {
+            "bytes": 510,
+            "ratio": 0.55
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/DiSkyAtlas.jz4lfvptln.styles.css",
+          "kind": "css",
+          "contentType": "text/css",
+          "identityBytes": 5259,
+          "brotli": {
+            "bytes": 1105,
+            "ratio": 0.21
+          },
+          "gzip": {
+            "bytes": 1301,
+            "ratio": 0.247
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/Components/Layout/ReconnectModal.cyz5k529gx.razor.js",
+          "kind": "js",
+          "contentType": "text/javascript",
+          "identityBytes": 2385,
+          "brotli": {
+            "bytes": 579,
+            "ratio": 0.243
+          },
+          "gzip": {
+            "bytes": 740,
+            "ratio": 0.31
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/_framework/blazor.web.wyu7y4jcvb.js",
+          "kind": "js",
+          "contentType": "text/javascript",
+          "identityBytes": 200645,
+          "brotli": {
+            "bytes": 47560,
+            "ratio": 0.237
+          },
+          "gzip": {
+            "bytes": 55644,
+            "ratio": 0.277
+          },
+          "servedEncoding": "br"
+        },
+        {
+          "url": "/js/atlas.js",
+          "kind": "js",
+          "contentType": "text/javascript",
+          "identityBytes": 5584,
+          "brotli": {
+            "bytes": 1574,
+            "ratio": 0.282
+          },
+          "gzip": {
+            "bytes": 1884,
+            "ratio": 0.337
+          },
+          "servedEncoding": "br"
+        }
+      ],
+      "cache": [
+        {
+          "url": "/",
+          "kind": "html",
+          "status": 200,
+          "cacheControl": "no-cache, no-store, max-age=0",
+          "etag": null,
+          "lastModified": null,
+          "expires": null,
+          "vary": null,
+          "age": null
+        },
+        {
+          "url": "/docs/contributing/style-guide",
+          "kind": "html",
+          "status": 200,
+          "cacheControl": "no-cache, no-store, max-age=0",
+          "etag": null,
+          "lastModified": null,
+          "expires": null,
+          "vary": null,
+          "age": null
+        },
+        {
+          "url": "/css/theme.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"BlrQ3Oo5hWlpAEuku8Vt+QCMg0uEm8SOoVffdic2cVE=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:14 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/_content/BlazorBlueprint.Components/blazorblueprint.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"JCgP/9feq8fIRwJalTxAt+Gzc1jvHwZG5uW1ewCx07I=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:15 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/css/tokens.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"mF+/2Qh/4ttC119eGbn4xrdp7JTwYSv6bsQiKHjw4Tg=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:14 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/css/ds-components.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"9CMg8VoIz1VquIECARulws72v3UF8HaP6Ld4/q6ZWms=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:16 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/css/site.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"Z2uJhajXkdQ+TE2mmpU1O5kjE3MAom8CxyX0/68B2lg=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:17 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/app.l4uysqy7yq.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "max-age=31536000, immutable",
+          "etag": "\"T4N8egh0Zx65BusUFutGP81LfR811dVUx57A9iJaDQ4=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:16 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/DiSkyAtlas.jz4lfvptln.styles.css",
+          "kind": "css",
+          "status": 200,
+          "cacheControl": "max-age=31536000, immutable",
+          "etag": "\"aiahe39NPME0hK09GoPwYZpXjLJjGoz2mfIX0xqN3Qw=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:15 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/Components/Layout/ReconnectModal.cyz5k529gx.razor.js",
+          "kind": "js",
+          "status": 200,
+          "cacheControl": "max-age=31536000, immutable",
+          "etag": "\"pmD7XHDJUGmSx5I/AbvWnvTLPcEbqx4i8VcnQJ59hrY=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:15 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/_framework/blazor.web.wyu7y4jcvb.js",
+          "kind": "js",
+          "status": 200,
+          "cacheControl": "max-age=31536000, immutable",
+          "etag": "\"tSqBaVNBIGzKi7ei3wYEpfUMcNpey/2t20/Vz9+XW/4=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:15 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        },
+        {
+          "url": "/js/atlas.js",
+          "kind": "js",
+          "status": 200,
+          "cacheControl": "no-cache",
+          "etag": "\"6ywsWMv5HElOZJV53LvTmyajsiVhiCU0zJTyVEgP9co=\"",
+          "lastModified": "Mon, 24 Aug 2026 22:58:15 GMT",
+          "expires": null,
+          "vary": "Accept-Encoding",
+          "age": null
+        }
+      ],
+      "conditionalRequests": [
+        {
+          "url": "/",
+          "ifNoneMatch": null,
+          "ifModifiedSince": null
+        },
+        {
+          "url": "/docs/contributing/style-guide",
+          "ifNoneMatch": null,
+          "ifModifiedSince": null
+        },
+        {
+          "url": "/css/theme.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/_content/BlazorBlueprint.Components/blazorblueprint.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/css/tokens.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/css/ds-components.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/css/site.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/app.l4uysqy7yq.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/DiSkyAtlas.jz4lfvptln.styles.css",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/Components/Layout/ReconnectModal.cyz5k529gx.razor.js",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/_framework/blazor.web.wyu7y4jcvb.js",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        },
+        {
+          "url": "/js/atlas.js",
+          "ifNoneMatch": 304,
+          "ifModifiedSince": 304
+        }
+      ],
+      "securityHeaders": {
+        "strictTransportSecurity": null,
+        "xContentTypeOptions": null,
+        "referrerPolicy": null,
+        "xFrameOptions": "SAMEORIGIN",
+        "contentSecurityPolicy": "frame-ancestors 'self'",
+        "permissionsPolicy": null,
+        "server": "Kestrel"
+      },
+      "http3": {
+        "altSvc": null,
+        "negotiated": null,
+        "negotiatedNullReason": "curl sandbox sans support QUIC + proxy CONNECT HTTP (UDP non tunnelable)"
+      },
+      "negotiatedHttpVersion": 1.1
+    },
+    "browser": {
+      "target": "local",
+      "base": "http://127.0.0.1:5987",
+      "date": "2026-08-24T23:21:06.082Z",
+      "webVitals": {
+        "home": {
+          "none": {
+            "LCP": 12596,
+            "CLS": 0.02,
+            "TTFB": 13.2,
+            "INP": null,
+            "FCP": 12436
+          },
+          "fast3g": {
+            "LCP": 14256,
+            "CLS": 0.02,
+            "TTFB": 5.2,
+            "INP": null,
+            "FCP": 13040
+          },
+          "slow4g": {
+            "LCP": 13140,
+            "CLS": 0.02,
+            "TTFB": 5.5,
+            "INP": null,
+            "FCP": 12788
+          }
+        },
+        "events": {
+          "none": {
+            "LCP": 12860,
+            "CLS": 0.001,
+            "TTFB": 16.6,
+            "INP": null,
+            "FCP": 12668
+          },
+          "fast3g": {
+            "LCP": 16656,
+            "CLS": 0.001,
+            "TTFB": 13.2,
+            "INP": null,
+            "FCP": 13084
+          },
+          "slow4g": {
+            "LCP": 13616,
+            "CLS": 0.001,
+            "TTFB": 12.2,
+            "INP": null,
+            "FCP": 12744
+          }
+        },
+        "guild": {
+          "none": {
+            "LCP": 12680,
+            "CLS": 0,
+            "TTFB": 8.2,
+            "INP": null,
+            "FCP": 12680
+          },
+          "fast3g": {
+            "LCP": 13012,
+            "CLS": 0,
+            "TTFB": 8.9,
+            "INP": null,
+            "FCP": 13012
+          },
+          "slow4g": {
+            "LCP": 12700,
+            "CLS": 0,
+            "TTFB": 75.6,
+            "INP": null,
+            "FCP": 12700
+          }
+        },
+        "docs-style-guide": {
+          "none": {
+            "LCP": 12676,
+            "CLS": 0.047,
+            "TTFB": 4.6,
+            "INP": null,
+            "FCP": 12676
+          },
+          "fast3g": {
+            "LCP": 13052,
+            "CLS": 0.047,
+            "TTFB": 4.6,
+            "INP": null,
+            "FCP": 13052
+          },
+          "slow4g": {
+            "LCP": 12728,
+            "CLS": 0.047,
+            "TTFB": 5.3,
+            "INP": null,
+            "FCP": 12728
+          }
+        },
+        "not-found": {
+          "none": {
+            "LCP": 12628,
+            "CLS": 0.009,
+            "TTFB": 4.7,
+            "INP": null,
+            "FCP": 12580
+          },
+          "fast3g": {
+            "LCP": 14080,
+            "CLS": 0.009,
+            "TTFB": 3.9,
+            "INP": null,
+            "FCP": 13016
+          },
+          "slow4g": {
+            "LCP": 13024,
+            "CLS": 0.009,
+            "TTFB": 3.9,
+            "INP": null,
+            "FCP": 12696
+          }
+        }
+      },
+      "signalr": {
+        "transport": "websocket",
+        "blazorWsUrls": [
+          "ws://127.0.0.1:5987/_blazor"
+        ],
+        "clickToDomMutationMs": {
+          "samples": [
+            4,
+            4,
+            4,
+            5,
+            10
+          ],
+          "median": 4
+        },
+        "reconnect": {
+          "overlayDuringCut": {
+            "visible": false,
+            "role": "dialog",
+            "ariaLive": null,
+            "text": "Rejoining the server...\n        \n        \n            Rejoin failed... trying again in  seconds.\n        \n        \n     "
+          },
+          "recoveredInMs": 504,
+          "statePreserved": true
+        }
+      },
+      "axe": {
+        "home": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-896-trigger-docs",
+                "html": "<button id=\"tabs-896-trigger-doc...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-896-content-doc...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\" _bl_afb3e5f8-f754-4b...=\"\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              },
+              {
+                "target": ".group:nth-child(1) > .group-label",
+                "html": "<div class=\"group-label\">Reference</div>"
+              },
+              {
+                "target": ".tree-row[href$=\"events\"] > .count",
+                "html": "<span class=\"count\">123</span>"
+              }
+            ],
+            "nodeCount": 23
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[target=\"_blank\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 66
+          }
+        ],
+        "events": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-1177-trigger-docs",
+                "html": "<button id=\"tabs-1177-trigger-do...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-1177-content-do...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\" _bl_0d578168-f279-40...=\"\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              },
+              {
+                "target": ".group:nth-child(1) > .group-label",
+                "html": "<div class=\"group-label\">Reference</div>"
+              },
+              {
+                "target": ".active > .count",
+                "html": "<span class=\"count\">123</span>"
+              }
+            ],
+            "nodeCount": 22
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[target=\"_blank\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 302
+          }
+        ],
+        "guild": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-1478-trigger-docs",
+                "html": "<button id=\"tabs-1478-trigger-do...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-1478-content-do...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\" _bl_930591d5-127e-44...=\"\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              },
+              {
+                "target": ".group:nth-child(1) > .group-label",
+                "html": "<div class=\"group-label\">Reference</div>"
+              },
+              {
+                "target": "a[href$=\"events\"] > .count",
+                "html": "<span class=\"count\">123</span>"
+              }
+            ],
+            "nodeCount": 19
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[aria-label=\"DiSky on GitHub\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 97
+          }
+        ],
+        "docs-style-guide": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-1661-trigger-atlas",
+                "html": "<button id=\"tabs-1661-trigger-at...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-1661-content-at...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\" _bl_9595e1b9-a014-48...=\"\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              }
+            ],
+            "nodeCount": 3
+          },
+          {
+            "id": "label",
+            "impact": "critical",
+            "help": "Form elements must have labels",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "li:nth-child(1) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              },
+              {
+                "target": "li:nth-child(2) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              },
+              {
+                "target": "li:nth-child(3) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              },
+              {
+                "target": "li:nth-child(4) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              },
+              {
+                "target": "li:nth-child(5) > input",
+                "html": "<input type=\"checkbox\" class=\"task-box\" disabled=\"\">"
+              }
+            ],
+            "nodeCount": 6
+          },
+          {
+            "id": "landmark-unique",
+            "impact": "moderate",
+            "help": "Landmarks should have a unique role or role/label/title (i.e. accessible name) combination",
+            "tags": [
+              "best-practice"
+            ],
+            "nodes": [
+              {
+                "target": ".sidebar",
+                "html": "<nav class=\"sidebar \">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[target=\"_blank\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 23
+          }
+        ],
+        "not-found": [
+          {
+            "id": "aria-valid-attr-value",
+            "impact": "critical",
+            "help": "ARIA attributes must conform to valid values",
+            "tags": [
+              "wcag2a",
+              "wcag412"
+            ],
+            "nodes": [
+              {
+                "target": "#tabs-1795-trigger-docs",
+                "html": "<button id=\"tabs-1795-trigger-do...\" type=\"button\" role=\"tab\" aria-controls=\"tabs-1795-content-do...\" data-state=\"inactive\" tabindex=\"-1\" class=\"inline-flex items-ce...\" _bl_2e0f8fc3-3e25-4c...=\"\">"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "color-contrast",
+            "impact": "serious",
+            "help": "Elements must meet minimum color contrast ratio thresholds",
+            "tags": [
+              "wcag2aa",
+              "wcag143"
+            ],
+            "nodes": [
+              {
+                "target": ".label-text",
+                "html": "<span class=\"label-text\">Search entities &amp; syntaxes…</span>"
+              },
+              {
+                "target": ".side-search > span:nth-child(2)",
+                "html": "<span>Search…</span>"
+              },
+              {
+                "target": ".side-search > .kbd",
+                "html": "<span class=\"kbd\">⌘K</span>"
+              },
+              {
+                "target": ".group:nth-child(1) > .group-label",
+                "html": "<div class=\"group-label\">Reference</div>"
+              },
+              {
+                "target": "a[href$=\"events\"] > .count",
+                "html": "<span class=\"count\">123</span>"
+              }
+            ],
+            "nodeCount": 14
+          },
+          {
+            "id": "page-has-heading-one",
+            "impact": "moderate",
+            "help": "Page should contain a level-one heading",
+            "tags": [
+              "best-practice"
+            ],
+            "nodes": [
+              {
+                "target": "html",
+                "html": "<html lang=\"en\" class=\"dark\" data-syntax-display=\"compact\" data-doc-card=\"standard\" data-doc-toc=\"on\" data-advanced=\"off\" data-badge-kind=\"on\" data-badge-return=\"on\" data-badge-change=\"on\" data-badge-"
+              }
+            ],
+            "nodeCount": 1
+          },
+          {
+            "id": "svg-img-alt",
+            "impact": "serious",
+            "help": "<svg> elements with an img or image role must have alternative text",
+            "tags": [
+              "wcag2a",
+              "wcag111"
+            ],
+            "nodes": [
+              {
+                "target": ".search-trigger > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "a[target=\"_blank\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Display options\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": "button[aria-label=\"Toggle theme\"] > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              },
+              {
+                "target": ".side-search > .lucide-icon[width=\"24\"][height=\"24\"]",
+                "html": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide-icon\" role=\"img\">"
+              }
+            ],
+            "nodeCount": 36
+          }
+        ]
+      },
+      "structure": {
+        "home": {
+          "lang": "en",
+          "h1Count": 1,
+          "headingCount": 1,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png",
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        },
+        "events": {
+          "lang": "en",
+          "h1Count": 1,
+          "headingCount": 20,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        },
+        "guild": {
+          "lang": "en",
+          "h1Count": 1,
+          "headingCount": 5,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        },
+        "docs-style-guide": {
+          "lang": "en",
+          "h1Count": 1,
+          "headingCount": 8,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        },
+        "not-found": {
+          "lang": "en",
+          "h1Count": 0,
+          "headingCount": 1,
+          "levelJumps": [],
+          "imagesWithoutDims": [
+            "assets/disky-logo.png"
+          ],
+          "ariaLiveRegions": [],
+          "skipLink": false
+        }
+      },
+      "keyboard": {
+        "tabStops": [
+          {
+            "tag": "button",
+            "text": "Page anatomy",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 125,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Voice and wording",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 164,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Code examples",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 133,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Referencing the atlas",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 196,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Components budget",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 164,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Before you submit",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 164,
+            "h": 26
+          },
+          {
+            "tag": "button",
+            "text": "Skeleton",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 93,
+            "h": 26
+          },
+          {
+            "tag": "a",
+            "text": "",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 14,
+            "h": 14
+          },
+          {
+            "tag": "a",
+            "text": "",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 14,
+            "h": 14
+          },
+          {
+            "tag": "a",
+            "text": "",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 14,
+            "h": 14
+          },
+          {
+            "tag": "a",
+            "text": "",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 14,
+            "h": 14
+          },
+          {
+            "tag": "a",
+            "text": "",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 14,
+            "h": 14
+          },
+          {
+            "tag": "a",
+            "text": "",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 14,
+            "h": 14
+          },
+          {
+            "tag": "a",
+            "text": "",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 14,
+            "h": 14
+          },
+          {
+            "tag": "button",
+            "text": "Copy",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 59,
+            "h": 30
+          },
+          {
+            "tag": "a",
+            "text": "PreviousLinking",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 740,
+            "h": 68
+          },
+          {
+            "tag": "body"
+          },
+          {
+            "tag": "a",
+            "text": "DiSky\n        v5.0.0",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 147,
+            "h": 30
+          },
+          {
+            "tag": "button",
+            "text": "Search entities & syntaxes…\n        ⌘K",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 300,
+            "h": 38
+          },
+          {
+            "tag": "a",
+            "text": "DiSky on GitHub",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "button",
+            "text": "Display options",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "button",
+            "text": "Toggle theme",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 34,
+            "h": 34
+          },
+          {
+            "tag": "button",
+            "text": "Search…\n        ⌘K",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 255,
+            "h": 37
+          },
+          {
+            "tag": "button",
+            "text": "Documentation",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 124,
+            "h": 32
+          },
+          {
+            "tag": "div",
+            "text": "How to contribute\n                      ",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 255,
+            "h": 188
+          }
+        ],
+        "summary": {
+          "stopsReached": 24,
+          "withoutVisibleFocus": 0,
+          "firstStop": {
+            "tag": "button",
+            "text": "Page anatomy",
+            "visibleOutline": true,
+            "inViewport": true,
+            "w": 125,
+            "h": 26
+          },
+          "skipLinkFirst": false
+        },
+        "spaNavigation": {
+          "activeAfterNav": "h1",
+          "liveRegionContent": [],
+          "title": "DiSky Atlas | Skript-for-Discord syntax reference",
+          "focusMovedToContent": true
+        }
+      },
+      "noJs": {
+        "home": {
+          "status": 200,
+          "textLength": 2799,
+          "textSample": "DiSky Atlas v5 A javadoc-style reference for DiSky. Browse every Discord entity and the exhaustive list of Skript syntaxes it exposes: real patterns, ",
+          "h1": "DiSky Atlas",
+          "linkCount": 67,
+          "looksEmpty": false
+        },
+        "events": {
+          "status": 200,
+          "textLength": 3539,
+          "textSample": "Overview / Events Events event Every Discord event DiSky can listen to. Each event exposes event-values (accessed by type) and event-scoped expression",
+          "h1": "Events",
+          "linkCount": 584,
+          "looksEmpty": false
+        },
+        "guild": {
+          "status": 200,
+          "textLength": 1192,
+          "textSample": "Entities / Guild Guild type A Discord server: members, channels, roles, boosts and settings. 27 syntaxes Properties 26 Getters 1 Returned by 11 Docume",
+          "h1": "Guild",
+          "linkCount": 99,
+          "looksEmpty": false
+        },
+        "docs-style-guide": {
+          "status": 200,
+          "textLength": 6846,
+          "textSample": "Docs / How to contribute / Style guide Style guide guide How a topic page is structured, worded and referenced, so every page reads the same. referenc",
+          "h1": "Style guide",
+          "linkCount": 19,
+          "looksEmpty": false
+        },
+        "not-found": {
+          "status": 200,
+          "textLength": 113,
+          "textSample": "Unknown entity There's no entity called “nonexistent-page-xyz”. Open search with ⌘K or pick one from the sidebar.",
+          "h1": null,
+          "linkCount": 36,
+          "looksEmpty": true
+        }
+      }
+    },
+    "circuitRam": {
+      "date": "2026-08-24T23:41:16.064Z",
+      "pid": 12624,
+      "tabs": 20,
+      "rssBeforeKb": 350944,
+      "rssAfterKb": 423772,
+      "perCircuitKb": 3641,
+      "note": "RSS process serveur ; inclut buffers SignalR + arbre de rendu par circuit. Ordre de grandeur, pas une mesure GC précise."
+    }
+  }
+}
