@@ -4,7 +4,7 @@
 @inject IJSRuntime JS
 
 <button type="button" class="code-copy" style="@(_copied ? "opacity:1" : null)" @onclick="CopyAsync">
-    <LucideIcon Name="@(_copied ? "check" : "copy")" />
+    <LucideIcon aria-hidden="true" Name="@(_copied ? "check" : "copy")" />
     @* role=status: the Copy -> Copied swap is announced to screen readers. *@
     <span class="lbl" role="status">@(_copied ? "Copied" : "Copy")</span>
 </button>

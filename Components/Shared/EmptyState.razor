@@ -2,13 +2,23 @@
    block; kept maison (BbEmpty's h3 + string-only description can't host the
    rich content (kbd hints, links, action buttons) these states carry). *@
 <div class="empty">
-    <span class="empty-icon"><LucideIcon Name="@Icon" /></span>
-    <h2>@Title</h2>
+    <span class="empty-icon"><LucideIcon aria-hidden="true" Name="@Icon" /></span>
+    @* Pages whose only content is this state pass HeadingLevel=1 so the page
+       keeps a single h1 (screen-reader landmark + FocusOnNavigate target). *@
+    @if (HeadingLevel == 1)
+    {
+        <h1>@Title</h1>
+    }
+    else
+    {
+        <h2>@Title</h2>
+    }
     @ChildContent
 </div>
 
 @code {
     [Parameter, EditorRequired] public string Icon { get; set; } = "";
     [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public int HeadingLevel { get; set; } = 2;
     [Parameter] public RenderFragment? ChildContent { get; set; }
 }

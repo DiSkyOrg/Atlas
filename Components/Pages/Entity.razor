@@ -9,7 +9,7 @@
 {
     <PageTitle>Not found | DiSky Atlas</PageTitle>
     <div class="page">
-        <EmptyState Icon="search-x" Title="Unknown entity">
+        <EmptyState Icon="search-x" Title="Unknown entity" HeadingLevel="1">
             <p>There's no entity called “@EntityId”. Open search with <kbd>⌘</kbd><kbd>K</kbd> or pick one from the sidebar.</p>
         </EmptyState>
     </div>
@@ -33,7 +33,7 @@ else
         </BbBreadcrumb>
 
         <div class="page-head">
-            <span class="head-icon"><LucideIcon Name="@ManifestService.EntityIcon(_entity)" /></span>
+            <span class="head-icon"><LucideIcon aria-hidden="true" Name="@ManifestService.EntityIcon(_entity)" /></span>
             <h1>@Manifest.DisplayName(_entity)</h1>
             <DotBadge Class="kind-type" Label="type" />
         </div>
@@ -46,7 +46,7 @@ else
             {
                 var n = Manifest.Children(_entity.Id).Count;
                 <button type="button" class="chip chip-list chip-button" @onclick="OpenHierarchy" title="View subtype hierarchy">
-                    <LucideIcon Name="git-fork" /> @n subtype@(n == 1 ? "" : "s")
+                    <LucideIcon aria-hidden="true" Name="git-fork" /> @n subtype@(n == 1 ? "" : "s")
                 </button>
             }
             @if (_entity.ParentId is { } pid && Manifest.GetEntity(pid) is { } parent)
@@ -59,7 +59,7 @@ else
                 @if (javadoc is not null)
                 {
                     <a class="page-jda jda-link" href="@javadoc" target="_blank" rel="noreferrer" title="Open the JDA Javadoc">
-                        @_entity.JdaType<LucideIcon Name="external-link" />
+                        @_entity.JdaType<LucideIcon aria-hidden="true" Name="external-link" />
                     </a>
                 }
                 else
@@ -153,7 +153,7 @@ else
                     @foreach (var entry in documentedIn)
                     {
                         <a class="ret-row ret-doc" href="@($"/docs/{entry.Page.Slug}")">
-                            <span class="ret-doc-icon"><LucideIcon Name="@(entry.Page.Icon ?? "book-open")" /></span>
+                            <span class="ret-doc-icon"><LucideIcon aria-hidden="true" Name="@(entry.Page.Icon ?? "book-open")" /></span>
                             <span class="ret-doc-title">@entry.Page.Title</span>
                             @if (entry.Page.Description is { Length: > 0 } entryDescription)
                             {

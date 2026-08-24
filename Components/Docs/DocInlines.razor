@@ -43,7 +43,9 @@
             break;
 
         case TaskList task:
-            <input type="checkbox" class="task-box" disabled checked="@task.Checked" />
+            @* Markdown task boxes are read-only state markers; the label conveys the
+               state since the surrounding li text is the actual content. *@
+            <input type="checkbox" class="task-box" disabled checked="@task.Checked" aria-label="@(task.Checked ? "Done" : "To do")" />
             break;
 
         case HtmlEntityInline entity:

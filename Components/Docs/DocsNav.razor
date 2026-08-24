@@ -27,7 +27,7 @@
                         <BbTreeItem Value="@docPage.Slug" Class="@RowClass($"docs/{docPage.Slug}")" IsLeaf="true">
                             <LabelTemplate>
                                 <a class="tree-link" href="@($"/docs/{docPage.Slug}")" @onclick="() => NavigatedAsync(null)">
-                                    <span class="leaf-icon"><LucideIcon Name="@(docPage.Icon ?? "file-text")" /></span>
+                                    <span class="leaf-icon"><LucideIcon aria-hidden="true" Name="@(docPage.Icon ?? "file-text")" /></span>
                                     <span class="label">@docPage.Title</span>
                                 </a>
                             </LabelTemplate>
@@ -41,7 +41,7 @@
             <BbTreeItem Value="@section.Id" Class="@RowClass(SectionSlug(section))" IsLeaf="true">
                 <LabelTemplate>
                     <a class="tree-link" href="@SectionHref(section)" @onclick="() => NavigatedAsync(section)">
-                        <span class="leaf-icon"><LucideIcon Name="@(section.Icon ?? "book-open")" /></span>
+                        <span class="leaf-icon"><LucideIcon aria-hidden="true" Name="@(section.Icon ?? "book-open")" /></span>
                         <span class="label">@section.Title</span>
                         <span class="count">@(section.Index is null ? 0 : 1)</span>
                     </a>

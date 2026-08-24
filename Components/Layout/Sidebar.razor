@@ -7,9 +7,9 @@
 @inject NavigationManager Nav
 @implements IDisposable
 
-<nav class="sidebar @(Open ? "open" : "")">
+<nav class="sidebar @(Open ? "open" : "")" aria-label="Primary">
     <button type="button" class="side-search" @onclick="OpenPaletteAsync">
-        <LucideIcon Name="search" />
+        <LucideIcon aria-hidden="true" Name="search" />
         <span>Search…</span>
         <span class="kbd">⌘K</span>
     </button>
@@ -54,7 +54,7 @@
             <div class="group-label">Reference</div>
             <a class="tree-row @(string.Equals(_activeId, "events", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
                href="/events" @onclick="NavigatedAsync">
-                <span class="leaf-icon"><LucideIcon Name="zap" /></span>
+                <span class="leaf-icon"><LucideIcon aria-hidden="true" Name="zap" /></span>
                 <span class="label">Events</span>
                 <span class="count">@Manifest.Events.Count</span>
             </a>
@@ -69,7 +69,7 @@
                     var slug = ManifestService.KindPlural(kind);
                     <a class="tree-row @(string.Equals(_activeId, $"core/{slug}", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
                        href="/core/@slug" @onclick="NavigatedAsync">
-                        <span class="leaf-icon"><LucideIcon Name="@ManifestService.KindIcon(kind)" /></span>
+                        <span class="leaf-icon"><LucideIcon aria-hidden="true" Name="@ManifestService.KindIcon(kind)" /></span>
                         <span class="label">@ManifestService.KindLabel(kind)</span>
                         <span class="count">@Manifest.CoreSyntaxes(kind).Count</span>
                     </a>

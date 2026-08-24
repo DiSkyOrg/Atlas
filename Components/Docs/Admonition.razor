@@ -6,9 +6,9 @@
 {
     <details class="admonition adm-@Block.Kind" open="@Block.InitiallyOpen">
         <summary class="adm-title">
-            <span class="adm-icon"><LucideIcon Name="@Icon" /></span>
+            <span class="adm-icon"><LucideIcon aria-hidden="true" Name="@Icon" /></span>
             <span class="adm-label">@TitleContent</span>
-            <span class="adm-chev"><LucideIcon Name="chevron-down" /></span>
+            <span class="adm-chev"><LucideIcon aria-hidden="true" Name="chevron-down" /></span>
         </summary>
         <div class="adm-body"><DocBlocks Blocks="Block" /></div>
     </details>
@@ -17,7 +17,7 @@ else
 {
     <div class="admonition adm-@Block.Kind">
         <div class="adm-title">
-            <span class="adm-icon"><LucideIcon Name="@Icon" /></span>
+            <span class="adm-icon"><LucideIcon aria-hidden="true" Name="@Icon" /></span>
             <span class="adm-label">@TitleContent</span>
         </div>
         <div class="adm-body"><DocBlocks Blocks="Block" /></div>

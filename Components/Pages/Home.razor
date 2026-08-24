@@ -6,7 +6,7 @@
 
 <div class="home">
     <div class="home-hero">
-        <img src="assets/disky-logo.png" alt="DiSky" />
+        <img src="assets/disky-logo.png" alt="DiSky" width="56" height="56" />
         <h1>DiSky Atlas</h1>
         <span class="vtag">@Version</span>
     </div>
@@ -29,7 +29,7 @@
     {
         <div class="home-section-head">
             <div class="label-eyebrow home-section-label">Documentation</div>
-            <a class="home-section-more" href="/docs">All guides <LucideIcon Name="arrow-right" /></a>
+            <a class="home-section-more" href="/docs">All guides <LucideIcon aria-hidden="true" Name="arrow-right" /></a>
         </div>
         <div class="home-grid home-docs">
             @foreach (var docSection in Docs.Sections)
@@ -37,7 +37,7 @@
                 var count = docSection.Pages.Count + (docSection.Index is null ? 0 : 1);
                 <a class="ecard ecard-doc" href="@SectionHref(docSection)">
                     <div class="ec-head">
-                        <span class="ec-icon"><LucideIcon Name="@(docSection.Icon ?? "book-open")" /></span>
+                        <span class="ec-icon"><LucideIcon aria-hidden="true" Name="@(docSection.Icon ?? "book-open")" /></span>
                         <span class="ec-name">@docSection.Title</span>
                     </div>
                     @if (docSection.Index?.Description is { Length: > 0 } description)
@@ -53,7 +53,7 @@
     <div class="label-eyebrow home-section-label">Atlas</div>
     <a class="ecard ecard-wide" href="/events">
         <div class="ec-head">
-            <span class="ec-icon"><LucideIcon Name="zap" /></span>
+            <span class="ec-icon"><LucideIcon aria-hidden="true" Name="zap" /></span>
             <span class="ec-name">Events</span>
         </div>
         <div class="ec-desc">
@@ -70,7 +70,7 @@
             var total = Manifest.TotalSyntaxCount(entity);
             <a class="ecard" href="/@entity.Id">
                 <div class="ec-head">
-                    <span class="ec-icon"><LucideIcon Name="@ManifestService.EntityIcon(entity)" /></span>
+                    <span class="ec-icon"><LucideIcon aria-hidden="true" Name="@ManifestService.EntityIcon(entity)" /></span>
                     <span class="ec-name">@Manifest.DisplayName(entity)</span>
                 </div>
                 <div class="ec-desc">@EntityBlurbs.For(entity, Manifest.DisplayName(entity))</div>

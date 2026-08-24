@@ -28,7 +28,7 @@ else
     <BbTreeItem Value="@Entity.Id" Class="@RowClass" IsLeaf="true">
         <LabelTemplate>
             <a class="tree-link" href="/@Entity.Id" @onclick="HandleNavigate">
-                <span class="leaf-icon"><LucideIcon Name="@ManifestService.EntityIcon(Entity)" /></span>
+                <span class="leaf-icon"><LucideIcon aria-hidden="true" Name="@ManifestService.EntityIcon(Entity)" /></span>
                 <span class="label">@Manifest.DisplayName(Entity)</span>
                 @if (Entity.Syntaxes.Count > 0)
                 {

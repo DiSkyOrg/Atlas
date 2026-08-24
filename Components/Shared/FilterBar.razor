@@ -2,14 +2,14 @@
    The input stays native (BbInputGroup brings its own chrome; this bar is a
    borderless strip) but the shell is shared by every syntax-list page. *@
 <div class="filter-bar">
-    <span class="filter-icon"><LucideIcon Name="filter" /></span>
+    <span class="filter-icon"><LucideIcon aria-hidden="true" Name="filter" /></span>
     <input class="filter-input" value="@Value" @oninput="OnInput"
            placeholder="@Placeholder"
            spellcheck="false" autocomplete="off" aria-label="@AriaLabel" />
     @if (!string.IsNullOrEmpty(Value))
     {
         <button type="button" class="filter-clear" @onclick="ClearAsync" title="Clear filter">
-            <LucideIcon Name="x" />
+            <LucideIcon aria-hidden="true" Name="x" />
         </button>
     }
     <span class="filter-count">@MatchCount / @Total</span>

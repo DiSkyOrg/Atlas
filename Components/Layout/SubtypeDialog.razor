@@ -41,7 +41,7 @@
         var children = Manifest.Children(entity.Id);
         <div class="hx-node @(isRoot ? "hx-root" : "")">
             <button type="button" class="hx-row @(isRoot ? "hx-current" : "")" @onclick="() => Go(entity)">
-                <span class="hx-icon"><LucideIcon Name="@ManifestService.EntityIcon(entity)" /></span>
+                <span class="hx-icon"><LucideIcon aria-hidden="true" Name="@ManifestService.EntityIcon(entity)" /></span>
                 <span class="hx-name">@Manifest.DisplayName(entity)</span>
                 @if (entity.Syntaxes.Count > 0)
                 {

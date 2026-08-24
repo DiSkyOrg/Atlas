@@ -9,12 +9,12 @@
 <article class="record @(_open ? "toggled" : "")" id="@Anchor">
     <div class="record-head">
         <button type="button" class="rec-toggle" @onclick="Toggle">
-            <span class="rec-chev"><LucideIcon Name="chevron-right" /></span>
+            <span class="rec-chev"><LucideIcon aria-hidden="true" Name="chevron-right" /></span>
             <span class="rname">@Syntax.Name</span>
         </button>
         <a class="anchor" href="@($"{LinkBase}#{Anchor}")" title="Copy link to this syntax"
            @onclick="CopyLinkAsync" @onclick:stopPropagation>
-            <LucideIcon Name="link" />
+            <LucideIcon aria-hidden="true" Name="link" />
         </a>
         <span class="rec-meta">
             <span class="b-kind"><KindBadge Kind="Syntax.Kind" /></span>
@@ -60,7 +60,7 @@
         @foreach (var guide in Docs.GuidesFor(Syntax.Id))
         {
             <a class="doc-guide" href="@($"/docs/{guide.Page.Slug}")">
-                <LucideIcon Name="book-open" />
+                <LucideIcon aria-hidden="true" Name="book-open" />
                 <span>Feeling lost? This is covered in the guide <span class="dg-title">@guide.Page.Title</span></span>
             </a>
         }
@@ -104,7 +104,7 @@
         @if (Syntax.Examples is { Count: > 0 })
         {
             <button type="button" class="ex-toggle" @onclick="() => _showExamples = !_showExamples">
-                <span class="chev @(_showExamples ? "open" : "")"><LucideIcon Name="chevron-right" /></span>
+                <span class="chev @(_showExamples ? "open" : "")"><LucideIcon aria-hidden="true" Name="chevron-right" /></span>
                 @(_showExamples ? "Hide" : "Show") example@(Syntax.ProcessedExamples.Count > 1 ? "s" : "")
             </button>
             @if (_showExamples)
@@ -170,7 +170,7 @@
                 @foreach (var mention in docMentions)
                 {
                     <a class="chip chip-doc" href="@MentionHref(mention)">
-                        <LucideIcon Name="book-open" />@mention.Page.Title
+                        <LucideIcon aria-hidden="true" Name="book-open" />@mention.Page.Title
                     </a>
                 }
             </div>

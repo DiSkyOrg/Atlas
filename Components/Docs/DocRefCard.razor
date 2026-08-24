@@ -6,7 +6,7 @@
 @if (Reference is not { } reference || !reference.Resolved || Docs.GetPage(reference.DocSlug) is not { } target)
 {
     <div class="sref sref-missing">
-        <span class="sref-missing-icon"><LucideIcon Name="triangle-alert" /></span>
+        <span class="sref-missing-icon"><LucideIcon aria-hidden="true" Name="triangle-alert" /></span>
         <span>Unknown doc page <code>@(Reference?.Raw ?? Context?.Argument)</code>.</span>
     </div>
 }
@@ -14,7 +14,7 @@ else
 {
     <a class="sref sref-doc" href="@reference.Href">
         <span class="sref-head">
-            <span class="sref-icon"><LucideIcon Name="@(target.Icon ?? "book-open")" /></span>
+            <span class="sref-icon"><LucideIcon aria-hidden="true" Name="@(target.Icon ?? "book-open")" /></span>
             <span class="sref-name">@target.Title</span>
             <DotBadge Class="kind-doc" Label="guide" />
             <span class="sref-src">@SectionTitle(target)</span>

@@ -4,11 +4,11 @@
 <header class="topbar">
     <button type="button" class="icon-btn sidebar-toggle" title="Toggle sidebar"
             aria-label="Toggle sidebar" @onclick="ToggleSidebarAsync">
-        <LucideIcon Name="panel-left" />
+        <LucideIcon aria-hidden="true" Name="panel-left" />
     </button>
 
     <a class="brand" href="/">
-        <img src="assets/disky-logo.png" alt="DiSky" />
+        <img src="assets/disky-logo.png" alt="DiSky" width="30" height="30" />
         <span class="name">DiSky</span>
         <span class="vtag" title="Latest documented syntax version">@Version</span>
     </a>
@@ -16,7 +16,7 @@
     <div class="spacer"></div>
 
     <button type="button" class="search-trigger" @onclick="OpenPaletteAsync">
-        <LucideIcon Name="search" />
+        <LucideIcon aria-hidden="true" Name="search" />
         <span class="label-text">Search entities &amp; syntaxes…</span>
         <span class="kbd"><kbd>⌘</kbd><kbd>K</kbd></span>
     </button>
@@ -24,7 +24,7 @@
     <BbTooltip Placement="PopoverPlacement.Bottom">
         <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
             <a class="icon-btn" href="https://github.com/DiSkyOrg/DiSky" target="_blank" rel="noreferrer" aria-label="DiSky on GitHub">
-                <LucideIcon Name="github" />
+                <LucideIcon aria-hidden="true" Name="github" />
             </a>
         </BbTooltipTrigger>
         <BbTooltipContent>DiSky on GitHub</BbTooltipContent>
@@ -33,7 +33,7 @@
     <BbTooltip Placement="PopoverPlacement.Bottom">
         <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
             <button type="button" class="icon-btn" aria-label="Display options" @onclick="OpenSettings">
-                <LucideIcon Name="settings" />
+                <LucideIcon aria-hidden="true" Name="settings" />
             </button>
         </BbTooltipTrigger>
         <BbTooltipContent>Display options</BbTooltipContent>

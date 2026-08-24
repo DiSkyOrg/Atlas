@@ -12,7 +12,7 @@
             @foreach (var entity in Entities)
             {
                 <a class="hc-item" href="/@entity.Id#@Name">
-                    <LucideIcon Name="@ManifestService.EntityIcon(entity)" />
+                    <LucideIcon aria-hidden="true" Name="@ManifestService.EntityIcon(entity)" />
                     <span>@Manifest.DisplayName(entity)</span>
                 </a>
             }

@@ -14,7 +14,7 @@
     <PageTitle>Documentation | DiSky Atlas</PageTitle>
     <div class="page">
         <div class="page-head">
-            <span class="head-icon"><LucideIcon Name="book-open" /></span>
+            <span class="head-icon"><LucideIcon aria-hidden="true" Name="book-open" /></span>
             <h1>Documentation</h1>
         </div>
         <p class="page-lead">Hand-written guides that complement the generated syntax reference.</p>
@@ -23,7 +23,7 @@
         {
             <div class="doc-lint">
                 <div class="doc-lint-head">
-                    <LucideIcon Name="triangle-alert" />
+                    <LucideIcon aria-hidden="true" Name="triangle-alert" />
                     <span>@Docs.LintWarnings.Count doc lint warning@(Docs.LintWarnings.Count == 1 ? "" : "s") (shown in Development only)</span>
                 </div>
                 <ul>
@@ -49,7 +49,7 @@
                     var count = docSection.Pages.Count + (docSection.Index is null ? 0 : 1);
                     <a class="ecard" href="@(docSection.Index is not null ? $"/docs/{docSection.Id}" : $"/docs/{docSection.Pages.FirstOrDefault()?.Slug}")">
                         <div class="ec-head">
-                            <span class="ec-icon"><LucideIcon Name="@(docSection.Icon ?? "book-open")" /></span>
+                            <span class="ec-icon"><LucideIcon aria-hidden="true" Name="@(docSection.Icon ?? "book-open")" /></span>
                             <span class="ec-name">@docSection.Title</span>
                         </div>
                         @if (docSection.Index?.Description is { Length: > 0 } description)
@@ -67,7 +67,7 @@ else if (_page is null)
 {
     <PageTitle>Not found | DiSky Atlas</PageTitle>
     <div class="page">
-        <EmptyState Icon="search-x" Title="Unknown doc page">
+        <EmptyState Icon="search-x" Title="Unknown doc page" HeadingLevel="1">
             <p>There's no documentation page at “@Slug”. Open search with <kbd>⌘</kbd><kbd>K</kbd> or browse <a href="/docs">the docs index</a>.</p>
         </EmptyState>
     </div>
@@ -100,7 +100,7 @@ else
         </BbBreadcrumb>
 
         <div class="page-head">
-            <span class="head-icon"><LucideIcon Name="@(_page.Icon ?? _section?.Icon ?? "book-open")" /></span>
+            <span class="head-icon"><LucideIcon aria-hidden="true" Name="@(_page.Icon ?? _section?.Icon ?? "book-open")" /></span>
             <h1 class="doc-title">@_page.Title</h1>
             <DotBadge Class="kind-doc" Label="guide" />
         </div>
@@ -115,7 +115,7 @@ else
             <div class="page-meta">
                 @foreach (var tag in _page.Tags)
                 {
-                    <span class="chip chip-tag"><LucideIcon Name="tag" />@tag</span>
+                    <span class="chip chip-tag"><LucideIcon aria-hidden="true" Name="tag" />@tag</span>
                 }
             </div>
         }
@@ -138,11 +138,11 @@ else
         @{ var (prev, next) = Docs.PrevNext(_page); }
         @if (prev is not null || next is not null)
         {
-            <nav class="doc-pn">
+            <nav class="doc-pn" aria-label="Previous and next page">
                 @if (prev is not null)
                 {
                     <a class="doc-pn-link doc-pn-prev" href="/docs/@prev.Slug">
-                        <LucideIcon Name="chevron-left" />
+                        <LucideIcon aria-hidden="true" Name="chevron-left" />
                         <span class="doc-pn-text"><span class="doc-pn-label">Previous</span><span class="doc-pn-title">@prev.Title</span></span>
                     </a>
                 }
@@ -150,7 +150,7 @@ else
                 {
                     <a class="doc-pn-link doc-pn-next" href="/docs/@next.Slug">
                         <span class="doc-pn-text"><span class="doc-pn-label">Next</span><span class="doc-pn-title">@next.Title</span></span>
-                        <LucideIcon Name="chevron-right" />
+                        <LucideIcon aria-hidden="true" Name="chevron-right" />
                     </a>
                 }
             </nav>

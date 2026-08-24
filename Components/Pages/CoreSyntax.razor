@@ -8,7 +8,7 @@
 {
     <PageTitle>Not found | DiSky Atlas</PageTitle>
     <div class="page">
-        <EmptyState Icon="search-x" Title="Unknown section">
+        <EmptyState Icon="search-x" Title="Unknown section" HeadingLevel="1">
             <p>There's no core section called “@Kind”. Pick one from the sidebar.</p>
         </EmptyState>
     </div>
@@ -34,7 +34,7 @@ else
         </BbBreadcrumb>
 
         <div class="page-head">
-            <span class="head-icon"><LucideIcon Name="@ManifestService.KindIcon(kind)" /></span>
+            <span class="head-icon"><LucideIcon aria-hidden="true" Name="@ManifestService.KindIcon(kind)" /></span>
             <h1>@label</h1>
             <DotBadge Class="@("kind-" + slug)" Label="@slug" />
         </div>

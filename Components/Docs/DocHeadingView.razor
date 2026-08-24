@@ -40,7 +40,7 @@
         <DocInlines Inline="Heading.Inline" />
         <a class="anchor" href="@($"/docs/{Ctx.Page.Slug}#{AnchorId}")" title="Copy link to this section"
            @onclick="CopyLinkAsync" @onclick:stopPropagation>
-            <LucideIcon Name="link" />
+            <LucideIcon aria-hidden="true" Name="link" />
         </a>
     };
 

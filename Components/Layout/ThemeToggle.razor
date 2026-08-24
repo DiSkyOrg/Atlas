@@ -5,7 +5,7 @@
 <BbTooltip Placement="PopoverPlacement.Bottom">
     <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
         <button type="button" class="icon-btn" aria-label="Toggle theme" @onclick="Toggle">
-            <LucideIcon Name="@(_dark ? "sun" : "moon")" />
+            <LucideIcon aria-hidden="true" Name="@(_dark ? "sun" : "moon")" />
         </button>
     </BbTooltipTrigger>
     <BbTooltipContent>Toggle theme</BbTooltipContent>
