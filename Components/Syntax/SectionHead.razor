@@ -2,7 +2,20 @@
 @inject IJSRuntime JS
 
 <div class="section-head">
-    <h2>@Title</h2>
+    @if (Icon is { Length: > 0 })
+    {
+        <span class="sh-icon"><LucideIcon aria-hidden="true" Name="@Icon" /></span>
+    }
+    <h2>
+        @if (Href is { Length: > 0 })
+        {
+            <a class="sh-link" href="@Href">@Title</a>
+        }
+        else
+        {
+            @Title
+        }
+    </h2>
     @if (Count is not null)
     {
         <span class="n">@Count</span>
@@ -20,6 +33,12 @@
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = "";
     [Parameter] public int? Count { get; set; }
+
+    /// <summary>Optional Lucide icon shown before the title (used by the per-entity sections on /effects).</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>When set, the title links there — e.g. an entity section pointing at that entity's page.</summary>
+    [Parameter] public string? Href { get; set; }
 
     private async Task ScrollTopAsync()
     {

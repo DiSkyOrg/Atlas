@@ -62,6 +62,18 @@
         </div>
         <div class="ec-count">@EventCount events</div>
     </a>
+    <a class="ecard ecard-wide" href="/effects">
+        <div class="ec-head">
+            <span class="ec-icon"><LucideIcon aria-hidden="true" Name="wand-sparkles" /></span>
+            <span class="ec-name">Effects</span>
+        </div>
+        <div class="ec-desc">
+            Every effect in one list — the ones acting on an entity (<code>kick</code>,
+            <code>time out</code>, <code>ban</code>…) plus the global ones — grouped by entity,
+            filterable and sortable.
+        </div>
+        <div class="ec-count">@EffectCount effects</div>
+    </a>
 
     <div class="label-eyebrow home-section-label">Entities</div>
     <div class="home-grid">
@@ -85,6 +97,9 @@
     private int EntityCount => Manifest.Manifest.Entities.Count;
     private int SyntaxCount => Manifest.Manifest.Entities.Sum(e => e.Syntaxes.Count) + Manifest.Manifest.Core.Count;
     private int EventCount => Manifest.Events.Count;
+    private int EffectCount =>
+        Manifest.EntityGroupsFor(SyntaxKind.Effect).Sum(g => g.Items.Count) +
+        Manifest.CoreSyntaxes(SyntaxKind.Effect).Count;
     private int TypeCount => Manifest.Manifest.Types.Count;
 
     private static string SectionHref(DocSection section) =>

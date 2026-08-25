@@ -1,0 +1,250 @@
+@* Cross-entity index of every effect DiSky registers. The entity pages stay the home of
+   each effect (the copy link points there); this page exists to browse them all at once,
+   grouped by the entity they act on or flattened and sorted. *@
+@page "/effects"
+@inject ManifestService Manifest
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@implements IDisposable
+
+<PageTitle>Effects | DiSky Atlas</PageTitle>
+
+<div class="page">
+    <BbBreadcrumb Class="crumb">
+        <BbBreadcrumbList AutoSeparator="true">
+            <SeparatorContent><span class="sep">/</span></SeparatorContent>
+            <ChildContent>
+                <BbBreadcrumbItem><BbBreadcrumbLink Href="/">Overview</BbBreadcrumbLink></BbBreadcrumbItem>
+                <BbBreadcrumbItem><BbBreadcrumbPage Class="cur">Effects</BbBreadcrumbPage></BbBreadcrumbItem>
+            </ChildContent>
+        </BbBreadcrumbList>
+    </BbBreadcrumb>
+
+    <div class="page-head">
+        <span class="head-icon"><LucideIcon aria-hidden="true" Name="wand-sparkles" /></span>
+        <h1>Effects</h1>
+        <DotBadge Class="kind-effect" Label="effect" />
+    </div>
+
+    <p class="page-lead">
+        Every effect DiSky registers, in one place: the ones attached to a Discord entity
+        (<code>kick</code>, <code>time out</code>, <code>move to voice channel</code>…) plus the
+        global ones. Each effect still lives on its own page — the link icon copies that address.
+    </p>
+
+    <div class="page-meta">
+        <span class="chip chip-since">@_total effect@(_total == 1 ? "" : "s")</span>
+        <span class="chip chip-list">@_groups.Count source@(_groups.Count == 1 ? "" : "s")</span>
+    </div>
+
+    @{
+        var visible = VisibleGroups;
+        var matchCount = visible.Sum(g => g.Items.Count);
+        var sections = visible
+            .Select(g => new SectionRef(SectionAnchor(g), g.Label, g.Items.Count, "effect"))
+            .ToList();
+    }
+
+    @if (_sort == EffectSort.Entity)
+    {
+        <SectionJump Sections="sections" />
+    }
+
+    <div class="list-toolbar">
+        <FilterBar Value="@_filter" ValueChanged="SetFilter"
+                   Placeholder="Filter effects… e.g. entity:member since:>=5.0.0 ban"
+                   AriaLabel="Filter effects"
+                   MatchCount="matchCount" Total="_total" />
+
+        <div class="sort-seg" role="group" aria-label="Sort effects">
+            <span class="sort-label" aria-hidden="true">Sort</span>
+            @foreach (var option in SortOptions)
+            {
+                <button type="button" class="sort-opt @(_sort == option.Value ? "active" : "")"
+                        aria-pressed="@(_sort == option.Value)" title="@option.Hint"
+                        @onclick="() => _sort = option.Value">
+                    <LucideIcon aria-hidden="true" Name="@option.Icon" />@option.Label
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (matchCount == 0)
+    {
+        <EmptyState Icon="search-x" Title="No matching effects">
+            <p>Nothing matches “@_filter”. Try a broader query or clear the filter.</p>
+        </EmptyState>
+    }
+    else if (_sort == EffectSort.Entity)
+    {
+        @foreach (var group in visible)
+        {
+            <section class="jump-section" id="@SectionAnchor(group)">
+                <SectionHead Title="@group.Label" Count="group.Items.Count"
+                             Icon="@group.Icon" Href="@group.Href" />
+                @foreach (var syntax in group.Items)
+                {
+                    <SyntaxRecord Syntax="syntax" EntityId="@group.Id" LinkPath="@group.Href"
+                                  DomId="@RecordId(syntax)" />
+                }
+            </section>
+        }
+    }
+    else
+    {
+        <div class="flat-list">
+            @foreach (var row in Sorted(visible))
+            {
+                <SyntaxRecord Syntax="row.Syntax" EntityId="@row.Group.Id" LinkPath="@row.Group.Href"
+                              DomId="@RecordId(row.Syntax)"
+                              OwnerLabel="@row.Group.Label" OwnerIcon="@row.Group.Icon" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private enum EffectSort { Entity, Name, Newest }
+
+    /// <summary>One source of effects: an entity, or the synthetic Core / Global section.</summary>
+    private sealed record EffectGroup(string Id, string Label, string Icon, string Href, IReadOnlyList<SyntaxInfo> Items);
+
+    /// <summary>An effect paired with the source it came from (flat sorts lose the section header).</summary>
+    private sealed record Row(EffectGroup Group, SyntaxInfo Syntax);
+
+    private sealed record SortOption(EffectSort Value, string Label, string Icon, string Hint);
+
+    private static readonly SortOption[] SortOptions =
+    [
+        new(EffectSort.Entity, "Entity", "layers", "Group by the entity the effect acts on"),
+        new(EffectSort.Name, "Name", "arrow-down-a-z", "One flat list, A → Z"),
+        new(EffectSort.Newest, "Newest", "clock", "One flat list, newest DiSky version first")
+    ];
+
+    private static readonly Comparer<string> ByVersion =
+        Comparer<string>.Create(ManifestService.CompareVersions);
+
+    private List<EffectGroup> _groups = [];
+    private int _total;
+
+    private EffectSort _sort = EffectSort.Entity;
+    private string _filter = "";
+    private SyntaxFilter _parsedFilter = SyntaxFilter.Empty;
+    private readonly List<string> _ownerTerms = [];
+    private string? _pendingHash;
+
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+        _pendingHash = GetHash();
+
+        _groups = Manifest.EntityGroupsFor(SyntaxKind.Effect)
+            .Select(g => new EffectGroup(
+                g.Entity.Id,
+                Manifest.DisplayName(g.Entity),
+                ManifestService.EntityIcon(g.Entity),
+                $"/{g.Entity.Id}",
+                g.Items))
+            .ToList();
+
+        // The hand-written effects have no entity; they keep their own page but belong in a
+        // list that claims to hold every effect, so they lead as one more source.
+        var core = Manifest.CoreSyntaxes(SyntaxKind.Effect);
+        if (core.Count > 0)
+        {
+            _groups.Insert(0, new EffectGroup(
+                Manifest.CoreEntity.Id,
+                Manifest.CoreEntity.Name,
+                ManifestService.KindIcon(SyntaxKind.Effect),
+                $"/core/{ManifestService.KindPlural(SyntaxKind.Effect)}",
+                core));
+        }
+
+        _total = _groups.Sum(g => g.Items.Count);
+    }
+
+    private List<EffectGroup> VisibleGroups =>
+        _groups
+            .Where(MatchesOwner)
+            .Select(g => _parsedFilter.IsEmpty ? g : g with { Items = g.Items.Where(_parsedFilter.Matches).ToList() })
+            .Where(g => g.Items.Count > 0)
+            .ToList();
+
+    private IEnumerable<Row> Sorted(IEnumerable<EffectGroup> groups)
+    {
+        var rows = groups.SelectMany(g => g.Items.Select(s => new Row(g, s)));
+        return _sort == EffectSort.Newest
+            ? rows.OrderByDescending(r => r.Syntax.Since ?? "", ByVersion)
+                  .ThenBy(r => r.Syntax.Name, StringComparer.OrdinalIgnoreCase)
+            : rows.OrderBy(r => r.Syntax.Name, StringComparer.OrdinalIgnoreCase)
+                  .ThenBy(r => r.Group.Label, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private bool MatchesOwner(EffectGroup group) =>
+        _ownerTerms.All(term =>
+            group.Label.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+            group.Id.Contains(term, StringComparison.OrdinalIgnoreCase));
+
+    private void SetFilter(string value)
+    {
+        _filter = value;
+        _ownerTerms.Clear();
+
+        // `entity:`/`owner:` scopes the page to a source. A SyntaxInfo carries no back-pointer to
+        // its entity, so SyntaxFilter can't answer that one — pull those terms out and match the
+        // group, then hand the rest of the query over unchanged.
+        var rest = new List<string>();
+        foreach (var token in value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (OwnerTerm(token) is { Length: > 0 } term)
+                _ownerTerms.Add(term);
+            else
+                rest.Add(token);
+        }
+
+        _parsedFilter = SyntaxFilter.Parse(string.Join(' ', rest));
+    }
+
+    private static readonly string[] OwnerKeys = ["entity:", "owner:", "in:"];
+
+    private static string? OwnerTerm(string token)
+    {
+        foreach (var key in OwnerKeys)
+            if (token.Length > key.Length && token.StartsWith(key, StringComparison.OrdinalIgnoreCase))
+                return token[key.Length..];
+        return null;
+    }
+
+    private static string SectionAnchor(EffectGroup group) => "src-" + group.Id;
+
+    // Entity-relative anchors ("ban") can repeat across sources on this page; the syntax id can't.
+    private static string RecordId(SyntaxInfo syntax) => "eff-" + syntax.Id;
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        var hash = GetHash();
+        if (hash is not null)
+        {
+            _pendingHash = hash;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_pendingHash is { Length: > 0 } hash)
+        {
+            _pendingHash = null;
+            try { await JS.InvokeVoidAsync("atlas.scrollToId", hash, true); } catch { /* ignore */ }
+        }
+    }
+
+    private string? GetHash()
+    {
+        var uri = Nav.Uri;
+        var i = uri.IndexOf('#');
+        return i >= 0 && i < uri.Length - 1 ? uri[(i + 1)..] : null;
+    }
+
+    public void Dispose() => Nav.LocationChanged -= OnLocationChanged;
+}

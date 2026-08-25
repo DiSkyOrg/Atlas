@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using BlazorBlueprint.Components;
 using DiSkyAtlas.Components;
@@ -101,7 +101,7 @@ app.MapStaticAssets();
 app.MapGet("/sitemap.xml", (ManifestService manifest, DocsService docs, HttpContext context) =>
 {
     var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
-    var urls = new List<string> { "/", "/events", "/docs" };
+    var urls = new List<string> { "/", "/events", "/effects", "/docs" };
     urls.AddRange(manifest.Manifest.Entities.Select(e => "/" + e.Id));
     urls.AddRange(manifest.CoreKinds.Select(k =>
         "/core/" + (ManifestService.KindSlug(k) is "property" ? "properties" : ManifestService.KindSlug(k) + "s")));
