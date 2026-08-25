@@ -6,7 +6,7 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
-<article class="record @(_open ? "toggled" : "")" id="@Anchor">
+<article class="record @(_open ? "toggled" : "")" id="@ElementId">
     <div class="record-head">
         <button type="button" class="rec-toggle" @onclick="Toggle">
             <span class="rec-chev"><LucideIcon aria-hidden="true" Name="chevron-right" /></span>
@@ -16,6 +16,12 @@
            @onclick="CopyLinkAsync" @onclick:stopPropagation>
             <LucideIcon aria-hidden="true" Name="link" />
         </a>
+        @if (OwnerLabel is { Length: > 0 })
+        {
+            <a class="chip chip-owner" href="@LinkBase" title="Open @OwnerLabel">
+                <LucideIcon aria-hidden="true" Name="@(OwnerIcon ?? "box")" />@OwnerLabel
+            </a>
+        }
         <span class="rec-meta">
             <span class="b-kind"><KindBadge Kind="Syntax.Kind" /></span>
             @if (Syntax.ReturnType is not null)
@@ -185,10 +191,25 @@
     /// <summary>Route path for the deep link / copy. Defaults to /{EntityId} (events pass "/events").</summary>
     [Parameter] public string? LinkPath { get; set; }
 
+    /// <summary>
+    /// Overrides the DOM id. Aggregate pages (/effects) list syntaxes from several owners, whose
+    /// entity-relative anchors can collide; they pass a page-unique id while the copy link keeps
+    /// pointing at the syntax's home page.
+    /// </summary>
+    [Parameter] public string? DomId { get; set; }
+
+    /// <summary>Owner shown as a chip in the head — set on aggregate pages, where the record's
+    /// surrounding section no longer says which entity the syntax belongs to.</summary>
+    [Parameter] public string? OwnerLabel { get; set; }
+
+    /// <summary>Lucide icon for the owner chip (defaults to the generic entity icon).</summary>
+    [Parameter] public string? OwnerIcon { get; set; }
+
     private bool _open;
     private bool _showExamples;
 
     private string Anchor => ManifestService.SyntaxAnchor(EntityId, Syntax.Id);
+    private string ElementId => DomId ?? Anchor;
     private string LinkBase => LinkPath ?? $"/{EntityId}";
 
     private string? ReturnHref => TypeHref(Syntax.ReturnType);
@@ -205,7 +226,7 @@
     {
         _open = !_open;
         // Drop any force-open applied by a deep-link so the record can collapse again.
-        try { await JS.InvokeVoidAsync("atlas.clearForceOpen", Anchor); } catch { /* ignore */ }
+        try { await JS.InvokeVoidAsync("atlas.clearForceOpen", ElementId); } catch { /* ignore */ }
     }
 
     private async Task CopyLinkAsync()

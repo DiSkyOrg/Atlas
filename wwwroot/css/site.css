@@ -845,3 +845,52 @@ html:not(.dark) .chip-doc { color: var(--blurple-600); }
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================================
+   Cross-entity kind pages (/effects): a toolbar pairing the filter with a sort
+   segmented control, sources as section heads, and an owner chip on the flat
+   sorts (where the section head no longer names the entity).
+   ========================================================================== */
+.list-toolbar { display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap; margin: 0 0 18px; }
+.list-toolbar .filter-bar { flex: 1 1 300px; margin: 0; }
+
+/* Height comes from the filter bar it sits beside (.list-toolbar stretches its
+   items), so the two boxes match whatever the filter bar's padding is. */
+.sort-seg {
+  display: inline-flex; align-items: stretch; gap: 2px; flex: none;
+  padding: 3px; border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+.sort-seg .sort-label {
+  display: inline-flex; align-items: center;
+  font-size: 11px; color: var(--fg-faint); font-family: var(--font-mono);
+  padding: 0 6px 0 4px;
+}
+.sort-opt {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-sans); font-size: 12.5px; color: var(--fg-muted);
+  background: none; border: 0; border-radius: var(--radius-sm);
+  padding: 0 9px; cursor: pointer; white-space: nowrap;
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.sort-opt svg { width: 13px; height: 13px; }
+.sort-opt:hover { color: var(--fg); background: var(--bg-hover); }
+.sort-opt.active { color: var(--link); background: rgba(88,101,242,0.12); font-weight: 500; }
+.sort-opt:focus-visible { outline: 2px solid var(--ring); outline-offset: -2px; }
+
+/* Section head extras: an entity icon and a title that links to that entity's page. */
+.section-head .sh-icon { color: var(--fg-faint); display: inline-flex; align-self: center; flex: none; }
+.section-head .sh-icon svg { width: 16px; height: 16px; }
+.section-head .sh-link { color: inherit; text-decoration: none; }
+.section-head .sh-link:hover { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Owner chip in a record head (aggregate pages only). */
+.record-head .chip-owner {
+  color: var(--fg-muted); font-size: var(--fs-micro); text-decoration: none; flex: none;
+}
+.record-head .chip-owner svg { width: 11px; height: 11px; color: var(--fg-faint); }
+.record-head .chip-owner:hover { color: var(--fg); border-color: var(--border-strong); background: var(--bg-hover); }
+
+@media (max-width: 700px) {
+  .sort-seg { width: 100%; justify-content: space-between; }
+}

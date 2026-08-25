@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using DiSkyAtlas.Models;
 
 namespace DiSkyAtlas.Services;
@@ -239,6 +239,27 @@ public sealed class ManifestService
             .ToList();
     }
 
+    /// <summary>Every entity depth-first in sidebar order: each root (curated first), then its subtree.</summary>
+    public IEnumerable<EntityInfo> EntitiesInTreeOrder() => _roots.SelectMany(Descend);
+
+    private IEnumerable<EntityInfo> Descend(EntityInfo entity)
+    {
+        yield return entity;
+        foreach (var child in Children(entity.Id))
+            foreach (var descendant in Descend(child))
+                yield return descendant;
+    }
+
+    /// <summary>
+    /// Every entity that registers a syntax of this kind, in sidebar order, carrying only those
+    /// syntaxes. Backs the cross-entity kind pages (/effects), where the owner is the grouping.
+    /// </summary>
+    public IReadOnlyList<EntityGroup> EntityGroupsFor(SyntaxKind kind) =>
+        EntitiesInTreeOrder()
+            .Select(e => new EntityGroup(e, e.Syntaxes.Where(s => s.Kind == kind).ToList()))
+            .Where(g => g.Items.Count > 0)
+            .ToList();
+
     /// <summary>Jump-nav entries for a kind-grouped page (entity / core), one per group, kind-tinted.</summary>
     public static IReadOnlyList<SectionRef> KindSections(IEnumerable<KindGroup> groups) =>
         groups.Select(g => new SectionRef(KindAnchor(g.Kind), g.Label, g.Items.Count, KindSlug(g.Kind))).ToList();
@@ -458,6 +479,9 @@ public sealed class ManifestService
         return tail.Count > 0 ? string.Concat(tail) : fallback;
     }
 }
+
+/// <summary>An entity section on a cross-entity kind page (e.g. Member with its effects).</summary>
+public sealed record EntityGroup(EntityInfo Entity, IReadOnlyList<SyntaxInfo> Items);
 
 /// <summary>A kind section on an entity page (e.g. "Properties" with its syntaxes).</summary>
 public sealed record KindGroup(SyntaxKind Kind, string Label, IReadOnlyList<SyntaxInfo> Items);
