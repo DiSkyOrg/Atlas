@@ -41,11 +41,12 @@ public sealed class AtlasRefResolver(ManifestService manifest)
 
         if (string.IsNullOrEmpty(anchor))
         {
-            // No anchor → an entity page reference ("guild").
+            // No anchor → an entity page reference ("guild"), or a bare globally
+            // unique syntax id ("effect-login-bot") as a last resort.
             var entity = manifest.GetEntity(location);
-            return entity is null
-                ? new AtlasRef(AtlasRefKind.Entity, raw, Href: null)
-                : new AtlasRef(AtlasRefKind.Entity, raw, $"/{entity.Id}", EntityId: entity.Id);
+            if (entity is not null)
+                return new AtlasRef(AtlasRefKind.Entity, raw, $"/{entity.Id}", EntityId: entity.Id);
+            return ResolveByRawId(raw, location) ?? new AtlasRef(AtlasRefKind.Entity, raw, Href: null);
         }
 
         // events#anchor

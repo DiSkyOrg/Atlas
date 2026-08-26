@@ -3,7 +3,7 @@
    the Ctrl/⌘+K shortcut (IKeyboardShortcutService); the ranking stays ours, so
    Blueprint-side filtering is disabled and only pre-scored rows are rendered. *@
 @inject ManifestService Manifest
-@inject DiSkyAtlas.Services.Docs.DocsService Docs
+@inject SearchService Search
 @inject NavigationManager Nav
 @inject IKeyboardShortcutService Shortcuts
 @implements IDisposable
@@ -112,18 +112,8 @@
     private void Choose(SearchItem item)
     {
         _open = false;
-        var url = item switch
-        {
-            { Type: "doc" } => $"/docs/{item.EntityId}",
-            { Type: "event" } => $"/events#{item.Anchor}",
-            { Type: "syntax", EntityId: "core" } => $"/core/{CorePlural(item.Kind)}#{item.Anchor}",
-            { Type: "syntax" } => $"/{item.EntityId}#{item.Anchor}",
-            _ => $"/{item.EntityId}"
-        };
-        Nav.NavigateTo(url);
+        Nav.NavigateTo(SearchService.SiteUrl(item));
     }
-
-    private static string CorePlural(string kindSlug) => kindSlug == "property" ? "properties" : kindSlug + "s";
 
     private void Recompute()
     {
@@ -138,13 +128,7 @@
         }
         else
         {
-            var scored = Manifest.SearchIndex.Concat(Docs.SearchIndex)
-                .Select(r => (r, s: Score(query, r)))
-                .Where(x => x.s >= 0)
-                .OrderByDescending(x => x.s)
-                .Take(50)
-                .Select(x => x.r)
-                .ToList();
+            var scored = Search.Search(query, 50).Select(h => h.Item).ToList();
 
             _entities = scored.Where(r => r.Type == "entity").ToList();
             _docs = scored.Where(r => r.Type == "doc").ToList();
@@ -153,32 +137,6 @@
         }
 
         _flat = [.. _entities, .. _docs, .. _events, .. _syntaxes];
-    }
-
-    // Fuzzy score: substring match wins; otherwise subsequence match. Mirrors the design kit.
-    private static int Score(string query, SearchItem item)
-    {
-        var s = Fuzzy(query, item.Name);
-        if (s >= 0) return s;
-        var h = Fuzzy(query, item.Haystack);
-        return h < 0 ? -1 : h / 2;
-    }
-
-    private static int Fuzzy(string query, string text)
-    {
-        query = query.ToLowerInvariant();
-        text = text.ToLowerInvariant();
-        if (query.Length == 0) return 0;
-
-        var idx = text.IndexOf(query, StringComparison.Ordinal);
-        if (idx >= 0) return 100 - Math.Min(idx, 99);
-
-        int qi = 0, score = 0;
-        for (var i = 0; i < text.Length && qi < query.Length; i++)
-        {
-            if (text[i] == query[qi]) { score++; qi++; }
-        }
-        return qi == query.Length ? score : -1;
     }
 
     public void Dispose() => _hotkey?.Dispose();

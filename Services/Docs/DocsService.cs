@@ -78,6 +78,9 @@ public sealed class DocsService
 
     public IReadOnlyList<DocLintWarning> LintWarnings => Current.Warnings;
 
+    /// <summary>UTC stamp of the current snapshot (newest .md write time); cache validator for the API.</summary>
+    public DateTime ContentStampUtc => Current.StampUtc;
+
     /// <summary>Resolves an atlas/doc reference (used by components that receive a raw ref).</summary>
     public AtlasRef Resolve(string raw)
     {

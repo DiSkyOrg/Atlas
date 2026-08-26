@@ -1,11 +1,14 @@
 ﻿using System.Globalization;
 using System.Text;
+using System.Threading.RateLimiting;
 using BlazorBlueprint.Components;
 using DiSkyAtlas.Components;
 using DiSkyAtlas.Components.Docs;
+using DiSkyAtlas.Endpoints;
 using DiSkyAtlas.Services;
 using DiSkyAtlas.Services.Docs;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
 
 // The UI is English-only and Blazor Blueprint formats floating-element positions with the
 // thread culture (a French host yields "left: 1158,09px", which the browser ignores), so
@@ -56,10 +59,35 @@ builder.Services.AddSingleton(_ => new DocComponentRegistry()
 // The hand-written documentation pages (parses Docs/**/*.md once; hot-reloads in Development).
 builder.Services.AddSingleton<DocsService>();
 
+// Fuzzy ranking shared by the ⌘K palette and the agent API.
+builder.Services.AddSingleton<SearchService>();
+
+// The agent API (/api/v1) is the only rate-limited surface: fixed window per client IP
+// (UseForwardedHeaders runs first, so RemoteIpAddress is the real client behind nginx).
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = (context, _) =>
+    {
+        context.HttpContext.Response.Headers.RetryAfter = "60";
+        return ValueTask.CompletedTask;
+    };
+    options.AddPolicy("api", context => RateLimitPartition.GetFixedWindowLimiter(
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 60,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+});
+
 var app = builder.Build();
 
 // Must run before anything that inspects the request scheme (HSTS, redirects).
 app.UseForwardedHeaders();
+
+app.UseRateLimiter();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -116,6 +144,9 @@ app.MapGet("/sitemap.xml", (ManifestService manifest, DocsService docs, HttpCont
     sb.Append("</urlset>\n");
     return Results.Text(sb.ToString(), "application/xml", Encoding.UTF8);
 });
+
+// Agents: the read-only markdown API (/api/v1) + /llms.txt.
+app.MapAtlasApi();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
