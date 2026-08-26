@@ -6,9 +6,11 @@ using DiSkyAtlas.Components;
 using DiSkyAtlas.Components.Docs;
 using DiSkyAtlas.Endpoints;
 using DiSkyAtlas.Services;
+using DiSkyAtlas.Services.Ai;
 using DiSkyAtlas.Services.Docs;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
 
 // The UI is English-only and Blazor Blueprint formats floating-element positions with the
 // thread culture (a French host yields "left: 1158,09px", which the browser ignores), so
@@ -62,6 +64,23 @@ builder.Services.AddSingleton<DocsService>();
 // Fuzzy ranking shared by the ⌘K palette and the agent API.
 builder.Services.AddSingleton<SearchService>();
 
+// The AI assistant (/api/v1/ask): OpenRouter-backed tool loop over the same in-memory data.
+// Everything in the "Ai" section is hot-reloadable; the API key comes from OPENROUTER_API_KEY.
+builder.Services.Configure<AiOptions>(builder.Configuration.GetSection(AiOptions.Section));
+builder.Services.AddHttpClient(AskService.HttpClientName, client =>
+{
+    client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("OPENROUTER_BASE_URL")
+                                 ?? "https://openrouter.ai/api/v1/");
+    client.Timeout = TimeSpan.FromSeconds(90);
+    // OpenRouter attribution headers (app ranking / dashboards).
+    client.DefaultRequestHeaders.Add("HTTP-Referer", "https://atlas.disky.me");
+    client.DefaultRequestHeaders.Add("X-Title", "DiSky Atlas");
+});
+builder.Services.AddSingleton<AiBudget>();
+builder.Services.AddSingleton<AiChatLog>();
+builder.Services.AddSingleton<AiIpQuota>();
+builder.Services.AddSingleton<AskService>();
+
 // The agent API (/api/v1) is the only rate-limited surface: fixed window per client IP
 // (UseForwardedHeaders runs first, so RemoteIpAddress is the real client behind nginx).
 builder.Services.AddRateLimiter(options =>
@@ -80,6 +99,21 @@ builder.Services.AddRateLimiter(options =>
             Window = TimeSpan.FromMinutes(1),
             QueueLimit = 0
         }));
+    // The paid endpoint gets a much stricter per-minute layer (a per-IP daily quota and a
+    // concurrency guard are enforced inside the endpoint itself).
+    options.AddPolicy("ask", context =>
+    {
+        var ai = context.RequestServices.GetRequiredService<IOptionsMonitor<AiOptions>>().CurrentValue;
+        return RateLimitPartition.GetSlidingWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = Math.Max(1, ai.PerIpPerMinute),
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 4,
+                QueueLimit = 0
+            });
+    });
 });
 
 var app = builder.Build();

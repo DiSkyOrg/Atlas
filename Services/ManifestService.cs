@@ -194,6 +194,21 @@ public sealed class ManifestService
     public SyntaxInfo? FindSyntax(string entityId, string syntaxId) =>
         GetEntity(entityId)?.Syntaxes.FirstOrDefault(s => s.Id == syntaxId);
 
+    /// <summary>
+    /// Every syntax in the manifest with its owner id injected ("core"/"events" for the
+    /// non-entity lists) — <see cref="SyntaxInfo.EntityId"/> is null inside entities.
+    /// </summary>
+    public IEnumerable<(string OwnerId, SyntaxInfo Syntax)> AllSyntaxes()
+    {
+        foreach (var entity in Manifest.Entities)
+            foreach (var s in entity.Syntaxes)
+                yield return (entity.Id, s);
+        foreach (var s in Manifest.Core)
+            yield return ("core", s);
+        foreach (var s in Manifest.Events)
+            yield return ("events", s);
+    }
+
     public IReadOnlyList<SyntaxInfo> Events => Manifest.Events;
 
     /// <summary>A coarse category for grouping events: the first word of the display name.</summary>

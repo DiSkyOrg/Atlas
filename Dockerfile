@@ -1,7 +1,8 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 # Data Protection keys live here (mounted as a volume in compose.yaml); create it owned by the
 # non-root app user so a fresh named volume inherits writable permissions.
-RUN mkdir -p /home/app/.aspnet/DataProtection-Keys && chown -R $APP_UID:$APP_UID /home/app/.aspnet
+RUN mkdir -p /home/app/.aspnet/DataProtection-Keys && chown -R $APP_UID:$APP_UID /home/app/.aspnet \
+    && mkdir -p /app/data && chown $APP_UID:$APP_UID /app/data
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080

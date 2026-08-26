@@ -2,7 +2,9 @@ using System.Security.Cryptography;
 using System.Text;
 using DiSkyAtlas.Models;
 using DiSkyAtlas.Services;
+using DiSkyAtlas.Services.Ai;
 using DiSkyAtlas.Services.Docs;
+using Microsoft.Extensions.Options;
 
 namespace DiSkyAtlas.Endpoints;
 
@@ -82,7 +84,7 @@ public static class AtlasApiEndpoints
             limit = Math.Clamp(limit, 1, 200);
             var filter = SyntaxFilter.Parse(q);
 
-            var pool = AllSyntaxes(manifest);
+            var pool = manifest.AllSyntaxes();
             if (!string.IsNullOrWhiteSpace(entity))
                 pool = pool.Where(x => x.OwnerId.Equals(entity.Trim(), StringComparison.OrdinalIgnoreCase));
 
@@ -371,6 +373,60 @@ public static class AtlasApiEndpoints
             return Markdown(sb.ToString());
         });
 
+        // ---- AI assistant --------------------------------------------------
+        // Mapped outside the group: a paid POST must not inherit the shared
+        // ETag/Cache-Control/304 filter, and it has its own stricter policy.
+        app.MapPost("/api/v1/ask", async (AskRequest? body, AskService ask, AiBudget budget, AiChatLog chatLog,
+            AiIpQuota ipQuota, IOptionsMonitor<AiOptions> aiOptions, ManifestService manifest,
+            HttpContext http, CancellationToken ct) =>
+        {
+            var opts = aiOptions.CurrentValue;
+            if (!opts.Enabled || !ask.HasApiKey)
+                return NotFoundMd(manifest, "The AI assistant is currently disabled. The rest of the API remains available.", 503);
+            if (!budget.CanSpend(opts.WeeklyBudgetUsd))
+                return NotFoundMd(manifest, "The AI assistant reached its weekly budget; try again next week. The rest of the API remains available.", 503);
+
+            var question = body?.Question?.Trim();
+            if (string.IsNullOrEmpty(question))
+                return NotFoundMd(manifest, "Missing question. POST JSON: {\"question\": \"...\"}.", 400);
+            if (question.Length > opts.MaxQuestionChars)
+                return NotFoundMd(manifest, $"Question too long (max {opts.MaxQuestionChars} characters).", 400);
+
+            var ip = http.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            if (!ipQuota.TryTake(ip, opts.PerIpPerDay))
+            {
+                http.Response.Headers.RetryAfter = "86400";
+                return NotFoundMd(manifest, $"Daily question quota reached ({opts.PerIpPerDay}/day per IP).", 429);
+            }
+            if (!ask.TryEnter())
+            {
+                http.Response.Headers.RetryAfter = "10";
+                return NotFoundMd(manifest, "The assistant is busy; retry in a few seconds.", 429);
+            }
+
+            try
+            {
+                var result = await ask.AskAsync(question, ct);
+                chatLog.Write(new AiChatRecord(
+                    DateTime.UtcNow, AiChatLog.HashIp(ip), result.Stats.Model, question, result.Answer,
+                    result.Stats.Rounds, result.Stats.ToolCalls,
+                    result.Stats.PromptTokens, result.Stats.CompletionTokens,
+                    result.Stats.PromptTokens + result.Stats.CompletionTokens,
+                    result.Stats.CostUsd, result.Stats.DurationMs, result.Outcome));
+
+                if (result.Outcome != "ok" || result.Answer is null)
+                    return NotFoundMd(manifest, "The assistant could not answer; try again later.", 502);
+
+                var sb = ApiMarkdown.Envelope(manifest);
+                sb.Append(result.Answer.TrimEnd()).Append('\n');
+                return Markdown(sb.ToString());
+            }
+            finally
+            {
+                ask.Exit();
+            }
+        }).RequireRateLimiting("ask");
+
         // ---- /llms.txt (outside the group: crawler-facing, not rate limited,
         //      same spirit as /sitemap.xml) --------------------------------
         app.MapGet("/llms.txt", (ManifestService manifest, DocsService docs, HttpContext context) =>
@@ -424,18 +480,6 @@ public static class AtlasApiEndpoints
             Data = data
         });
 
-    /// <summary>Every syntax with its owner injected (SyntaxInfo.EntityId is null inside entities).</summary>
-    private static IEnumerable<(string OwnerId, SyntaxInfo Syntax)> AllSyntaxes(ManifestService manifest)
-    {
-        foreach (var entity in manifest.Manifest.Entities)
-            foreach (var s in entity.Syntaxes)
-                yield return (entity.Id, s);
-        foreach (var s in manifest.Manifest.Core)
-            yield return ("core", s);
-        foreach (var s in manifest.Manifest.Events)
-            yield return ("events", s);
-    }
-
     /// <summary>Flat JSON projection of a syntax carrying an explicit owner id.</summary>
     private static object SyntaxJson(string ownerId, SyntaxInfo s) => new
     {
@@ -478,6 +522,9 @@ public static class AtlasApiEndpoints
         foreach (var g in pages)
             sb.Append("- ").Append(g.Page.Title).Append(" — /api/v1/docs/").Append(g.Page.Slug).Append('\n');
     }
+
+    /// <summary>POST body of /api/v1/ask.</summary>
+    public sealed record AskRequest(string? Question);
 
     /// <summary>One ETag for the whole API: atlas.json build + docs snapshot stamp.</summary>
     private static string ComputeETag(ManifestService manifest, DocsService docs)

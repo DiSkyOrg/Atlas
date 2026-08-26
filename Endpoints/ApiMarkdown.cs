@@ -257,7 +257,8 @@ internal static class ApiMarkdown
         sb.Append("| `GET /api/v1/types` | Type catalog; enum types list their accepted literals. [json] |\n");
         sb.Append("| `GET /api/v1/types/{id}` | One type: literals + every syntax returning it. [json] |\n");
         sb.Append("| `GET /api/v1/docs` | Documentation page index. |\n");
-        sb.Append("| `GET /api/v1/docs/{slug}` | One documentation page as raw markdown. |\n\n");
+        sb.Append("| `GET /api/v1/docs/{slug}` | One documentation page as raw markdown. |\n");
+        sb.Append("| `POST /api/v1/ask` | Ask the AI assistant a DiSky question — body `{\"question\": \"...\"}`. Strictly rate-limited; may be disabled. |\n\n");
 
         sb.Append("## Reference formats (`/api/v1/resolve?ref=`)\n\n");
         sb.Append("Refs mirror the site's URLs. URL-encode `#` as `%23` in the query string.\n\n");

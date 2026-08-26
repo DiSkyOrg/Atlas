@@ -11,9 +11,14 @@ services:
       - "5119:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      # AI assistant (/api/v1/ask): key for openrouter.ai; leave empty to keep it disabled.
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
     volumes:
       # Persist Data Protection keys (antiforgery / Blazor circuits) across container recreations.
       - dataprotection-keys:/home/app/.aspnet/DataProtection-Keys
+      # AI assistant state: weekly budget counter + JSONL chat logs.
+      - ai-data:/app/data
 
 volumes:
   dataprotection-keys:
+  ai-data:
