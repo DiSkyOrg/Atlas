@@ -36,7 +36,7 @@ public sealed class AskGuards(
     {
         var opts = options.CurrentValue;
 
-        if (!opts.Enabled || !ask.HasApiKey)
+        if (!ask.Available)
             return AskRefusal.Disabled;
         if (!budget.CanSpend(opts.WeeklyBudgetUsd))
             return AskRefusal.Budget;

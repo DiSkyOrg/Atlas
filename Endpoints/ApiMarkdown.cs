@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using DiSkyAtlas.Models;
 using DiSkyAtlas.Services;
 using DiSkyAtlas.Services.Docs;
@@ -228,7 +228,7 @@ internal static class ApiMarkdown
     // ---- Discovery ---------------------------------------------------------
 
     /// <summary>The self-describing instructions served at /api/v1 — this IS the API documentation.</summary>
-    public static string Discovery(ManifestService manifest, DocsService docs)
+    public static string Discovery(ManifestService manifest, DocsService docs, bool askAvailable)
     {
         var m = manifest.Manifest;
         var sb = Envelope(manifest);
@@ -258,7 +258,9 @@ internal static class ApiMarkdown
         sb.Append("| `GET /api/v1/types/{id}` | One type: literals + every syntax returning it. [json] |\n");
         sb.Append("| `GET /api/v1/docs` | Documentation page index. |\n");
         sb.Append("| `GET /api/v1/docs/{slug}` | One documentation page as raw markdown. |\n");
-        sb.Append("| `POST /api/v1/ask` | Ask the AI assistant a DiSky question — body `{\"question\": \"...\"}`. Strictly rate-limited; may be disabled. |\n\n");
+        if (askAvailable)
+            sb.Append("| `POST /api/v1/ask` | Ask the AI assistant a DiSky question — body `{\"question\": \"...\"}`. Strictly rate-limited. |\n");
+        sb.Append('\n');
 
         sb.Append("## Reference formats (`/api/v1/resolve?ref=`)\n\n");
         sb.Append("Refs mirror the site's URLs. URL-encode `#` as `%23` in the query string.\n\n");

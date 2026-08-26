@@ -163,10 +163,11 @@ app.MapStaticAssets();
 
 // Crawlers: sitemap built from the same in-memory catalogues the pages use.
 // robots.txt (wwwroot) points here.
-app.MapGet("/sitemap.xml", (ManifestService manifest, DocsService docs, HttpContext context) =>
+app.MapGet("/sitemap.xml", (ManifestService manifest, DocsService docs, AskService ask, HttpContext context) =>
 {
     var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
-    var urls = new List<string> { "/", "/events", "/effects", "/docs", "/ask" };
+    var urls = new List<string> { "/", "/events", "/effects", "/docs" };
+    if (ask.Available) urls.Add("/ask");
     urls.AddRange(manifest.Manifest.Entities.Select(e => "/" + e.Id));
     urls.AddRange(manifest.CoreKinds.Select(k =>
         "/core/" + (ManifestService.KindSlug(k) is "property" ? "properties" : ManifestService.KindSlug(k) + "s")));

@@ -1,4 +1,4 @@
-@* Ask AI: question box → live tool timeline → markdown answer. Calls AskService directly
+﻿@* Ask AI: question box → live tool timeline → markdown answer. Calls AskService directly
    (in-process) so tool calls stream into the UI; protections stay identical to the HTTP
    endpoint via the shared AskGuards chain (the per-minute layer is re-applied here because
    SignalR traffic never crosses the HTTP rate-limiter middleware). *@
@@ -16,6 +16,20 @@
 @inject DocComponentRegistry Registry
 @inject IHttpContextAccessor HttpAccessor
 @implements IDisposable
+
+@* Kill-switch: with Ai:Enabled false the page has no reason to exist, so it behaves like
+   any unknown URL rather than showing a form that can only refuse. *@
+@if (!Assistant.Available)
+{
+    <PageTitle>Not found | DiSky Atlas</PageTitle>
+    <div class="page">
+        <EmptyState Icon="compass" Title="Page not found" HeadingLevel="1">
+            <p>The page you're looking for doesn't exist. Open search with <kbd>⌘</kbd><kbd>K</kbd> or browse the entities in the sidebar.</p>
+            <BbButton Variant="ButtonVariant.Secondary" Href="/">Back to overview</BbButton>
+        </EmptyState>
+    </div>
+    return;
+}
 
 <PageTitle>Ask AI | DiSky Atlas</PageTitle>
 
@@ -40,7 +54,7 @@
         database and the documentation, then shows you exactly what it read.
     </p>
 
-    @if (!Available)
+    @if (!Assistant.Available)
     {
         <div class="ask-alert">
             <LucideIcon aria-hidden="true" Name="triangle-alert" />
@@ -210,8 +224,6 @@
         public bool Done { get; set; }
     }
 
-    private bool Available => Options.CurrentValue.Enabled && Assistant.HasApiKey;
-
     private int LookupCount => _steps.Count(s => s.Icon != "brain");
 
     private int QuestionsLeft =>
@@ -228,6 +240,9 @@
 
     protected override void OnInitialized()
     {
+        if (!Assistant.Available && HttpAccessor.HttpContext is { Response.HasStarted: false } context)
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+
         // Non-null during the initial (prerender) request; SignalR reconnects fall back to
         // the per-circuit key so quota buckets never collapse into a shared "unknown".
         _ip ??= HttpAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();

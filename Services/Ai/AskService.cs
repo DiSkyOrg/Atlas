@@ -42,7 +42,9 @@ public sealed class AskService(
         - Create bots imperatively: the `a new discord bot` expression followed by the `login` effect,
           and pair every `login` with a `shutdown`. Never use the legacy `define bot` structure.
         - If the question is not about DiSky or Skript, politely decline in one sentence without calling tools.
-        - If the tools don't cover the question, say so instead of guessing.
+        - If the tools don't cover the question, say so instead of guessing. DiSky's syntax set is
+          partial: when no tool returns a syntax for part of a question, state that this version
+          does not provide it - never invent a pattern, a property name or a ref.
 
         Workflow: search_atlas first (or filter_syntaxes for kind/entity filtering), then resolve_ref
         for the full pattern and examples of each syntax you use; read_doc for guide pages. When the
@@ -50,9 +52,23 @@ public sealed class AskService(
         repeating that same search.
         """;
 
+    private const string ForceAnswerPrompt =
+        """
+        Stop calling tools and answer now, using only what the tools already returned.
+        DiSky's syntax set is limited: if it has no syntax for part of the question, say plainly
+        that this version does not provide it rather than guessing a pattern.
+        """;
+
     private int _inFlight;
 
     public bool HasApiKey => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ApiKeyVariable));
+
+    /// <summary>
+    /// The assistant kill-switch, hot-reloadable through <c>Ai:Enabled</c>. False hides every
+    /// surface it has: the /ask page and its sidebar entry, the sitemap entry and the
+    /// /api/v1 endpoint listing; the endpoint itself then refuses with 503 via AskGuards.
+    /// </summary>
+    public bool Available => options.CurrentValue.Enabled && HasApiKey;
 
     /// <summary>Concurrency guard (hot-reloadable limit); every successful TryEnter needs an Exit.</summary>
     public bool TryEnter()
@@ -81,6 +97,14 @@ public sealed class AskService(
         var outcome = "ok";
         var rounds = 0;
 
+        void Account(JsonObject response)
+        {
+            if (response["usage"] is not JsonObject usage) return;
+            promptTokens += ReadInt(usage, "prompt_tokens");
+            completionTokens += ReadInt(usage, "completion_tokens");
+            cost += ReadDouble(usage, "cost");
+        }
+
         try
         {
             var messages = new JsonArray
@@ -93,15 +117,10 @@ public sealed class AskService(
             {
                 onEvent?.Invoke(new AskEvent(AskEventKind.Thinking, rounds, null, null));
 
-                // Last round: tool_choice "none" forces a final answer from what was gathered.
+                // Last round asks for tool_choice "none" - a hint some providers honour and
+                // Gemini does not, hence the salvage call after the loop.
                 var response = await CallOpenRouter(messages, opts, allowTools: rounds < opts.MaxToolRounds, ct);
-
-                if (response["usage"] is JsonObject usage)
-                {
-                    promptTokens += ReadInt(usage, "prompt_tokens");
-                    completionTokens += ReadInt(usage, "completion_tokens");
-                    cost += ReadDouble(usage, "cost");
-                }
+                Account(response);
 
                 if (response["choices"]?[0]?["message"] is not JsonObject message)
                     throw new InvalidOperationException("OpenRouter response carries no message.");
@@ -140,6 +159,17 @@ public sealed class AskService(
 
                 answer = message["content"]?.GetValue<string>();
                 break;
+            }
+
+            // A model that keeps calling tools through the last round leaves the loop with no
+            // content at all. Rather than burn the whole conversation on a 502, ask once more
+            // with an explicit stop instruction - the history already holds everything it read.
+            if (string.IsNullOrWhiteSpace(answer))
+            {
+                messages.Add(new JsonObject { ["role"] = "user", ["content"] = ForceAnswerPrompt });
+                var salvage = await CallOpenRouter(messages, opts, allowTools: false, ct);
+                Account(salvage);
+                answer = salvage["choices"]?[0]?["message"]?["content"]?.GetValue<string>();
             }
 
             if (string.IsNullOrWhiteSpace(answer))
@@ -268,7 +298,9 @@ public sealed class AskService(
     private string SearchAtlas(string query, int limit)
     {
         var hits = search.Search(query, limit);
-        if (hits.Count == 0) return $"No results for \"{query}\". Try broader terms or filter_syntaxes.";
+        if (hits.Count == 0)
+            return $"No results for \"{query}\". Try ONE broader keyword, or filter_syntaxes. "
+                 + "If a second search also comes back empty, DiSky has no syntax for this - say so.";
 
         var sb = new StringBuilder();
         foreach (var hit in hits)
@@ -307,7 +339,10 @@ public sealed class AskService(
             pool = pool.Where(x => x.OwnerId.Equals(entity, StringComparison.OrdinalIgnoreCase));
 
         var matches = pool.Where(x => filter.Matches(x.Syntax)).ToList();
-        if (matches.Count == 0) return "No matching syntaxes; loosen the query or check the entity id.";
+        if (matches.Count == 0)
+            return "No matching syntaxes; loosen the query or check the entity id. "
+                 + "If a second query also comes back empty, DiSky has no syntax for this - say so "
+                 + "in your answer instead of searching again.";
 
         var sb = new StringBuilder();
         sb.Append(matches.Count).Append(" match(es)");
@@ -325,7 +360,9 @@ public sealed class AskService(
 
         var reference = docs.Resolve(raw);
         if (!reference.Resolved)
-            return $"Unresolved reference \"{raw}\". Formats: entity id, entity#anchor, core#anchor, events#anchor, or a bare syntax id; search_atlas returns valid refs.";
+            return $"Unresolved reference \"{raw}\" - it does not exist. Only ever cite refs returned "
+                 + "by search_atlas or filter_syntaxes; never construct one. Formats: entity id, "
+                 + "entity#anchor, core#anchor, events#anchor, or a bare syntax id.";
 
         var sb = new StringBuilder();
         switch (reference.Kind)

@@ -40,8 +40,8 @@ public static class AtlasApiEndpoints
         });
 
         // ---- Discovery ----------------------------------------------------
-        api.MapGet("", (ManifestService manifest, DocsService docs) =>
-            Markdown(ApiMarkdown.Discovery(manifest, docs)));
+        api.MapGet("", (ManifestService manifest, DocsService docs, AskService ask) =>
+            Markdown(ApiMarkdown.Discovery(manifest, docs, ask.Available)));
 
         // ---- Fuzzy search -------------------------------------------------
         api.MapGet("/search", (SearchService search, ManifestService manifest, HttpContext http,

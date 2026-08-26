@@ -6,7 +6,6 @@
 @inject DiSkyAtlas.Services.Docs.DocsService Docs
 @inject NavigationManager Nav
 @inject DiSkyAtlas.Services.Ai.AskService Ask
-@inject Microsoft.Extensions.Options.IOptionsMonitor<DiSkyAtlas.Services.Ai.AiOptions> AiOptions
 @implements IDisposable
 
 <nav class="sidebar @(Open ? "open" : "")" aria-label="Primary">
@@ -17,7 +16,7 @@
     </button>
 
     @* Only rendered when the assistant can actually answer (kill-switch + key). *@
-    @if (AiOptions.CurrentValue.Enabled && Ask.HasApiKey)
+    @if (Ask.Available)
     {
         <a class="side-ask @(string.Equals(_activeId, "ask", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
            href="/ask" @onclick="NavigatedAsync">

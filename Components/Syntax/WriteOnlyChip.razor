@@ -1,0 +1,16 @@
+@* "write-only" marker: the property accepts a change but reading it yields <none>. *@
+<BbTooltip Placement="PopoverPlacement.Top">
+    <BbTooltipTrigger AsChild="false" Focusable="false" Class="tipwrap">
+        <span class="chip chip-writeonly"><LucideIcon Name="eye-off" />write-only</span>
+    </BbTooltipTrigger>
+    <BbTooltipContent>@Description</BbTooltipContent>
+</BbTooltip>
+
+@code {
+    [Parameter] public string? TypeName { get; set; }
+
+    private string Description =>
+        string.IsNullOrEmpty(TypeName)
+            ? "Write-only: this property can be changed, but reading it gives <none>."
+            : $"Write-only: this property can be changed, but reading it gives <none>. {TypeName} is what a change accepts, not what a read returns.";
+}
