@@ -21,6 +21,12 @@ public sealed class AiOptions
     /// <summary>Maximum tool-call rounds per question before the model must answer.</summary>
     public int MaxToolRounds { get; set; } = 5;
 
+    /// <summary>
+    /// How many search_atlas hits to run and attach to the question before the first round
+    /// (pre-retrieval). 0 disables it and makes the model do that search itself.
+    /// </summary>
+    public int SeedSearchLimit { get; set; } = 8;
+
     /// <summary>max_tokens forwarded to OpenRouter for each completion.</summary>
     public int MaxOutputTokens { get; set; } = 1024;
 

@@ -416,6 +416,10 @@ public sealed class ManifestService
 
     // ---- Search index ------------------------------------------------------
 
+    /// <summary>Lowercased match-only text for one index row; <see cref="SearchItem.Haystack"/> is never displayed.</summary>
+    internal static string Haystack(params string?[] parts) =>
+        string.Join(' ', parts.Where(p => !string.IsNullOrEmpty(p))).ToLowerInvariant();
+
     private List<SearchItem> BuildSearchIndex()
     {
         var index = new List<SearchItem>();
@@ -432,7 +436,7 @@ public sealed class ManifestService
                 Name: display,
                 Kind: "type",
                 Parent: parentLabel,
-                Haystack: $"{display} {entity.CodeName} {entity.Id}"));
+                Haystack: Haystack(display, entity.CodeName, entity.Id, entity.Description)));
         }
 
         foreach (var entity in _byId.Values)
@@ -448,7 +452,8 @@ public sealed class ManifestService
                     Name: syntax.Name,
                     Kind: KindSlug(syntax.Kind),
                     Parent: display,
-                    Haystack: $"{syntax.Name} {string.Join(' ', syntax.Patterns)}"));
+                    Haystack: Haystack(syntax.Name, string.Join(' ', syntax.Patterns), display,
+                        KindSlug(syntax.Kind), string.Join(' ', syntax.Description))));
             }
         }
 
@@ -462,7 +467,8 @@ public sealed class ManifestService
                 Name: ev.Name,
                 Kind: "event",
                 Parent: "Events",
-                Haystack: $"{ev.Name} {string.Join(' ', ev.Patterns)}"));
+                Haystack: Haystack(ev.Name, string.Join(' ', ev.Patterns), "event",
+                    string.Join(' ', ev.Description))));
         }
 
         return index;
@@ -519,4 +525,5 @@ public sealed record SearchItem(
     string Name,
     string Kind,
     string Parent,
+    /// <summary>Lowercased match-only text (name + patterns + description + owner); never displayed.</summary>
     string Haystack);

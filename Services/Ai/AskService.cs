@@ -44,8 +44,10 @@ public sealed class AskService(
         - If the question is not about DiSky or Skript, politely decline in one sentence without calling tools.
         - If the tools don't cover the question, say so instead of guessing.
 
-        Workflow: start with search_atlas (or filter_syntaxes for kind/entity filtering), then
-        resolve_ref for the full pattern and example of each syntax you use; read_doc for guide pages.
+        Workflow: search_atlas first (or filter_syntaxes for kind/entity filtering), then resolve_ref
+        for the full pattern and examples of each syntax you use; read_doc for guide pages. When the
+        question already carries automatic search_atlas results, go straight to resolve_ref instead of
+        repeating that same search.
         """;
 
     private int _inFlight;
@@ -79,14 +81,14 @@ public sealed class AskService(
         var outcome = "ok";
         var rounds = 0;
 
-        var messages = new JsonArray
-        {
-            new JsonObject { ["role"] = "system", ["content"] = SystemPrompt },
-            new JsonObject { ["role"] = "user", ["content"] = question }
-        };
-
         try
         {
+            var messages = new JsonArray
+            {
+                new JsonObject { ["role"] = "system", ["content"] = SystemPrompt },
+                new JsonObject { ["role"] = "user", ["content"] = SeedUserMessage(question, opts, toolCalls, onEvent) }
+            };
+
             for (rounds = 1; rounds <= opts.MaxToolRounds; rounds++)
             {
                 onEvent?.Invoke(new AskEvent(AskEventKind.Thinking, rounds, null, null));
@@ -260,8 +262,11 @@ public sealed class AskService(
     {
         var query = args["query"]?.GetValue<string>()?.Trim();
         if (string.IsNullOrEmpty(query)) return "Missing \"query\".";
-        var limit = Math.Clamp(ReadInt(args, "limit", 10), 1, 20);
+        return SearchAtlas(query, Math.Clamp(ReadInt(args, "limit", 10), 1, 20));
+    }
 
+    private string SearchAtlas(string query, int limit)
+    {
         var hits = search.Search(query, limit);
         if (hits.Count == 0) return $"No results for \"{query}\". Try broader terms or filter_syntaxes.";
 
@@ -269,6 +274,13 @@ public sealed class AskService(
         foreach (var hit in hits)
         {
             var item = hit.Item;
+            // Syntaxes and events render like filter_syntaxes - pattern and return type inline - so
+            // a simple question is answerable without a follow-up resolve_ref round.
+            if (LookupSyntax(item) is { } syntax)
+            {
+                ApiMarkdown.SyntaxCompact(sb, syntax, item.EntityId, withRef: true);
+                continue;
+            }
             sb.Append("- **").Append(item.Name).Append("** (").Append(item.Type)
               .Append('/').Append(item.Kind).Append(", ").Append(item.Parent).Append(')');
             sb.Append(item switch
@@ -348,6 +360,38 @@ public sealed class AskService(
             return $"Unknown doc page \"{slug}\". Available: {string.Join(", ", known)}.";
         }
         return File.ReadAllText(page.FilePath);
+    }
+
+    private SyntaxInfo? LookupSyntax(SearchItem item) => item.Type switch
+    {
+        "syntax" => manifest.FindSyntax(item.EntityId, item.SyntaxId ?? ""),
+        "event" => manifest.Events.FirstOrDefault(e => e.Id == item.SyntaxId),
+        _ => null
+    };
+
+    /// <summary>
+    /// Pre-retrieval: the search the model would spend its first round on is run here instead and
+    /// rides along with the question. The whole history is resent every round, so dropping a round
+    /// saves its tokens on all the later ones - and a weak model no longer has to phrase the query.
+    /// </summary>
+    private string SeedUserMessage(string question, AiOptions opts, List<AiToolCall> toolCalls, Action<AskEvent>? onEvent)
+    {
+        if (opts.SeedSearchLimit <= 0) return question;
+
+        var args = new JsonObject { ["query"] = question, ["limit"] = opts.SeedSearchLimit }.ToJsonString();
+        toolCalls.Add(new AiToolCall("search_atlas", args));
+        onEvent?.Invoke(new AskEvent(AskEventKind.Tool, 0, "search_atlas", args));
+        var results = SearchAtlas(question, opts.SeedSearchLimit);
+        onEvent?.Invoke(new AskEvent(AskEventKind.ToolDone, 0, "search_atlas", args));
+
+        return $"""
+                {question}
+
+                ---
+                Automatic `search_atlas` results for this question (already run for you; resolve_ref
+                anything you cite, and only search again with different terms):
+                {results}
+                """;
     }
 
     // ---- Helpers -------------------------------------------------------------

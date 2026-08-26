@@ -211,7 +211,7 @@ public sealed class DocsService
                 Name: p.Title,
                 Kind: "doc",
                 Parent: SectionTitle(snapshot.Sections, p.SectionId),
-                Haystack: p.SearchText))
+                Haystack: p.SearchText.ToLowerInvariant()))
             .ToList();
 
         BuildReverseIndexes(snapshot, mentionsByPage);
