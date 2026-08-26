@@ -80,6 +80,9 @@ builder.Services.AddSingleton<AiBudget>();
 builder.Services.AddSingleton<AiChatLog>();
 builder.Services.AddSingleton<AiIpQuota>();
 builder.Services.AddSingleton<AskService>();
+builder.Services.AddSingleton<AskGuards>();
+// The /ask page reads the client IP for its quota key (falls back to a per-circuit id).
+builder.Services.AddHttpContextAccessor();
 
 // The agent API (/api/v1) is the only rate-limited surface: fixed window per client IP
 // (UseForwardedHeaders runs first, so RemoteIpAddress is the real client behind nginx).
@@ -163,7 +166,7 @@ app.MapStaticAssets();
 app.MapGet("/sitemap.xml", (ManifestService manifest, DocsService docs, HttpContext context) =>
 {
     var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
-    var urls = new List<string> { "/", "/events", "/effects", "/docs" };
+    var urls = new List<string> { "/", "/events", "/effects", "/docs", "/ask" };
     urls.AddRange(manifest.Manifest.Entities.Select(e => "/" + e.Id));
     urls.AddRange(manifest.CoreKinds.Select(k =>
         "/core/" + (ManifestService.KindSlug(k) is "property" ? "properties" : ManifestService.KindSlug(k) + "s")));

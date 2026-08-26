@@ -1,0 +1,303 @@
+@* Ask AI: question box → live tool timeline → markdown answer. Calls AskService directly
+   (in-process) so tool calls stream into the UI; protections stay identical to the HTTP
+   endpoint via the shared AskGuards chain (the per-minute layer is re-applied here because
+   SignalR traffic never crosses the HTTP rate-limiter middleware). *@
+@page "/ask"
+@using DiSkyAtlas.Models
+@using DiSkyAtlas.Services.Ai
+@using DiSkyAtlas.Services.Docs
+@using Markdig
+@using Microsoft.Extensions.Options
+@inject AskService Assistant
+@inject AskGuards Guards
+@inject AiChatLog ChatLog
+@inject IOptionsMonitor<AiOptions> Options
+@inject DocComponentRegistry Registry
+@inject IHttpContextAccessor HttpAccessor
+@implements IDisposable
+
+<PageTitle>Ask AI | DiSky Atlas</PageTitle>
+
+<div class="page">
+    <BbBreadcrumb Class="crumb">
+        <BbBreadcrumbList AutoSeparator="true">
+            <SeparatorContent><span class="sep">/</span></SeparatorContent>
+            <ChildContent>
+                <BbBreadcrumbItem><BbBreadcrumbLink Href="/">Overview</BbBreadcrumbLink></BbBreadcrumbItem>
+                <BbBreadcrumbItem><BbBreadcrumbPage Class="cur">Ask AI</BbBreadcrumbPage></BbBreadcrumbItem>
+            </ChildContent>
+        </BbBreadcrumbList>
+    </BbBreadcrumb>
+
+    <div class="page-head">
+        <span class="head-icon"><LucideIcon aria-hidden="true" Name="sparkles" /></span>
+        <h1>Ask AI</h1>
+        <DotBadge Class="kind-event" Label="beta" />
+    </div>
+    <p class="page-lead">
+        Ask anything about DiSky v5 — the assistant looks the answer up in the live syntax
+        database and the documentation, then shows you exactly what it read.
+    </p>
+
+    @if (!Available)
+    {
+        <div class="ask-alert">
+            <LucideIcon aria-hidden="true" Name="triangle-alert" />
+            <span>The assistant is currently disabled. The syntax reference and search remain fully available.</span>
+        </div>
+    }
+    else
+    {
+        <div class="ask-form">
+            <textarea class="ask-input" @bind="_question" @bind:event="oninput"
+                      rows="3" maxlength="@Options.CurrentValue.MaxQuestionChars"
+                      placeholder="How do I ban a member with a reason?"
+                      disabled="@_busy"></textarea>
+            <div class="ask-form-foot">
+                <span class="ask-count">@(_question.Length)/@Options.CurrentValue.MaxQuestionChars</span>
+                <BbButton OnClick="SubmitAsync" Disabled="@(_busy || _question.Trim().Length == 0)">
+                    @if (_busy)
+                    {
+                        <span class="ask-btn-busy"><span class="ask-spinner"></span> Answering…</span>
+                    }
+                    else
+                    {
+                        <span class="ask-btn-idle"><LucideIcon aria-hidden="true" Name="sparkles" /> Ask</span>
+                    }
+                </BbButton>
+            </div>
+        </div>
+
+        @if (_error is not null)
+        {
+            <div class="ask-alert">
+                <LucideIcon aria-hidden="true" Name="triangle-alert" />
+                <span>@_error</span>
+            </div>
+        }
+
+        @if (_steps.Count == 0 && _answerPage is null && _error is null)
+        {
+            <div class="ask-suggestions">
+                @foreach (var suggestion in Suggestions)
+                {
+                    var s = suggestion;
+                    <button type="button" class="ask-suggestion" @onclick="() => UseSuggestionAsync(s)" disabled="@_busy">
+                        @s
+                    </button>
+                }
+            </div>
+        }
+
+        @if (_steps.Count > 0)
+        {
+            <div class="ask-steps @(_answerPage is not null ? "done" : "")">
+                @if (_answerPage is not null)
+                {
+                    <button type="button" class="ask-steps-toggle" @onclick="() => _stepsOpen = !_stepsOpen">
+                        <LucideIcon aria-hidden="true" Name="@(_stepsOpen ? "chevron-down" : "chevron-right")" />
+                        <span>@LookupCount lookup(s)</span>
+                    </button>
+                }
+                @if (_answerPage is null || _stepsOpen)
+                {
+                    <ul>
+                        @for (var i = 0; i < _steps.Count; i++)
+                        {
+                            var step = _steps[i];
+                            var running = _busy && i == _steps.Count - 1 && !step.Done;
+                            <li class="ask-step @(step.Done ? "done" : "") @(running ? "running" : "")">
+                                <span class="ask-step-icon">
+                                    @if (running)
+                                    {
+                                        <span class="ask-spinner"></span>
+                                    }
+                                    else
+                                    {
+                                        <LucideIcon aria-hidden="true" Name="@(step.Done ? "check" : step.Icon)" />
+                                    }
+                                </span>
+                                <span class="ask-step-label">@step.Label</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        }
+
+        @if (_answerPage is not null)
+        {
+            <div class="ask-answer">
+                <DiSkyAtlas.Components.Docs.DocMarkdown Page="_answerPage" />
+            </div>
+            @if (_stats is not null)
+            {
+                <div class="ask-foot">
+                    Answered in @((_stats.DurationMs / 1000.0).ToString("0.0")) s
+                    · @_stats.ToolCalls.Count lookup(s) · @_stats.Model
+                </div>
+            }
+        }
+    }
+</div>
+
+@code {
+    private static readonly string[] Suggestions =
+    [
+        "How do I ban a member with a reason?",
+        "How do I create and send an embed?",
+        "What can I do when a member joins a guild?"
+    ];
+
+    private string _question = "";
+    private bool _busy;
+    private bool _stepsOpen;
+    private string? _error;
+    private string? _ip;
+    private readonly string _circuitKey = $"circuit-{Guid.NewGuid():N}";
+    private readonly List<Step> _steps = [];
+    private DocPage? _answerPage;
+    private AskStats? _stats;
+    private CancellationTokenSource? _cts;
+    private MarkdownPipeline? _pipeline;
+
+    private sealed class Step
+    {
+        public required string Icon { get; init; }
+        public required string Label { get; init; }
+        public bool Done { get; set; }
+    }
+
+    private bool Available => Options.CurrentValue.Enabled && Assistant.HasApiKey;
+
+    private int LookupCount => _steps.Count(s => s.Icon != "brain");
+
+    protected override void OnInitialized() =>
+        // Non-null during the initial (prerender) request; SignalR reconnects fall back to
+        // the per-circuit key so quota buckets never collapse into a shared "unknown".
+        _ip ??= HttpAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+
+    private Task UseSuggestionAsync(string suggestion)
+    {
+        _question = suggestion;
+        return SubmitAsync();
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (_busy) return;
+        var question = _question.Trim();
+        _error = null;
+
+        var opts = Options.CurrentValue;
+        var refusal = Guards.TryBegin(question, _ip ?? _circuitKey, includeMinuteLayer: true);
+        if (refusal != AskRefusal.None)
+        {
+            _error = refusal switch
+            {
+                AskRefusal.Disabled => "The assistant is currently disabled.",
+                AskRefusal.Budget => "The assistant reached its weekly budget — try again next week.",
+                AskRefusal.MissingQuestion => "Type a question first.",
+                AskRefusal.TooLong => $"Question too long (max {opts.MaxQuestionChars} characters).",
+                AskRefusal.MinuteQuota => "Easy there — a few questions per minute at most. Retry shortly.",
+                AskRefusal.DailyQuota => $"Daily quota reached ({opts.PerIpPerDay} questions/day).",
+                _ => "The assistant is busy; retry in a few seconds."
+            };
+            return;
+        }
+
+        _busy = true;
+        _stepsOpen = false;
+        _steps.Clear();
+        _answerPage = null;
+        _stats = null;
+        _cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+
+        try
+        {
+            var result = await Assistant.AskAsync(question, _cts.Token,
+                e => _ = InvokeAsync(() => { ApplyEvent(e); StateHasChanged(); }));
+
+            ChatLog.Write(new AiChatRecord(
+                DateTime.UtcNow, _ip is not null ? AiChatLog.HashIp(_ip) : "circuit",
+                result.Stats.Model, question, result.Answer,
+                result.Stats.Rounds, result.Stats.ToolCalls,
+                result.Stats.PromptTokens, result.Stats.CompletionTokens,
+                result.Stats.PromptTokens + result.Stats.CompletionTokens,
+                result.Stats.CostUsd, result.Stats.DurationMs, result.Outcome));
+
+            if (result.Outcome == "ok" && result.Answer is not null)
+            {
+                _stats = result.Stats;
+                _answerPage = BuildAnswerPage(result.Answer);
+                foreach (var step in _steps) step.Done = true;
+            }
+            else
+            {
+                _error = "The assistant could not answer; try again later.";
+            }
+        }
+        finally
+        {
+            Assistant.Exit();
+            _cts.Dispose();
+            _cts = null;
+            _busy = false;
+        }
+    }
+
+    private void ApplyEvent(AskEvent e)
+    {
+        // A new event means the previous step finished (tool results return synchronously).
+        if (_steps.Count > 0) _steps[^1].Done = true;
+
+        if (e.Kind == AskEventKind.ToolDone) return;
+        if (e.Kind == AskEventKind.Thinking)
+        {
+            _steps.Add(new Step { Icon = "brain", Label = "Thinking…" });
+            return;
+        }
+        _steps.Add(ToolStep(e.Tool ?? "", e.Args ?? "{}"));
+    }
+
+    private static Step ToolStep(string tool, string argsJson)
+    {
+        string Arg(string key)
+        {
+            try
+            {
+                return System.Text.Json.Nodes.JsonNode.Parse(argsJson)?[key]?.GetValue<string>() ?? "";
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        return tool switch
+        {
+            "search_atlas" => new Step { Icon = "search", Label = $"Searching “{Arg("query")}”" },
+            "filter_syntaxes" => new Step { Icon = "filter", Label = $"Filtering syntaxes “{Arg("query")}”" },
+            "resolve_ref" => new Step { Icon = "book-open", Label = $"Reading {Arg("ref")}" },
+            "read_doc" => new Step { Icon = "file-text", Label = $"Reading doc {Arg("slug")}" },
+            _ => new Step { Icon = "wrench", Label = tool }
+        };
+    }
+
+    private DocPage BuildAnswerPage(string markdown)
+    {
+        // Same pipeline as the docs (DisableHtml: model output can never inject markup);
+        // ```skript fences get the highlighter + copy button for free.
+        _pipeline ??= DocPipeline.Build(Registry.DirectiveGrammar);
+        return new DocPage
+        {
+            Slug = "ask",
+            SectionId = "ask",
+            FilePath = "",
+            Title = "Answer",
+            Document = Markdown.Parse(markdown, _pipeline)
+        };
+    }
+
+    public void Dispose() => _cts?.Cancel();
+}

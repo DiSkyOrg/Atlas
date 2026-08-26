@@ -5,6 +5,8 @@
 @inject ManifestService Manifest
 @inject DiSkyAtlas.Services.Docs.DocsService Docs
 @inject NavigationManager Nav
+@inject DiSkyAtlas.Services.Ai.AskService Ask
+@inject Microsoft.Extensions.Options.IOptionsMonitor<DiSkyAtlas.Services.Ai.AiOptions> AiOptions
 @implements IDisposable
 
 <nav class="sidebar @(Open ? "open" : "")" aria-label="Primary">
@@ -13,6 +15,16 @@
         <span>Search…</span>
         <span class="kbd">⌘K</span>
     </button>
+
+    @* Only rendered when the assistant can actually answer (kill-switch + key). *@
+    @if (AiOptions.CurrentValue.Enabled && Ask.HasApiKey)
+    {
+        <a class="side-ask @(string.Equals(_activeId, "ask", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+           href="/ask" @onclick="NavigatedAsync">
+            <LucideIcon aria-hidden="true" Name="sparkles" />
+            <span>Ask AI</span>
+        </a>
+    }
 
     @if (Docs.HasDocs)
     {

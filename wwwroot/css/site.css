@@ -894,3 +894,101 @@ html:not(.dark) .chip-doc { color: var(--blurple-600); }
 @media (max-width: 700px) {
   .sort-seg { width: 100%; justify-content: space-between; }
 }
+
+/* ============================================================================
+   Ask AI (/ask): the glowing sidebar entry and the ask page — question box,
+   live tool timeline, rendered answer. The glow animation is neutralized by
+   the prefers-reduced-motion block above.
+   ========================================================================== */
+.side-ask {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 7px 10px; margin-bottom: 14px;
+  border: 1px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--primary) 8%, var(--bg-raised));
+  color: var(--link); font-size: 13px; font-family: var(--font-sans);
+  text-decoration: none;
+  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--primary) 25%, transparent);
+  animation: ask-glow 3s var(--ease) infinite alternate;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+@keyframes ask-glow {
+  from { box-shadow: 0 0 8px 0 color-mix(in srgb, var(--primary) 20%, transparent); }
+  to   { box-shadow: 0 0 18px 3px color-mix(in srgb, var(--primary) 40%, transparent); }
+}
+.side-ask:hover, .side-ask.active {
+  border-color: color-mix(in srgb, var(--primary) 70%, transparent);
+  background: color-mix(in srgb, var(--primary) 14%, var(--bg-raised));
+}
+.side-ask > svg { width: 14px; height: 14px; }
+
+/* Question box. */
+.ask-form {
+  border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+  background: var(--bg-raised); padding: 10px 12px; margin-bottom: 18px;
+}
+.ask-form:focus-within { border-color: var(--ring); }
+.ask-input {
+  width: 100%; border: 0; background: none; resize: vertical;
+  color: var(--fg); font-family: var(--font-sans); font-size: 14px; line-height: 1.5;
+  min-height: 60px; outline: none;
+}
+.ask-input::placeholder { color: var(--fg-faint); }
+.ask-form-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ask-count { font-family: var(--font-mono); font-size: 11px; color: var(--fg-faint); }
+.ask-btn-idle, .ask-btn-busy { display: inline-flex; align-items: center; gap: 6px; }
+.ask-btn-idle svg { width: 14px; height: 14px; }
+
+/* Alerts (disabled / quota / error states). */
+.ask-alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  border: 1px solid color-mix(in srgb, var(--amber-500, #f59e0b) 40%, transparent);
+  border-radius: var(--radius); background: color-mix(in srgb, var(--amber-500, #f59e0b) 8%, var(--bg-raised));
+  color: var(--fg); font-size: 13.5px; padding: 10px 12px; margin-bottom: 18px;
+}
+.ask-alert svg { width: 15px; height: 15px; flex: none; margin-top: 1px; color: var(--amber-500, #f59e0b); }
+
+/* Example questions shown on the empty page. */
+.ask-suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.ask-suggestion {
+  border: 1px solid var(--border-strong); border-radius: 999px;
+  background: var(--bg-raised); color: var(--fg-muted);
+  font-family: var(--font-sans); font-size: 12.5px; padding: 6px 12px; cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.ask-suggestion:hover { color: var(--link); border-color: color-mix(in srgb, var(--primary) 50%, transparent); }
+
+/* Live tool timeline: one row per lookup, spinner on the running step. */
+.ask-steps {
+  border: 1px solid var(--border); border-left: 3px solid color-mix(in srgb, var(--primary) 55%, transparent);
+  border-radius: var(--radius); background: var(--bg-raised);
+  padding: 8px 12px; margin-bottom: 18px;
+}
+.ask-steps ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.ask-step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-muted); }
+.ask-step.running { color: var(--fg); }
+.ask-step.done { color: var(--fg-faint); }
+.ask-step-icon { display: inline-flex; width: 15px; justify-content: center; flex: none; }
+.ask-step-icon svg { width: 13px; height: 13px; }
+.ask-step.done .ask-step-icon svg { color: var(--emerald-500, #10b981); }
+.ask-step-label { font-family: var(--font-sans); }
+.ask-steps-toggle {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 0; background: none; color: var(--fg-faint); cursor: pointer;
+  font-family: var(--font-sans); font-size: 12px; padding: 2px 0;
+}
+.ask-steps-toggle:hover { color: var(--fg); }
+.ask-steps-toggle svg { width: 13px; height: 13px; }
+.ask-steps.done { padding: 6px 12px; }
+
+.ask-spinner {
+  width: 12px; height: 12px; flex: none; border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  border-top-color: var(--primary);
+  animation: ask-spin 0.7s linear infinite;
+}
+@keyframes ask-spin { to { transform: rotate(360deg); } }
+
+/* Answer + footer. */
+.ask-answer { margin-bottom: 10px; }
+.ask-foot { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-faint); margin-bottom: 40px; }

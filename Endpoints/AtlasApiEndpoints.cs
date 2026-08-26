@@ -376,39 +376,39 @@ public static class AtlasApiEndpoints
         // ---- AI assistant --------------------------------------------------
         // Mapped outside the group: a paid POST must not inherit the shared
         // ETag/Cache-Control/304 filter, and it has its own stricter policy.
-        app.MapPost("/api/v1/ask", async (AskRequest? body, AskService ask, AiBudget budget, AiChatLog chatLog,
-            AiIpQuota ipQuota, IOptionsMonitor<AiOptions> aiOptions, ManifestService manifest,
+        app.MapPost("/api/v1/ask", async (AskRequest? body, AskService ask, AskGuards guards, AiChatLog chatLog,
+            IOptionsMonitor<AiOptions> aiOptions, ManifestService manifest,
             HttpContext http, CancellationToken ct) =>
         {
             var opts = aiOptions.CurrentValue;
-            if (!opts.Enabled || !ask.HasApiKey)
-                return NotFoundMd(manifest, "The AI assistant is currently disabled. The rest of the API remains available.", 503);
-            if (!budget.CanSpend(opts.WeeklyBudgetUsd))
-                return NotFoundMd(manifest, "The AI assistant reached its weekly budget; try again next week. The rest of the API remains available.", 503);
-
             var question = body?.Question?.Trim();
-            if (string.IsNullOrEmpty(question))
-                return NotFoundMd(manifest, "Missing question. POST JSON: {\"question\": \"...\"}.", 400);
-            if (question.Length > opts.MaxQuestionChars)
-                return NotFoundMd(manifest, $"Question too long (max {opts.MaxQuestionChars} characters).", 400);
-
             var ip = http.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-            if (!ipQuota.TryTake(ip, opts.PerIpPerDay))
+
+            // The per-minute layer is the HTTP "ask" rate-limiter policy on this endpoint.
+            var refusal = guards.TryBegin(question, ip, includeMinuteLayer: false);
+            switch (refusal)
             {
-                http.Response.Headers.RetryAfter = "86400";
-                return NotFoundMd(manifest, $"Daily question quota reached ({opts.PerIpPerDay}/day per IP).", 429);
-            }
-            if (!ask.TryEnter())
-            {
-                http.Response.Headers.RetryAfter = "10";
-                return NotFoundMd(manifest, "The assistant is busy; retry in a few seconds.", 429);
+                case AskRefusal.Disabled:
+                    return NotFoundMd(manifest, "The AI assistant is currently disabled. The rest of the API remains available.", 503);
+                case AskRefusal.Budget:
+                    return NotFoundMd(manifest, "The AI assistant reached its weekly budget; try again next week. The rest of the API remains available.", 503);
+                case AskRefusal.MissingQuestion:
+                    return NotFoundMd(manifest, "Missing question. POST JSON: {\"question\": \"...\"}.", 400);
+                case AskRefusal.TooLong:
+                    return NotFoundMd(manifest, $"Question too long (max {opts.MaxQuestionChars} characters).", 400);
+                case AskRefusal.DailyQuota:
+                    http.Response.Headers.RetryAfter = "86400";
+                    return NotFoundMd(manifest, $"Daily question quota reached ({opts.PerIpPerDay}/day per IP).", 429);
+                case AskRefusal.Busy:
+                    http.Response.Headers.RetryAfter = "10";
+                    return NotFoundMd(manifest, "The assistant is busy; retry in a few seconds.", 429);
             }
 
             try
             {
-                var result = await ask.AskAsync(question, ct);
+                var result = await ask.AskAsync(question!, ct);
                 chatLog.Write(new AiChatRecord(
-                    DateTime.UtcNow, AiChatLog.HashIp(ip), result.Stats.Model, question, result.Answer,
+                    DateTime.UtcNow, AiChatLog.HashIp(ip), result.Stats.Model, question!, result.Answer,
                     result.Stats.Rounds, result.Stats.ToolCalls,
                     result.Stats.PromptTokens, result.Stats.CompletionTokens,
                     result.Stats.PromptTokens + result.Stats.CompletionTokens,

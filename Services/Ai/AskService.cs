@@ -66,7 +66,9 @@ public sealed class AskService(
 
     public void Exit() => Interlocked.Decrement(ref _inFlight);
 
-    public async Task<AskResult> AskAsync(string question, CancellationToken ct)
+    /// <param name="onEvent">Optional live-progress callback (the /ask page's tool timeline);
+    /// invoked from the request loop, so Blazor callers must marshal to the renderer.</param>
+    public async Task<AskResult> AskAsync(string question, CancellationToken ct, Action<AskEvent>? onEvent = null)
     {
         var opts = options.CurrentValue;
         var stopwatch = Stopwatch.StartNew();
@@ -87,6 +89,8 @@ public sealed class AskService(
         {
             for (rounds = 1; rounds <= opts.MaxToolRounds; rounds++)
             {
+                onEvent?.Invoke(new AskEvent(AskEventKind.Thinking, rounds, null, null));
+
                 // Last round: tool_choice "none" forces a final answer from what was gathered.
                 var response = await CallOpenRouter(messages, opts, allowTools: rounds < opts.MaxToolRounds, ct);
 
@@ -109,6 +113,7 @@ public sealed class AskService(
                         var name = function?["name"]?.GetValue<string>() ?? "";
                         var args = function?["arguments"]?.GetValue<string>() ?? "{}";
                         toolCalls.Add(new AiToolCall(name, Truncate(args, 500)));
+                        onEvent?.Invoke(new AskEvent(AskEventKind.Tool, rounds, name, args));
 
                         string result;
                         try
@@ -119,6 +124,7 @@ public sealed class AskService(
                         {
                             result = $"Tool error: {e.Message}";
                         }
+                        onEvent?.Invoke(new AskEvent(AskEventKind.ToolDone, rounds, name, args));
 
                         messages.Add(new JsonObject
                         {
@@ -358,6 +364,19 @@ public sealed class AskService(
 
 /// <summary>Outcome of one assistant conversation: "ok", "error" or "timeout".</summary>
 public sealed record AskResult(string Outcome, string? Answer, AskStats Stats);
+
+/// <summary>A live-progress event emitted while a conversation runs (the /ask page's timeline).</summary>
+public sealed record AskEvent(AskEventKind Kind, int Round, string? Tool, string? Args);
+
+public enum AskEventKind
+{
+    /// <summary>An OpenRouter round is in flight (where the wall-clock time goes).</summary>
+    Thinking,
+    /// <summary>The model requested a tool call (about to execute).</summary>
+    Tool,
+    /// <summary>The tool call executed; its result is being fed back.</summary>
+    ToolDone
+}
 
 /// <summary>Real usage numbers for one conversation, accumulated over every OpenRouter round.</summary>
 public sealed record AskStats(
