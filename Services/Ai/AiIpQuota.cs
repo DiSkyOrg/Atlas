@@ -26,6 +26,12 @@ public sealed class AiIpQuota
         return entry.Count <= perDay;
     }
 
+    /// <summary>Read-only peek at today's usage (the /ask page's "N left" display).</summary>
+    public int UsedToday(string key) =>
+        _counts.TryGetValue(key, out var entry) && entry.Day == DateOnly.FromDateTime(DateTime.UtcNow)
+            ? entry.Count
+            : 0;
+
     /// <summary>
     /// Per-minute layer for callers that bypass the HTTP "ask" rate-limiter policy —
     /// Blazor circuits talk over SignalR, which never traverses that middleware.

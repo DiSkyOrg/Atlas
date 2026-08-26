@@ -11,6 +11,7 @@
 @inject AskService Assistant
 @inject AskGuards Guards
 @inject AiChatLog ChatLog
+@inject AiIpQuota Quota
 @inject IOptionsMonitor<AiOptions> Options
 @inject DocComponentRegistry Registry
 @inject IHttpContextAccessor HttpAccessor
@@ -55,7 +56,7 @@
                       disabled="@_busy"></textarea>
             <div class="ask-form-foot">
                 <span class="ask-count">@(_question.Length)/@Options.CurrentValue.MaxQuestionChars</span>
-                <BbButton OnClick="SubmitAsync" Disabled="@(_busy || _question.Trim().Length == 0)">
+                <BbButton OnClick="SubmitAsync" Disabled="@(_busy || _question.Trim().Length == 0 || QuestionsLeft == 0)">
                     @if (_busy)
                     {
                         <span class="ask-btn-busy"><span class="ask-spinner"></span> Answering…</span>
@@ -66,6 +67,14 @@
                     }
                 </BbButton>
             </div>
+        </div>
+
+        <div class="ask-quota">
+            <LucideIcon aria-hidden="true" Name="clock" />
+            <span>
+                @QuestionsLeft of @Options.CurrentValue.PerIpPerDay daily question@(Options.CurrentValue.PerIpPerDay == 1 ? "" : "s") left
+                · resets in @UntilDailyReset (UTC midnight)
+            </span>
         </div>
 
         @if (_error is not null)
@@ -138,6 +147,36 @@
                 </div>
             }
         }
+
+        @* Shared across visitors: someone may already have asked your question. *@
+        @if (_recent.Count > 0)
+        {
+            <div class="ask-recent">
+                <div class="ask-recent-head">
+                    <LucideIcon aria-hidden="true" Name="history" />
+                    <span>Recent answers</span>
+                </div>
+                @foreach (var record in _recent)
+                {
+                    var r = record;
+                    var open = _openRecent == RecentKey(r);
+                    <div class="ask-recent-item @(open ? "open" : "")">
+                        <button type="button" class="ask-recent-q" @onclick="() => ToggleRecent(r)">
+                            <LucideIcon aria-hidden="true" Name="@(open ? "chevron-down" : "chevron-right")" />
+                            <span class="ask-recent-text">@r.Question</span>
+                            <span class="ask-recent-meta">@RelativeTime(r.At)</span>
+                        </button>
+                        @if (open)
+                        {
+                            <div class="ask-recent-a">
+                                <DiSkyAtlas.Components.Docs.DocMarkdown Page="RecentPage(r)" />
+                                <div class="ask-foot">@r.ToolCalls.Count lookup(s) · @r.Model</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
     }
 </div>
 
@@ -160,6 +199,9 @@
     private AskStats? _stats;
     private CancellationTokenSource? _cts;
     private MarkdownPipeline? _pipeline;
+    private IReadOnlyList<AiChatRecord> _recent = [];
+    private readonly Dictionary<string, DocPage> _recentPages = new(StringComparer.Ordinal);
+    private string? _openRecent;
 
     private sealed class Step
     {
@@ -172,10 +214,25 @@
 
     private int LookupCount => _steps.Count(s => s.Icon != "brain");
 
-    protected override void OnInitialized() =>
+    private int QuestionsLeft =>
+        Math.Max(0, Options.CurrentValue.PerIpPerDay - Quota.UsedToday(_ip ?? _circuitKey));
+
+    private static string UntilDailyReset
+    {
+        get
+        {
+            var left = DateTime.UtcNow.Date.AddDays(1) - DateTime.UtcNow;
+            return left.TotalHours >= 1 ? $"{(int)left.TotalHours} h {left.Minutes:00} min" : $"{left.Minutes} min";
+        }
+    }
+
+    protected override void OnInitialized()
+    {
         // Non-null during the initial (prerender) request; SignalR reconnects fall back to
         // the per-circuit key so quota buckets never collapse into a shared "unknown".
         _ip ??= HttpAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+        _recent = ChatLog.RecentDistinct(5);
+    }
 
     private Task UseSuggestionAsync(string suggestion)
     {
@@ -199,7 +256,7 @@
                 AskRefusal.Budget => "The assistant reached its weekly budget — try again next week.",
                 AskRefusal.MissingQuestion => "Type a question first.",
                 AskRefusal.TooLong => $"Question too long (max {opts.MaxQuestionChars} characters).",
-                AskRefusal.MinuteQuota => "Easy there — a few questions per minute at most. Retry shortly.",
+                AskRefusal.MinuteQuota => $"Easy there — {opts.PerIpPerMinute} question(s) per minute at most. Retry in {60 - DateTime.UtcNow.Second} s.",
                 AskRefusal.DailyQuota => $"Daily quota reached ({opts.PerIpPerDay} questions/day).",
                 _ => "The assistant is busy; retry in a few seconds."
             };
@@ -231,6 +288,7 @@
                 _stats = result.Stats;
                 _answerPage = BuildAnswerPage(result.Answer);
                 foreach (var step in _steps) step.Done = true;
+                _recent = ChatLog.RecentDistinct(5);
             }
             else
             {
@@ -282,6 +340,28 @@
             "read_doc" => new Step { Icon = "file-text", Label = $"Reading doc {Arg("slug")}" },
             _ => new Step { Icon = "wrench", Label = tool }
         };
+    }
+
+    private static string RecentKey(AiChatRecord r) => $"{r.At.Ticks}-{r.Question}";
+
+    private void ToggleRecent(AiChatRecord r) =>
+        _openRecent = _openRecent == RecentKey(r) ? null : RecentKey(r);
+
+    private DocPage RecentPage(AiChatRecord r)
+    {
+        var key = RecentKey(r);
+        if (!_recentPages.TryGetValue(key, out var page))
+            _recentPages[key] = page = BuildAnswerPage(r.Answer ?? "");
+        return page;
+    }
+
+    private static string RelativeTime(DateTime atUtc)
+    {
+        var age = DateTime.UtcNow - atUtc;
+        return age.TotalMinutes < 1 ? "just now"
+            : age.TotalHours < 1 ? $"{(int)age.TotalMinutes} min ago"
+            : age.TotalDays < 1 ? $"{(int)age.TotalHours} h ago"
+            : $"{(int)age.TotalDays} d ago";
     }
 
     private DocPage BuildAnswerPage(string markdown)
